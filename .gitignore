@@ -1,0 +1,21 @@
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Docs ###
+docs/java/
+
+### Output ###
+out/artifacts/
+
+### Resources ###
+/src/main/resources/META-INF/
+/src/main/resources/config.json
+
+### Target ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
