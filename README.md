@@ -5,7 +5,7 @@
 
 
 ## Description
-AniLink-Downloader is a tool specifically designed to download and extract`.mkv` files from single or multipart `.rar` archives (which may be password-protected). 
+AniLink-Downloader is a tool specifically designed to download and extract `.mkv` files from single or multipart `.rar` archives (which may be password-protected). 
 If no password is required, the configured password will simply be ignored.
 
 It:
