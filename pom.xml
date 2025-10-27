@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>AniLink-Downloader</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -28,14 +28,14 @@
         <dependency>
             <groupId>de.MCmoderSD</groupId>
             <artifactId>Debrid-Link-API</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.5</version>
         </dependency>
 
-        <!-- Json -->
+        <!-- JSON -->
         <dependency>
             <groupId>de.MCmoderSD</groupId>
             <artifactId>JsonUtility</artifactId>
-            <version>1.3.1</version>
+            <version>1.3.4</version>
         </dependency>
 
     </dependencies>

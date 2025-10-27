@@ -1,11 +1,16 @@
 package de.MCmoderSD.utilities;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.MCmoderSD.enums.Language;
 import de.MCmoderSD.objects.SubStream;
 
-import java.io.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +161,7 @@ public class SubtitleExtractor {
         // Generate Subtitle Streams
         ArrayList<SubStream> subStreams = new ArrayList<>();
         for (var track : tracks) {
-            if (!track.get("type").asText().equalsIgnoreCase("subtitles")) continue;
+            if (!track.get("type").asString().equalsIgnoreCase("subtitles")) continue;
 
             // Create SubStream object
             SubStream subStream = new SubStream(track);

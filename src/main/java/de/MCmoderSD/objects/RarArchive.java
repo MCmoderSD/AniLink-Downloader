@@ -2,7 +2,14 @@ package de.MCmoderSD.objects;
 
 import de.MCmoderSD.debrid.objects.Download;
 
-import java.io.*;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,8 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static de.MCmoderSD.main.Main.PASSWORD;
-import static de.MCmoderSD.main.Main.SEVEN_ZIP_PATH;
+import static de.MCmoderSD.main.Main.*;
 import static de.MCmoderSD.utilities.Helper.*;
 
 public record RarArchive(ArrayList<Download> downloads) {

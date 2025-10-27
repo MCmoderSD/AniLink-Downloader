@@ -1,9 +1,10 @@
 package de.MCmoderSD.main;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import de.MCmoderSD.core.Loader;
 import de.MCmoderSD.json.JsonUtility;
 import de.MCmoderSD.utilities.SubtitleExtractor;
+
+import tools.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +16,7 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static de.MCmoderSD.utilities.DirectoryCleaner.deleteEmptyDirectory;
-import static de.MCmoderSD.utilities.DirectoryCleaner.moveFilesRecursively;
+import static de.MCmoderSD.utilities.DirectoryCleaner.*;
 import static de.MCmoderSD.utilities.Helper.*;
 
 public class Main {
@@ -48,13 +48,17 @@ public class Main {
             throw new RuntimeException("Failed to load config.json: " + e.getMessage(), e);
         }
 
+        // Check Config
+        if (config == null || config.isNull() || config.isEmpty()) throw new RuntimeException("config.json is empty or invalid!");
+        if (!config.has("apikey") || config.get("apikey").isNull() || !config.get("apikey").isString()) throw new RuntimeException("API key is missing or invalid in config.json!");
+
         // Set Constats from Config
-        String apikey = config.get("apikey").asText();
-        if (config.has("debug")) DEBUG = config.get("debug").asBoolean();
-        if (config.has("delay")) DELAY = config.get("delay").asLong();
-        if (config.has("7zip")) SEVEN_ZIP_PATH = config.get("7zip").asText();
-        if (config.has("mkvToolNix")) MKV_TOOL_NIX_PATH = config.get("mkvToolNix").asText();
-        if (config.has("password")) PASSWORD = config.get("password").asText();
+        String apikey = config.get("apikey").asString();
+        if (config.has("debug") && !config.get("debug").isNull() && config.get("debug").isBoolean()) DEBUG = config.get("debug").asBoolean();
+        if (config.has("delay") && !config.get("delay").isNull() && config.get("delay").isNumber()) DELAY = config.get("delay").asLong();
+        if (config.has("7zip") && !config.get("7zip").isNull() && config.get("7zip").isString()) SEVEN_ZIP_PATH = config.get("7zip").asString();
+        if (config.has("mkvToolNix") && !config.get("mkvToolNix").isNull() && config.get("mkvToolNix").isString()) MKV_TOOL_NIX_PATH = config.get("mkvToolNix").asString();
+        if (config.has("password") && !config.get("password").isNull() && config.get("password").isString()) PASSWORD = config.get("password").asString();
 
         // Help Command
         if (containsArg(argList, "--help", "-h")) {

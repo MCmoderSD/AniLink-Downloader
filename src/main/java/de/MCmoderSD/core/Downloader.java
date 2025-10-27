@@ -1,6 +1,6 @@
 package de.MCmoderSD.core;
 
-import de.MCmoderSD.debrid.core.API;
+import de.MCmoderSD.debrid.core.DebridAPI;
 import de.MCmoderSD.debrid.objects.Download;
 import de.MCmoderSD.objects.VideoFile;
 import de.MCmoderSD.utilities.SubtitleExtractor;
@@ -12,14 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static de.MCmoderSD.main.Main.DELAY;
-import static de.MCmoderSD.main.Main.MKV_TOOL_NIX_PATH;
+import static de.MCmoderSD.main.Main.*;
 import static de.MCmoderSD.utilities.Helper.holdUp;
 
 public class Downloader {
 
     // Attributes
-    private final API api;
+    private final DebridAPI debridAPI;
     private final SubtitleExtractor subtitleExtractor;
     private final ArrayList<VideoFile> completed;
     private final ArrayList<VideoFile> failed;
@@ -28,7 +27,7 @@ public class Downloader {
     public Downloader(String apiKey) {
 
         // Initialize Debrid API
-        api = new API(apiKey);
+        debridAPI = new DebridAPI(apiKey);
 
         // Initialize Subtitle Extractor
         subtitleExtractor = SubtitleExtractor.init(new File(MKV_TOOL_NIX_PATH));
@@ -53,7 +52,7 @@ public class Downloader {
             ArrayList<Download> downloads = new ArrayList<>();
             for (String link : parts) {
                 try {
-                    downloads.add(api.addDownload(link));
+                    downloads.add(debridAPI.addDownload(link));
                     holdUp(DELAY);
                 } catch (IOException | URISyntaxException e) {
                     failed.add(new VideoFile(episode.substring(1), downloads));

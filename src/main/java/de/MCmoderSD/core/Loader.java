@@ -5,8 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static de.MCmoderSD.utilities.LinkProcessor.determineSeasonFormat;
-import static de.MCmoderSD.utilities.LinkProcessor.processLinks;
+import static de.MCmoderSD.utilities.LinkProcessor.*;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class Loader {
