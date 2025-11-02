@@ -12,7 +12,7 @@ permissions:
   packages: write
 
 jobs:
-  deploy:
+  build-and-release:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'release') || contains(github.event.head_commit.message, 'Release')
 
@@ -87,7 +87,7 @@ jobs:
 
       - name: Calculate Hashes
         run: |
-          FILE=target/${{ env.artifact }}.jar
+          FILE=target/${{ env.artifact }}-*-shaded.jar
           MD5=$(md5sum "$FILE" | cut -d ' ' -f 1)
           SHA1=$(sha1sum "$FILE" | cut -d ' ' -f 1)
           SHA256=$(sha256sum "$FILE" | cut -d ' ' -f 1)
