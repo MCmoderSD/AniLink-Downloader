@@ -22,7 +22,7 @@ import static de.MCmoderSD.utilities.Helper.*;
 public class Main {
 
     // Version
-    public static final String VERSION = "1.0.1";                               // Version of the
+    public static final String VERSION = "1.0.2";                               // Version
 
     // Constants
     public static boolean DEBUG = false;                                        // Default False

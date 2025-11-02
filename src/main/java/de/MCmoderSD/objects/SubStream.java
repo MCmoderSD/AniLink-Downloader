@@ -18,7 +18,7 @@ public class SubStream {
 
         // Check subStream
         if (subStream == null || subStream.isNull() || subStream.isEmpty()) throw new IllegalArgumentException("SubStream JSON node is null or empty");
-        if (!subStream.has("id") || subStream.get("id").isNull() || subStream.get("id").isNumber()) throw new IllegalArgumentException("SubStream JSON node is missing 'id' or it is not a number");
+        if (!subStream.has("id") || subStream.get("id").isNull() || !subStream.get("id").isNumber()) throw new IllegalArgumentException("SubStream JSON node is missing 'id' or it is not a number");
         if (!subStream.has("properties") || subStream.get("properties").isNull() || !subStream.get("properties").isObject()) throw new IllegalArgumentException("SubStream JSON node is missing 'properties' or it is not an object");
 
         // Parse subStream
