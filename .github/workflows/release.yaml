@@ -9,12 +9,11 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'release') || contains(github.event.head_commit.message, 'Release')
+    if: contains(github.event.head_commit.message, 'Release') || contains(github.event.head_commit.message, 'release') || github.event_name == 'workflow_dispatch'
 
     steps:
 
@@ -44,6 +43,11 @@ jobs:
 
       - name: Build and Deploy
         run: mvn clean install package -U
+
+      - name: Clean up target
+        run: |
+          mv target/${{ env.artifact }}-shaded.jar ${{ env.artifact }}.jar
+          rm -rf target
 
       - name: Install GitHub CLI
         run: sudo apt update && sudo apt upgrade -y && sudo apt install -y gh
@@ -87,7 +91,7 @@ jobs:
 
       - name: Calculate Hashes
         run: |
-          FILE=target/${{ env.artifact }}-${{ env.version }}-shaded.jar
+          FILE=${{ env.artifact }}.jar
           MD5=$(md5sum "$FILE" | cut -d ' ' -f 1)
           SHA1=$(sha1sum "$FILE" | cut -d ' ' -f 1)
           SHA256=$(sha256sum "$FILE" | cut -d ' ' -f 1)
@@ -97,7 +101,7 @@ jobs:
           echo "file=$FILE" >> $GITHUB_ENV
 
       - name: Create new release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.2.1
         with:
           files: ${{ env.file }}
           tag_name: ${{ env.version }}
