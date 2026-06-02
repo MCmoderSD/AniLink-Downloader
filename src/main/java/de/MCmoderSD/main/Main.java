@@ -76,6 +76,7 @@ public class Main {
             System.out.println("  --apikey,         -a      Override API key");
             System.out.println("  --import,         -i      Import files from a text file");
             System.out.println("  --manual,         -m      Run in manual mode");
+            System.out.println("  --movie,         -mv      Run in movie mode");
             System.exit(0);
         }
 
@@ -228,7 +229,8 @@ public class Main {
                 System.out.println("Importing from file: " + filePath);
 
                 // Run import mode
-                importMode(new File(filePath));
+                // false -> not a movie | true -> is a movie
+                importMode(new File(filePath), false);
                 return;
             }
         }
@@ -237,6 +239,24 @@ public class Main {
         if (containsArg(argList, "--manual", "-m")) {
             manualMode();
             return;
+        }
+
+        // Movie Mode
+        if (containsArg(argList, "--movie", "-mv")) {
+            var argIndex = 0;
+            if (argList.contains("--movie")) argIndex = argList.indexOf("--movie");
+            else if (argList.contains("-mv")) argIndex = argList.indexOf("-mv");
+            if (argIndex + 1 < argList.size()) {
+
+                // Parse file path
+                String filePath = argList.get(argIndex + 1);
+                System.out.println("Importing from file: " + filePath);
+
+                // Run movie mode
+                // false -> not a movie | true -> is a movie
+                importMode(new File(filePath), true);
+                return;
+            }
         }
 
         // Default Mode
@@ -298,7 +318,7 @@ public class Main {
         System.out.println("Completed: " + completedThreads.get() + " | Failed: " + failedThreads.get());
     }
 
-    private static void importMode(File inputFile) {
+    private static void importMode(File inputFile, boolean isMovie) {
 
         // Check if file exists
         try {
@@ -313,6 +333,14 @@ public class Main {
             lines = new ArrayList<>(Files.readAllLines(inputFile.toPath()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read file: " + inputFile.getAbsolutePath() + ". Error: " + e.getMessage(), e);
+        }
+
+        if (isMovie) {
+            // TODO additional movie dl logic
+
+            System.out.println("Movie mode activated!!!");
+
+            loader.load("Movie", lines);
         }
 
         // Check if lines are empty
