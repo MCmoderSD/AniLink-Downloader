@@ -336,11 +336,15 @@ public class Main {
         }
 
         if (isMovie) {
-            // TODO additional movie dl logic
+            System.out.println("Movie mode activated");
 
-            System.out.println("Movie mode activated!!!");
+            ArrayList<String> movieLines = new ArrayList<>();
+            // Forces the movie to "have 1 episode" in order to only create 1 mkv file
+            movieLines.add("1");
+            movieLines.addAll(lines);
 
-            loader.load("Movie", lines);
+            loader.load(null, movieLines);
+            return;
         }
 
         // Check if lines are empty
