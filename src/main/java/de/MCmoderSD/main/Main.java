@@ -14,7 +14,7 @@ public class Main {
     public static final String VERSION = "1.1.0";
 
     // Constants
-    public static final long DELAY = 250;                           // Recommended 250ms
+    public static final long DELAY = 500;                           // Recommended 500ms
     public static final String PASSWORD = "www.anime-loads.org";    // Default Anime-Loads.org Password
 
     // Main Method
@@ -153,6 +153,9 @@ public class Main {
 
             // Add to movies
             movies.put(name, links);
+
+            // Log Movie
+            IO.println("Added Movie: " + name + " with " + links.size() + " links");
         }
 
         // Parse Inputs
