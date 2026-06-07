@@ -1,13 +1,14 @@
 package de.MCmoderSD.utilities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-import static de.MCmoderSD.utilities.Helper.NUMBERS;
-
 public class LinkProcessor {
+
+    public static final ArrayList<Character> NUMBERS = new ArrayList<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'));
 
     public static String determineSeasonFormat(ArrayList<String> links) {
 
@@ -18,9 +19,6 @@ public class LinkProcessor {
             if (lastSlash != -1 && lastSlash < link.length() - 1) filenames.add(link.substring(lastSlash + 1));
         }
 
-        // Prefix
-        if (filenames.isEmpty()) throw new IllegalArgumentException("No valid filenames found in the provided links.");
-
         // Find the longest common prefix
         String prefix = filenames.getFirst();
         for (var i = 1; i < filenames.size(); i++) {
@@ -30,20 +28,19 @@ public class LinkProcessor {
             }
         }
 
-        // Return Prefix
         return prefix;
     }
 
-    public static HashMap<String, ArrayList<String>> processLinks(String seasonFormat, ArrayList<String> links) {
+    public static HashMap<String, ArrayList<String>> processEpisodes(String prefix, ArrayList<String> links) {
 
         // Variables
-        HashMap<String, ArrayList<String>> episodeParts = new HashMap<>();
+        HashMap<String, ArrayList<String>> episodes = new HashMap<>();
 
         // Process links
         for (String link : links) {
 
             // Filter Season Format
-            String episode = link.substring(link.indexOf(seasonFormat) + seasonFormat.length());
+            String episode = link.substring(link.indexOf(prefix) + prefix.length());
 
             // Number index
             var index = 0;
@@ -52,36 +49,33 @@ public class LinkProcessor {
             episode = String.valueOf(Integer.parseInt(episode));    // Remove leading zeros
 
             // Add link to episode
-            if (episodeParts.containsKey(episode)) episodeParts.get(episode).add(link); // Add part
+            if (episodes.containsKey(episode)) episodes.get(episode).add(link); // Add part
             else {
                 ArrayList<String> list = new ArrayList<>();
                 list.add(link);
-                episodeParts.put(episode, list);
+                episodes.put(episode, list);
             }
         }
 
-        // Sort episode parts
-        for (var entry : episodeParts.entrySet()) {
+        // Sort parts for each episode
+        for (var entry : episodes.entrySet()) entry.setValue(sortLinks(entry.getValue()));
 
-            // Skip if there are less than 2 parts
-            if (entry.getValue().size() < 2) continue;
+        // Return episodes
+        return episodes;
+    }
 
-            // Get episode and parts
-            var episode = entry.getKey();
-            var parts = entry.getValue();
+    public static ArrayList<String> sortLinks(ArrayList<String> links) {
 
-            // Sort parts
-            parts.sort(Comparator.comparingInt(url -> {
-                var matcher = Pattern.compile("part(\\d+)").matcher(url);
-                if (matcher.find()) return Integer.parseInt(matcher.group(1));
-                return 0;
-            }));
+        // Skip if there are less than 2 parts
+        if (links.size() < 2) return links;
 
-            // Replace entry with sorted parts
-            episodeParts.replace(episode, parts);
-        }
+        // Sort parts
+        links.sort(Comparator.comparingInt(url -> {
+            var matcher = Pattern.compile("part(\\d+)").matcher(url);
+            if (matcher.find()) return Integer.parseInt(matcher.group(1));
+            return 0;
+        }));
 
-        // Return episode parts
-        return episodeParts;
+        return links;
     }
 }
