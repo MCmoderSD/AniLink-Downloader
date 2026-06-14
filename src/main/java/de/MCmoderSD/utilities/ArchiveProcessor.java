@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
 
+@SuppressWarnings("unused")
 public class ArchiveProcessor {
 
     // Singleton
@@ -81,7 +82,7 @@ public class ArchiveProcessor {
     }
 
     // Callback Class
-    private static class VolumeCallback implements IArchiveOpenVolumeCallback, IArchiveOpenCallback, ICryptoGetTextPassword {
+    private static class VolumeCallback implements IArchiveOpenCallback, IArchiveOpenVolumeCallback, ICryptoGetTextPassword {
 
         // Attributes
         private final File baseDir;
@@ -115,45 +116,66 @@ public class ArchiveProcessor {
             this.firstStream = stream;
         }
 
-        public IInStream getFirstStream() {
-            return firstStream;
+        // IArchiveOpenVolumeCallback Methods
+        @Override public Object getProperty(PropID propID) {
+            return propID == PropID.NAME ? firstName : null;
         }
 
-        @Override
-        public IInStream getStream(String filename) {
+        @Override public IInStream getStream(String filename) {
+
+            // Check if stream is already open
             if (openStreams.containsKey(filename)) return openStreams.get(filename);
 
-            File volumeFile = new File(baseDir, filename);
+            // Construct file path and check existence
+            var volumeFile = new File(baseDir, filename);
             if (!volumeFile.exists()) return null;
 
             try {
+
+                // Open volume file
                 var raf = new RandomAccessFile(volumeFile, "r");
                 openFiles.put(filename, raf);
+
+                // Create stream for volume file
                 var stream = new RandomAccessFileInStream(raf);
                 openStreams.put(filename, stream);
+
+                // Return stream
                 return stream;
             } catch (FileNotFoundException e) {
                 return null;
             }
         }
 
-        @Override
-        public Object getProperty(PropID propID) {
-            return propID == PropID.NAME ? firstName : null;
+        // IArchiveOpenCallback Methods (unused)
+        @Override public void setTotal(Long files, Long bytes) {}
+        @Override public void setCompleted(Long files, Long bytes) {}
+
+        // ICryptoGetTextPassword Method
+        @Override public String cryptoGetTextPassword() {
+            return password == null ? "" : password;
         }
 
-        @Override
-        public String cryptoGetTextPassword() { return password != null ? password : ""; }
+        // Setter
+        public void closeAll() {
 
-        @Override public void setCompleted(Long files, Long bytes) {}
-        @Override public void setTotal(Long files, Long bytes) {}
-
-        void closeAll() {
+            // Close all open streams and files
             openFiles.values().forEach(raf -> {
-                try { raf.close(); } catch (IOException ignored) {}
+                try {
+                    raf.close();
+                } catch (IOException _) {
+                    // Ignore
+                }
             });
+
+            // Clear maps
             openFiles.clear();
             openStreams.clear();
+        }
+
+        // Getter
+        public IInStream getFirstStream() {
+            return firstStream;
         }
     }
 }
