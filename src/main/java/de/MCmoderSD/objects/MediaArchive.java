@@ -1,16 +1,13 @@
 package de.MCmoderSD.objects;
 
-import com.github.junrar.Archive;
-import com.github.junrar.exception.CrcErrorException;
-import com.github.junrar.exception.RarException;
 import de.MCmoderSD.debrid.objects.Download;
 import de.MCmoderSD.enums.MediaType;
+import de.MCmoderSD.utilities.ArchiveProcessor;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.UUID;
+import java.util.*;
 
 import static de.MCmoderSD.main.Main.PASSWORD;
 
@@ -22,6 +19,7 @@ public class MediaArchive {
     private final String name;
     private final Download[] parts;
     private final File partsDir;
+    private final File outputDir;
 
     // Variable
     private MediaType mediaType;
@@ -34,10 +32,12 @@ public class MediaArchive {
         this.name = sanitizeName(name);
         this.path = getArchivePath(name + "_" + UUID.randomUUID());
         this.partsDir = new File(path, "archives");
+        this.outputDir = new File(path, "output");
 
         // Create directories
         if (!path.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + path.getAbsolutePath());
         if (!partsDir.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + partsDir.getAbsolutePath());
+        if (!outputDir.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + outputDir.getAbsolutePath());
     }
 
     // Helper Methods
@@ -61,29 +61,22 @@ public class MediaArchive {
     }
 
     public void extractMedia() {
-        var firstPart = new File(partsDir, parts[0].getName());
-        try (var archive = new Archive(firstPart, PASSWORD)) {
-
-            // Check if the archive contains more than one file
-            if (archive.getFileHeaders().size() > 1) {
-                System.err.println("Warning: More than one file found in the archive: " + name);
-                for (var header : archive.getFileHeaders()) System.err.println(" - " + header.getFileName());
-                throw new RuntimeException("Multiple files found in the archive. Expected only one media file.");
-            }
-
-            // Extract media file
-            var header = archive.getFileHeaders().getFirst();
-            mediaType = MediaType.getMediaType(header.getFileName().substring(header.getFileName().lastIndexOf('.')));
-
-            try (var out = new BufferedOutputStream(new FileOutputStream(new File(path, name + mediaType.getExtension())))) {
-                archive.extractFile(header, out);
-            } catch (RarException e) {
-                if (!(e instanceof CrcErrorException)) throw new RuntimeException("Failed to extract media file: " + e.getMessage(), e);
-            }
-
-        } catch (RarException | IOException e) {
-            throw new RuntimeException("Failed to process RAR archive: " + e.getMessage(), e);
+        try {
+            var firstPart = new File(partsDir, parts[0].getName());
+            ArchiveProcessor.getInstance().extract(firstPart, outputDir, PASSWORD);
+        }  catch (Exception e) {
+            throw new RuntimeException("Failed to extract media archive: " + e.getMessage(), e);
         }
+
+        // Validate extracted files
+        var outFiles = outputDir.listFiles();
+        if (outFiles == null || outFiles.length == 0) throw new RuntimeException("No files found in the extracted archive: " + outputDir.getAbsolutePath());
+        if (outFiles.length > 1) throw new RuntimeException("Multiple files found in the extracted archive. Expected only one media file: " + outputDir.getAbsolutePath());
+        mediaType = MediaType.getMediaType(outFiles[0].getName().substring(outFiles[0].getName().lastIndexOf('.')));
+
+        // Rename the extracted file to match the original name
+        boolean success = outFiles[0].renameTo(new File(path, name + mediaType.getExtension()));
+        if (!success) throw new RuntimeException("Failed to rename media archive: " + outFiles[0].getAbsolutePath());
     }
 
     public MediaFile moveMediaFile(File directory) {

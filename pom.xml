@@ -38,11 +38,17 @@
             <version>1.5.3</version>
         </dependency>
 
-        <!-- RAR -->
+        <!-- SevenZipJBinding -->
         <dependency>
-            <groupId>com.github.junrar</groupId>
-            <artifactId>junrar</artifactId>
-            <version>7.6.0</version>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding</artifactId>
+            <version>16.02-2.01</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.sevenzipjbinding</groupId>
+            <artifactId>sevenzipjbinding-all-platforms</artifactId>
+            <version>16.02-2.01</version>
         </dependency>
 
         <!-- JavaCV -->
