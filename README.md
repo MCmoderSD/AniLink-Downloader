@@ -34,7 +34,13 @@ Since it is Java, it should work on any platform (Windows, macOS, Linux) as long
 <br>
 
 ## Additional Tools
-Since you often need all links for each part of an episode or file, you can use my [TabScraper](https://github.com/MCmoderSD/tabscraper?tab=readme-ov-file) browser extension to scrape all links.
+Some websites may use URL shorteners or redirection services, which can make it difficult to obtain the direct download links. <br>
+Those links often require additional steps to access the actual download links, which can be time-consuming and cumbersome.
+
+You can use my [AniLink-Skipper](https://www.GitHub.com/MCmoderSD/AniLink-Skipper) browser extension to skip those redirection steps and directly access the download links. <br>
+You can install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/anilink-skipper/cohhlekeocnodlohgbfhkmhpjjpccpkb).
+
+Since you often need all links for each part of an episode or file, you can use my [TabScraper](https://www.GitHub.com/MCmoderSD/TabScraper) browser extension to scrape all links. <br>
 You can install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/tab-scraper/ahdhhonppgdiglmppkcjckijelfdalho).
 
 Then simply open each link in a new tab, click the TabScraper icon in the toolbar and enter a regex to filter the links.
@@ -43,7 +49,7 @@ For example, to filter all RapidGator links, you can use:
 ```regexp
 ^https://rapidgator.net/file/.+.(?:part\d+.)?rar(?:.html)?$
 ```
-Then click **Scrape Tabs** and save the links to a text file.
+Then click **Scrape Tabs** and save the links to a text file. <br>
 You can then use this text file with the `--import` argument to process all files.
 
 <br>
