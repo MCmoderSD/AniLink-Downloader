@@ -29,6 +29,8 @@ Only download and process content that is **public domain, self-created, or expl
 - [Java 25](https://www.oracle.com/de/java/technologies/downloads/#java25)
 - [Debrid-Link Premium](https://debrid-link.com/premium)
 
+Since it is Java, it should work on any platform (Windows, macOS, Linux) as long as you have the required Java version installed.
+
 <br>
 
 ## Additional Tools
@@ -54,9 +56,10 @@ You can then use this text file with the `--import` argument to process all file
 ```bash
 java -jar AniLink-Downloader.jar
 ```
-You will be prompted to enter delay (default: 500ms), decryption password, and your Debrid-Link API key.
+You will be prompted to enter delay (default: 500ms), decryption password, and your Debrid-Link API key. <br>
 You will have to enter those values every time you run the script, so if you want to avoid that, you can use [Option 2](#option-2-building-from-source).
 
+<br>
 
 ### Option 2: Building from Source
 
