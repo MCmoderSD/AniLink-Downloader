@@ -41,11 +41,11 @@ public class InputParser {
         } else IO.println("Using provided Season Format: " + prefix + "\n");
 
         // Process Links
-        HashMap<String, ArrayList<String>> episodeParts = processEpisodes(prefix, lines);
+        var episodeParts = processEpisodes(prefix, lines);
         IO.println("Processed " + lines.size() + " links into " + episodeParts.size() + " episodes.\n");
 
         // Create Media Archives
-        ArrayList<MediaArchive> mediaArchives = new ArrayList<>();
+        var mediaArchives = new ArrayList<MediaArchive>();
 
         // Process episodes
         for (var episode : episodeParts.entrySet()) {
@@ -71,10 +71,10 @@ public class InputParser {
         }
 
         // Create Media Files
-        ArrayList<MediaFile> mediaFiles = new ArrayList<>();
+        var mediaFiles = new ArrayList<MediaFile>();
 
         // Create threads for each episode
-        ArrayList<Thread> threads = new ArrayList<>();
+        var threads = new ArrayList<Thread>();
         for (var archive : mediaArchives) threads.add(new Thread(() -> {
 
             // Download & Extract
@@ -111,7 +111,7 @@ public class InputParser {
     public void loadFile(HashMap<String, HashSet<String>> files) {
 
         // Create Media Archives
-        ArrayList<MediaArchive> mediaArchives = new ArrayList<>();
+        var mediaArchives = new ArrayList<MediaArchive>();
 
         // Process files
         IO.println("Processing files\n");
@@ -122,7 +122,7 @@ public class InputParser {
             var downloads = new Download[file.getValue().size()];
 
             // Process links
-            ArrayList<String> links = new ArrayList<>();
+            var links = new ArrayList<String>();
             for (var link : file.getValue()) links.add(link.trim());
             links.removeIf(String::isBlank);
             sortLinks(links);
@@ -143,10 +143,10 @@ public class InputParser {
         }
 
         // Create Media Files
-        ArrayList<MediaFile> mediaFiles = new ArrayList<>();
+        var mediaFiles = new ArrayList<MediaFile>();
 
         // Create threads for each file
-        ArrayList<Thread> threads = new ArrayList<>();
+        var threads = new ArrayList<Thread>();
         for (var archive : mediaArchives) threads.add(new Thread(() -> {
 
             // Download & Extract

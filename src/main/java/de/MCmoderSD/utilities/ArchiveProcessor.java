@@ -58,8 +58,8 @@ public class ArchiveProcessor {
     private static void extractItem(ISimpleInArchiveItem item, File outputDir, String password) throws IOException {
 
         // Sanitize and validate path to prevent path traversal
-        String path = item.getPath().replace("\\", File.separator);
-        File outFile = new File(outputDir, path);
+        var path = item.getPath().replace("\\", File.separator);
+        var outFile = new File(outputDir, path);
 
         // Ensure the output file is within the output directory
         if (!outFile.getCanonicalPath().startsWith(outputDir.getCanonicalPath() + File.separator)) throw new IOException("Path traversal attempt blocked: " + path);

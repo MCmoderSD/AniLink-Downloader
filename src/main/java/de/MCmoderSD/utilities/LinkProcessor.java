@@ -8,19 +8,21 @@ import java.util.regex.Pattern;
 
 public class LinkProcessor {
 
+    // Define valid characters for episode numbers
     public static final ArrayList<Character> NUMBERS = new ArrayList<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'));
 
+    // Determine the common prefix for season format
     public static String determineSeasonFormat(ArrayList<String> links) {
 
         // Extract filenames from URLs
-        ArrayList<String> filenames = new ArrayList<>();
-        for (String link : links) {
+        var filenames = new ArrayList<String>();
+        for (var link : links) {
             var lastSlash = link.lastIndexOf('/');
             if (lastSlash != -1 && lastSlash < link.length() - 1) filenames.add(link.substring(lastSlash + 1));
         }
 
         // Find the longest common prefix
-        String prefix = filenames.getFirst();
+        var prefix = filenames.getFirst();
         for (var i = 1; i < filenames.size(); i++) {
             while (!filenames.get(i).startsWith(prefix)) {
                 prefix = prefix.substring(0, prefix.length() - 1);
@@ -31,13 +33,14 @@ public class LinkProcessor {
         return prefix;
     }
 
+    // Process links into episodes based on the determined prefix
     public static HashMap<String, ArrayList<String>> processEpisodes(String prefix, ArrayList<String> links) {
 
         // Variables
-        HashMap<String, ArrayList<String>> episodes = new HashMap<>();
+        var episodes = new HashMap<String, ArrayList<String>>();
 
         // Process links
-        for (String link : links) {
+        for (var link : links) {
 
             // Filter Season Format
             String episode = link.substring(link.indexOf(prefix) + prefix.length());
@@ -64,6 +67,7 @@ public class LinkProcessor {
         return episodes;
     }
 
+    // Sort links by part number
     public static ArrayList<String> sortLinks(ArrayList<String> links) {
 
         // Skip if there are less than 2 parts

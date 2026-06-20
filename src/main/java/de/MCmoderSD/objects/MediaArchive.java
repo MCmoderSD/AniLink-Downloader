@@ -8,11 +8,15 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static de.MCmoderSD.main.Main.PASSWORD;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class MediaArchive {
+
+    // Static
+    public static final AtomicInteger ARCHIVE_COUNTER = new AtomicInteger(0);
 
     // Attributes
     private final File path;
@@ -30,7 +34,7 @@ public class MediaArchive {
         // Set Attributes
         this.parts = parts;
         this.name = sanitizeName(name);
-        this.path = getArchivePath(name + "_" + UUID.randomUUID());
+        this.path = getArchivePath(name + "_" + ARCHIVE_COUNTER.incrementAndGet() + "-" + ProcessHandle.current().pid());
         this.partsDir = new File(path, "archives");
         this.outputDir = new File(path, "output");
 
@@ -75,7 +79,7 @@ public class MediaArchive {
         mediaType = MediaType.getMediaType(outFiles[0].getName().substring(outFiles[0].getName().lastIndexOf('.')));
 
         // Rename the extracted file to match the original name
-        boolean success = outFiles[0].renameTo(new File(path, name + mediaType.getExtension()));
+        var success = outFiles[0].renameTo(new File(path, name + mediaType.getExtension()));
         if (!success) throw new RuntimeException("Failed to rename media archive: " + outFiles[0].getAbsolutePath());
     }
 
