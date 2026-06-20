@@ -1,18 +1,11 @@
 ### IntelliJ IDEA ###
 .idea/
 
-### Maven ###
-.mvn/
-
-### Docs ###
-docs/java/
-
 ### Output ###
 out/artifacts/
 
 ### Resources ###
-/src/main/resources/META-INF/
-/src/main/resources/config.json
+src/main/resources/
 
 ### Target ###
 target/
