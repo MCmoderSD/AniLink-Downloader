@@ -11,7 +11,7 @@ import java.util.*;
 public class Main {
 
     // Version
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.0.1";
 
     // Config
     public static long DELAY;
