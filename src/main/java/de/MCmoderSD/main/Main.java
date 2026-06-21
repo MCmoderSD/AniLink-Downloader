@@ -11,7 +11,7 @@ import java.util.*;
 public class Main {
 
     // Version
-    public static final String VERSION = "2.0.1";
+    public static final String VERSION = "2.0.2";
 
     // Config
     public static long DELAY;
@@ -39,15 +39,12 @@ public class Main {
 
         // Check for modes
         switch (!arguments.isEmpty() ? arguments.getFirst().toLowerCase() : "") {
+            case "--version", "-v" -> System.exit(0);
             case "--manual", "-m" -> manualMode(inputParser);
             case "--movie", "-mo" -> movieMode(workDir, inputParser);
             case "--input", "-i" -> {
                 if (arguments.size() == 2) inputMode(arguments.get(1), inputParser);
                 else throw new IllegalArgumentException("Input mode requires a file path argument. Usage: --input <file_path>");
-            }
-            case "--version", "-v" -> {
-                IO.println("AniLink-Downloader v" + VERSION + "\n");
-                System.exit(0);
             }
             default -> defaultMode(inputParser);
         }
