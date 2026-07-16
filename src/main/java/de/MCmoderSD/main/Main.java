@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
+import static java.lang.IO.*;
+
 public class Main {
 
     // Version
-    public static final String VERSION = "2.0.2";
+    public static final String VERSION = "2.0.3";
 
     // Config
     public static long DELAY;
@@ -20,7 +22,7 @@ public class Main {
 
     // Main Method
     static void main(String[] args) {
-        IO.println("AniLink-Downloader v" + VERSION + "\n");
+        println("AniLink-Downloader v" + VERSION + "\n");
 
         // Init Config
         var config = new ConfigProcessor();
@@ -54,16 +56,16 @@ public class Main {
     private static void defaultMode(InputParser inputParser) {
 
         // Get Season Format
-        var seasonFormat = IO.readln("Enter Season: (e.g. S01E) or leave empty to skip\n").trim();
+        var seasonFormat = readln("Enter Season: (e.g. S01E) or leave empty to skip\n").trim();
 
         // Get Inputs
-        IO.println("\nEnter URLs (3 empty lines to finish):");
+        println("\nEnter URLs (3 empty lines to finish):");
         var links = new HashSet<String>();
         var i = 0;
 
         // Get URLs
         while (true) {
-            var input = IO.readln().trim();
+            var input = readln().trim();
             if (input.isBlank()) {
                 i++;
                 if (i == 3) break;
@@ -86,14 +88,14 @@ public class Main {
         while (true) {
 
             // Get Name
-            var name = IO.readln("Enter Episode: (empty line to finish)\n").trim();
+            var name = readln("Enter Episode: (empty line to finish)\n").trim();
             if (name.isBlank()) break;
 
             // Get Parts
             var links = new ArrayList<String>();
-            IO.println("\nEnter URLs (empty line to finish):");
+            println("\nEnter URLs (empty line to finish):");
             while (true) {
-                var link = IO.readln().trim();
+                var link = readln().trim();
                 if (link.isBlank()) break;
                 links.add(link);
             }
@@ -146,7 +148,7 @@ public class Main {
             movies.put(name, links);
 
             // Log Movie
-            IO.println("Added Movie: " + name + " with " + links.size() + " links");
+            println("Added Movie: " + name + " with " + links.size() + " links");
         }
 
         // Parse Inputs

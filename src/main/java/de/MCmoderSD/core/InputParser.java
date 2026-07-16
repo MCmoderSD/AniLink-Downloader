@@ -13,6 +13,7 @@ import java.util.HashSet;
 
 import static de.MCmoderSD.main.Main.DELAY;
 import static de.MCmoderSD.utilities.LinkProcessor.*;
+import static java.lang.IO.println;
 
 @SuppressWarnings("BusyWait")
 public class InputParser {
@@ -37,12 +38,12 @@ public class InputParser {
         // Check if Prefix is present
         if (prefix == null || prefix.isBlank()) {
             prefix = determineSeasonFormat(lines);
-            IO.println("Determined Season Format: " + prefix + "\n");
-        } else IO.println("Using provided Season Format: " + prefix + "\n");
+            println("Determined Season Format: " + prefix + "\n");
+        } else println("Using provided Season Format: " + prefix + "\n");
 
         // Process Links
         var episodeParts = processEpisodes(prefix, lines);
-        IO.println("Processed " + lines.size() + " links into " + episodeParts.size() + " episodes.\n");
+        println("Processed " + lines.size() + " links into " + episodeParts.size() + " episodes.\n");
 
         // Create Media Archives
         var mediaArchives = new ArrayList<MediaArchive>();
@@ -67,7 +68,7 @@ public class InputParser {
 
             // Create MediaArchive for episode
             mediaArchives.add(new MediaArchive(name, downloads));
-            IO.println("Created Episode " + name);
+            println("Created Episode " + name);
         }
 
         // Create Media Files
@@ -87,12 +88,12 @@ public class InputParser {
 
             // Clean Up
             archive.cleanUp();
-            IO.println("Completed: " + mediaFile.getFile().getName());
+            println("Completed: " + mediaFile.getFile().getName());
         }));
 
         // Start threads
         for (var thread : threads) thread.start();
-        IO.println("\nStarting Downloads & Extraction:\n");
+        println("\nStarting Downloads & Extraction:\n");
 
         // Wait for threads to finish
         while (threads.stream().anyMatch(Thread::isAlive)) {
@@ -105,7 +106,7 @@ public class InputParser {
         }
 
         // Log completion
-        IO.println("\nDownloaded " + mediaFiles.size() + " of " + mediaArchives.size() + " episodes.");
+        println("\nDownloaded " + mediaFiles.size() + " of " + mediaArchives.size() + " episodes.");
     }
 
     public void loadFile(HashMap<String, HashSet<String>> files) {
@@ -114,7 +115,7 @@ public class InputParser {
         var mediaArchives = new ArrayList<MediaArchive>();
 
         // Process files
-        IO.println("Processing files\n");
+        println("Processing files\n");
         for (var file : files.entrySet()) {
 
             // Init Variables
@@ -139,7 +140,7 @@ public class InputParser {
 
             // Create MediaArchive for file
             mediaArchives.add(new MediaArchive(name, downloads));
-            IO.println("Created File " + name);
+            println("Created File " + name);
         }
 
         // Create Media Files
@@ -159,12 +160,12 @@ public class InputParser {
 
             // Clean Up
             archive.cleanUp();
-            IO.println("Completed: " + mediaFile.getFile().getName());
+            println("Completed: " + mediaFile.getFile().getName());
         }));
 
         // Start threads
         for (var thread : threads) thread.start();
-        IO.println("\nStarting Downloads & Extraction:\n");
+        println("\nStarting Downloads & Extraction:\n");
 
         // Wait for threads to finish
         while (threads.stream().anyMatch(Thread::isAlive)) {
@@ -177,6 +178,6 @@ public class InputParser {
         }
 
         // Log completion
-        IO.println("\nDownloaded " + mediaFiles.size() + " of " + mediaArchives.size() + " files.");
+        println("\nDownloaded " + mediaFiles.size() + " of " + mediaArchives.size() + " files.");
     }
 }

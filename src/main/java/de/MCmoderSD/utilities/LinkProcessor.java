@@ -54,7 +54,7 @@ public class LinkProcessor {
             // Add link to episode
             if (episodes.containsKey(episode)) episodes.get(episode).add(link); // Add part
             else {
-                ArrayList<String> list = new ArrayList<>();
+                var list = new ArrayList<String>();
                 list.add(link);
                 episodes.put(episode, list);
             }

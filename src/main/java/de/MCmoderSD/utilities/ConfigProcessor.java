@@ -3,6 +3,8 @@ package de.MCmoderSD.utilities;
 import de.MCmoderSD.json.JsonUtility;
 import tools.jackson.databind.JsonNode;
 
+import static java.lang.IO.readln;
+
 public class ConfigProcessor {
     
     // Attributes
@@ -24,7 +26,7 @@ public class ConfigProcessor {
 
         // Prompt delay
         if (delay == null) {
-            var input = IO.readln("Enter delay between downloads in milliseconds (default: 500):\n").trim();
+            var input = readln("Enter delay between downloads in milliseconds (default: 500):\n").trim();
             try {
                 delay = Long.parseLong(input);
             } catch (NumberFormatException e) {
@@ -34,13 +36,13 @@ public class ConfigProcessor {
         }
 
         // Prompt Password
-        if (password == null) password = IO.readln("Enter password for protected links (leave empty if not needed): \n").trim();
+        if (password == null) password = readln("Enter password for protected links (leave empty if not needed): \n").trim();
 
         // Prompt API Key
-        if (apiKey == null) apiKey = IO.readln("Enter Debrid-Link API Key: \n").trim();
+        if (apiKey == null) apiKey = readln("Enter Debrid-Link API Key: \n").trim();
     }
     
-    private JsonNode loadConfig() {
+    private static JsonNode loadConfig() {
         try {
             return JsonUtility.getInstance().loadResource("/config.json");
         } catch (Exception e) {
