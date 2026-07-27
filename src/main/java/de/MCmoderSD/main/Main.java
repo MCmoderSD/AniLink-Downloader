@@ -13,7 +13,7 @@ import static java.lang.IO.*;
 public class Main {
 
     // Version
-    public static final String VERSION = "2.0.3";
+    public static final String VERSION = "2.0.4";
 
     // Config
     public static long DELAY;

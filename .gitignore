@@ -5,7 +5,8 @@
 out/artifacts/
 
 ### Resources ###
-src/main/resources/
+src/main/resources/config.json
+src/main/resources/META-INF/MANIFEST.MF
 
 ### Target ###
 target/

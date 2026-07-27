@@ -6,11 +6,28 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>AniLink-Downloader</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
+
+    <name>AniLink-Downloader</name>
+    <description>AniLink-Downloader is a tool specifically designed to download and extract MKV files from single or multipart RAR archives</description>
+    <url>https://github.com/MCmoderSD/AniLink-Downloader</url>
+
+    <licenses>
+        <license>
+            <name>BSD 3-Clause License</name>
+            <url>https://github.com/MCmoderSD/AniLink-Downloader/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/MCmoderSD/AniLink-Downloader</url>
+        <connection>scm:git:https://github.com/MCmoderSD/AniLink-Downloader.git</connection>
+        <developerConnection>scm:git:https://github.com/MCmoderSD/AniLink-Downloader.git</developerConnection>
+    </scm>
 
     <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -51,7 +68,6 @@
             <version>16.02-2.01</version>
         </dependency>
 
-        <!-- JavaCV -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
@@ -60,8 +76,8 @@
 
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>javacv-platform</artifactId>
-            <version>1.5.13</version>
+            <artifactId>ffmpeg-platform</artifactId>
+            <version>8.0.1-1.5.13</version>
         </dependency>
 
         <!-- SLF4J -->
@@ -85,14 +101,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals><goal>shade</goal></goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>de.MCmoderSD.main.Main</mainClass>
