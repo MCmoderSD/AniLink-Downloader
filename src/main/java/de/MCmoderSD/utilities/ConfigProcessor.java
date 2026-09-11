@@ -30,7 +30,7 @@ public class ConfigProcessor {
             try {
                 delay = Long.parseLong(input);
             } catch (NumberFormatException e) {
-                System.err.println("Invalid delay format. Using default value 500ms.\n");
+                System.err.println("Invalid delay format. Using the default value 500 ms.\n");
                 delay = 500L;
             }
         }

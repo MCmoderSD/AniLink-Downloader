@@ -34,7 +34,7 @@ Since it is Java, it should work on any platform (Windows, macOS, Linux) as long
 <br>
 
 ## Additional Tools
-Some websites may use URL shorteners or redirection services, which can make it difficult to obtain the direct download links.
+Some websites may use URL shorteners or redirection services, which can make it difficult to get the direct download links.
 Those links often require additional steps to access the actual download links, which can be time-consuming and cumbersome.
 
 You can use my [AniLink-Skipper](https://www.GitHub.com/MCmoderSD/AniLink-Skipper) browser extension to skip those redirection steps and directly access the download links.
@@ -43,7 +43,7 @@ You can install it from the [Chrome Web Store](https://chromewebstore.google.com
 Since you often need all links for each part of an episode or file, you can use my [TabScraper](https://www.GitHub.com/MCmoderSD/TabScraper) browser extension to scrape all links.
 You can install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/tab-scraper/ahdhhonppgdiglmppkcjckijelfdalho).
 
-Then simply open each link in a new tab, click the TabScraper icon in the toolbar and enter a regex to filter the links.
+Then open each link in a new tab, click the TabScraper icon in the toolbar, and enter a regex to filter the links.
 
 For example, to filter all RapidGator links, you can use:
 ```regexp
@@ -62,7 +62,7 @@ You can then use this text file with the `--import` argument to process all file
 ```bash
 java -jar AniLink-Downloader.jar
 ```
-You will be prompted to enter delay (default: 500ms), decryption password, and your Debrid-Link API key. <br>
+You will be prompted to enter delay (default: 500 ms), decryption password, and your Debrid-Link API key. <br>
 You will have to enter those values every time you run the script, so if you want to avoid that, you can use [Option 2](#option-2-building-from-source).
 
 <br>
@@ -100,7 +100,7 @@ AniLink-Downloader can be used in three modes:
 java -jar AniLink-Downloader.jar
 ```
 - You will be prompted to enter a file/season prefix (e.g. `S01E`).
-- Paste all the part links (one per line) and finish input by pressing Enter on an empty line.
+- Paste all the parts of the links (one per line) and finish input by pressing Enter on an empty line.
 - The script will group, download, and extract the files.
 
 #### 2. Batch Download from a Text File (Import Mode)

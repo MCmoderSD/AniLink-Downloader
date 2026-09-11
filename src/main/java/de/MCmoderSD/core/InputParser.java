@@ -62,7 +62,7 @@ public class InputParser {
                     downloads[i] = debridAPI.addDownload(links.get(i));
                     Thread.sleep(DELAY);
                 } catch (Exception e) {
-                    throw new RuntimeException("Error while creating download for episode " + name + ": " + e.getMessage(), e);
+                    throw new RuntimeException("Error while creating a download for an episode " + name + ": " + e.getMessage(), e);
                 }
             }
 

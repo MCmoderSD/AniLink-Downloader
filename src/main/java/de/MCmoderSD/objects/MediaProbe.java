@@ -52,7 +52,7 @@ public class MediaProbe {
             grabber.stop();
 
         } catch (FrameGrabber.Exception e) {
-            throw new RuntimeException("Failed to probe media file: " + mediaFile.getAbsolutePath(), e);
+            throw new RuntimeException("Failed to probe a media file: " + mediaFile.getAbsolutePath(), e);
         }
     }
 

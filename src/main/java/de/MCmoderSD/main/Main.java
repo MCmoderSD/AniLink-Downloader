@@ -13,7 +13,7 @@ import static java.lang.IO.*;
 public class Main {
 
     // Version
-    public static final String VERSION = "2.0.5";
+    public static final String VERSION = "2.0.6";
 
     // Config
     public static long DELAY;
@@ -56,10 +56,10 @@ public class Main {
     private static void defaultMode(InputParser inputParser) {
 
         // Get Season Format
-        var seasonFormat = readln("Enter Season: (e.g. S01E) or leave empty to skip\n").trim();
+        var seasonFormat = readln("Enter Season: (e.g., S01E) or leave empty to skip\n").trim();
 
         // Get Inputs
-        println("\nEnter URLs (3 empty lines to finish):");
+        println("\nEnter URLs (three empty lines to finish):");
         var links = new HashSet<String>();
         var i = 0;
 
@@ -136,7 +136,7 @@ public class Main {
                 try {
                     Files.readAllLines(file.toPath()).stream().map(String::trim).filter(line -> !line.isBlank()).forEach(lines::add);
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to read file: " + file.getAbsolutePath(), e);
+                    throw new RuntimeException("Failed to read the file: " + file.getAbsolutePath(), e);
                 }
             }
 
@@ -162,7 +162,7 @@ public class Main {
         try {
             Files.readAllLines(new File(path).toPath()).stream().map(String::trim).filter(line -> !line.isBlank()).forEach(lines::add);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read file: " + path, e);
+            throw new RuntimeException("Failed to read the file: " + path, e);
         }
 
         // Remove duplicates and trim whitespace

@@ -39,9 +39,9 @@ public class MediaArchive {
         this.outputDir = new File(path, "output");
 
         // Create directories
-        if (!path.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + path.getAbsolutePath());
-        if (!partsDir.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + partsDir.getAbsolutePath());
-        if (!outputDir.mkdirs()) throw new RuntimeException("Failed to create archive directory: " + outputDir.getAbsolutePath());
+        if (!path.mkdirs()) throw new RuntimeException("Failed to create an archive directory: " + path.getAbsolutePath());
+        if (!partsDir.mkdirs()) throw new RuntimeException("Failed to create an archive directory: " + partsDir.getAbsolutePath());
+        if (!outputDir.mkdirs()) throw new RuntimeException("Failed to create an archive directory: " + outputDir.getAbsolutePath());
     }
 
     // Helper Methods
@@ -74,7 +74,7 @@ public class MediaArchive {
 
         // Validate extracted files
         var outFiles = outputDir.listFiles();
-        if (outFiles == null || outFiles.length == 0) throw new RuntimeException("No files found in the extracted archive: " + outputDir.getAbsolutePath());
+        if (outFiles == null || outFiles.length == 0) throw new RuntimeException("No files were found in the extracted archive: " + outputDir.getAbsolutePath());
         if (outFiles.length > 1) throw new RuntimeException("Multiple files found in the extracted archive. Expected only one media file: " + outputDir.getAbsolutePath());
         mediaType = MediaType.getMediaType(outFiles[0].getName().substring(outFiles[0].getName().lastIndexOf('.')));
 
@@ -90,7 +90,7 @@ public class MediaArchive {
         var targetFile = new File(directory, mediaFile.getName());
 
         // Move the media file to the target directory
-        if (!mediaFile.renameTo(targetFile)) throw new RuntimeException("Failed to move media file to target directory: " + targetFile.getAbsolutePath());
+        if (!mediaFile.renameTo(targetFile)) throw new RuntimeException("Failed to move the media file to the target directory: " + targetFile.getAbsolutePath());
 
         // Return the media file object
         return new MediaFile(targetFile);

@@ -26,7 +26,7 @@ public class LinkProcessor {
         for (var i = 1; i < filenames.size(); i++) {
             while (!filenames.get(i).startsWith(prefix)) {
                 prefix = prefix.substring(0, prefix.length() - 1);
-                if (prefix.isEmpty()) throw new IllegalArgumentException("No common prefix found in the provided links.");
+                if (prefix.isEmpty()) throw new IllegalArgumentException("No common prefix is found in the provided links.");
             }
         }
 
