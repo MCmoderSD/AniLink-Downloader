@@ -65,7 +65,7 @@
         <dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>sevenzipjbinding-all-platforms</artifactId>
-            <version>16.02-2.01</version>
+            <version>23.01-2.2</version>
         </dependency>
 
         <dependency>
