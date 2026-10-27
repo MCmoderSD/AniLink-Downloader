@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
 import { openDialog } from '../../services/dialog';
+import { ScrollBarComponent } from '../scroll-bar-component/scroll-bar.component';
 
 export interface PasswordPromptDialogData {
   jobName: string;
@@ -16,7 +17,7 @@ export interface PasswordPromptDialogData {
   selector: 'app-password-prompt-dialog',
   templateUrl: './password-prompt-dialog.component.html',
   styleUrl: './password-prompt-dialog.component.scss',
-  imports: [MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, ScrollBarComponent],
 })
 export class PasswordPromptDialogComponent {
 

@@ -170,3 +170,45 @@ body {
     --chip-bg: var(--app-danger-container);
   }
 }
+
+// The page scrolls under PageScrollBarComponent, which draws the app's bar over the right edge; the platform's
+// own would be a second one next to it. Scoped to the document element, so elements that scroll inside the page
+// keep theirs until ScrollBarComponent is attached to them.
+html {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Takes the platform's own scroll bar out of the picture, leaving the element scrollable. Added and removed by
+// ScrollBarComponent, which draws the app's bar over the element instead; global because the element it applies
+// to lives outside that component.
+//
+// Both styling models are covered on purpose: `scrollbar-width` is the standard property and the only one Firefox
+// has, `::-webkit-scrollbar` the older Blink/WebKit one. Declaring only one would leave the other engine showing
+// its native bar underneath ours.
+//noinspection CssUnusedSymbol
+.app-native-scrollbar-hidden {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// The app draws its own arrows (components/number-stepper-component), so the browser's built-in pair would only be
+// a second, blunter copy of the same control. Global because it is a normalisation rather than one field's styling.
+//
+// Both spellings are needed: `appearance` is what Firefox reads, the pseudo-elements are what Chromium and Safari
+// read, and neither engine honours the other's.
+input[type='number'] {
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}

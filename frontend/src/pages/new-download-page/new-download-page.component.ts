@@ -5,6 +5,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { NumberStepperComponent } from '../../components/number-stepper-component/number-stepper.component';
+import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
+import { ScrollBarComponent } from '../../components/scroll-bar-component/scroll-bar.component';
+import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
 import { Analysis, AnalyzedEpisode, AnalyzeRequest, AppConfig, ReleaseKind } from '../../data/download';
 import { ConfigService } from '../../services/config.service';
 import { DownloadService } from '../../services/download.service';
@@ -18,7 +22,7 @@ const ANALYZE_DELAY_MS: number = 350;
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrl: './new-download-page.component.scss',
-  imports: [MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterLink],
+  imports: [MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective],
 })
 export class NewDownloadPageComponent {
 
@@ -45,6 +49,8 @@ export class NewDownloadPageComponent {
   private analysisTicket: number = 0;
 
   protected readonly kind: Signal<ReleaseKind> = this.kindValue.asReadonly();
+  protected readonly seasonText: Signal<string> = this.seasonValue.asReadonly();
+  protected readonly gripSize: number = RESIZE_GRIP_SIZE;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
@@ -156,6 +162,10 @@ export class NewDownloadPageComponent {
 
   protected setSeason(event: Event): void {
     this.seasonValue.set((event.target as HTMLInputElement).value);
+  }
+
+  protected stepSeason(season: number): void {
+    this.seasonValue.set(String(season));
   }
 
   protected setPassword(event: Event): void {

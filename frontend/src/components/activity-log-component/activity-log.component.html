@@ -1,15 +1,17 @@
 @if (newestFirst().length === 0) {
   <p class="app-hint">Nothing has happened yet.</p>
 } @else {
-  <ol class="activity-list">
-    @for (entry of newestFirst(); track entry.at + entry.text) {
-      <li class="activity-entry" [attr.data-tone]="tone(entry)">
-        <time class="activity-time app-mono" [attr.datetime]="entry.at">{{ entry.at | date: 'HH:mm:ss' }}</time>
-        <span class="activity-text">
-          <span class="activity-level">{{ entry.level }}:</span>
-          {{ entry.text }}
-        </span>
-      </li>
-    }
-  </ol>
+  <div class="activity-log">
+    <ol class="activity-list" appScrollBar>
+      @for (entry of newestFirst(); track entry.at + entry.text) {
+        <li class="activity-entry" [attr.data-tone]="tone(entry)">
+          <time class="activity-time app-mono" [attr.datetime]="entry.at">{{ entry.at | date: 'HH:mm:ss' }}</time>
+          <span class="activity-text">
+            <span class="activity-level">{{ entry.level }}:</span>
+            {{ entry.text }}
+          </span>
+        </li>
+      }
+    </ol>
+  </div>
 }

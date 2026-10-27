@@ -52,6 +52,8 @@
   // --- Layout ---------------------------------------------------------------------------------
   --app-content-max: 64rem;
   --app-navbar-height: 4rem;
+  // The navbar and the hairline under it: where the page's own scroll bar starts.
+  --app-navbar-block: calc(var(--app-navbar-height) + 1px);
 }
 
 // Honoured by every transition in the app, and written down here once instead of per component.

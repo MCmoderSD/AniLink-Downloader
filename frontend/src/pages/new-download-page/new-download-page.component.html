@@ -40,7 +40,7 @@
               type="text"
               autocomplete="off"
               spellcheck="false"
-              [placeholder]="analysis()?.format ?? 'Frieren.S01E'"
+              [placeholder]="analysis()?.format ?? 'S01E'"
               [attr.aria-invalid]="formatMissing()"
               (input)="setFormat($event)"
             />
@@ -57,7 +57,15 @@
               inputmode="numeric"
               [placeholder]="'' + (analysis()?.season ?? 1)"
               [attr.aria-invalid]="seasonInvalid()"
+              [value]="seasonText()"
               (input)="setSeason($event)"
+            />
+            <app-number-stepper
+              matSuffix
+              [value]="seasonNumber() ?? 0"
+              [min]="0"
+              [max]="999"
+              (valueChange)="stepSeason($event)"
             />
             <mat-hint>Folder {{ seasonNumber() === null ? '?' : (seasonNumber()! < 10 ? '0' + seasonNumber() : seasonNumber()) }}</mat-hint>
           </mat-form-field>
@@ -68,19 +76,25 @@
     <section class="new-section app-panel" aria-labelledby="new-links">
       <h2 class="new-section-title" id="new-links">Links</h2>
 
-      <mat-form-field appearance="outline" class="new-field-full">
-        <mat-label>One link per line</mat-label>
-        <textarea
-          matInput
-          class="app-mono new-links"
-          rows="9"
-          spellcheck="false"
-          autocomplete="off"
-          [attr.aria-describedby]="'new-preview'"
-          (input)="setLinks($event)"
-        ></textarea>
-        <mat-hint>The order does not matter. Duplicates and empty lines are dropped.</mat-hint>
-      </mat-form-field>
+      <div class="new-links-box">
+        <mat-form-field appearance="outline" class="new-field-full">
+          <mat-label>One link per line</mat-label>
+          <textarea
+            matInput
+            #links
+            class="app-mono new-links"
+            rows="9"
+            spellcheck="false"
+            autocomplete="off"
+            [attr.aria-describedby]="'new-preview'"
+            (input)="setLinks($event)"
+          ></textarea>
+          <mat-hint>The order does not matter. Duplicates and empty lines are dropped.</mat-hint>
+        </mat-form-field>
+
+        <app-scroll-bar [target]="links" [endInset]="gripSize" />
+        <app-resize-grip [target]="links" />
+      </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">
         @if (analysisError(); as problem) {
@@ -110,7 +124,7 @@
           }
 
           @if (episodes().length > 0) {
-            <ol class="new-episodes">
+            <ol class="new-episodes" appScrollBar>
               @for (episode of episodes(); track episode.number) {
                 <li class="new-episode">
                   <span class="new-episode-title">{{ isSeason() ? 'Episode ' + episode.number : 'Files' }}</span>

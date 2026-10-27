@@ -1,3 +1,8 @@
+.activity-log {
+  // The containing block for the scroll bar drawn over the list.
+  position: relative;
+}
+
 .activity-list {
   display: flex;
   flex-direction: column;
