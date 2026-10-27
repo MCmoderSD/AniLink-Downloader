@@ -1,1 +1,172 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use './styles/tokens' as tokens;
+
+html {
+  height: 100%;
+  //noinspection SassScssUnresolvedMixin
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$violet-palette,
+        tertiary: mat.$rose-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  @include tokens.app-tokens;
+  @include tokens.app-reduced-motion;
+
+  // Material derives the surface tones from the hue of the palette, which tints every panel violet. These
+  // neutrals are the ramp the design wants, so the tokens Material computes instead of reading are pinned to it.
+  --mat-sys-surface: #0e0e10;
+  --mat-sys-background: #0e0e10;
+  --mat-sys-surface-dim: #0e0e10;
+  --mat-sys-surface-bright: #35353c;
+  --mat-sys-surface-container-lowest: #08080b;
+  --mat-sys-surface-container-low: #131318;
+  --mat-sys-surface-container: #17171c;
+  --mat-sys-surface-container-high: #212127;
+  --mat-sys-surface-container-highest: #2b2b31;
+  --mat-sys-on-surface: #e6e6ec;
+  --mat-sys-on-surface-variant: #bcbcc7;
+  --mat-sys-outline: #878790;
+  --mat-sys-outline-variant: #3b3b45;
+
+  // Neutral state layers: a hover tint in the brand colour would read as "selected".
+  --mat-button-text-state-layer-color: var(--mat-sys-on-surface);
+  --mat-button-outlined-state-layer-color: var(--mat-sys-on-surface);
+  --mat-button-filled-ripple-color: var(--app-tint-pressed);
+  --mat-button-text-ripple-color: var(--app-tint-pressed);
+  --mat-button-outlined-ripple-color: var(--app-tint-pressed);
+  --mat-icon-button-ripple-color: var(--app-tint-pressed);
+  --mat-menu-item-hover-state-layer-color: var(--app-tint-hover);
+  --mat-menu-item-focus-state-layer-color: var(--app-tint-hover);
+
+  // Material's corner scale reads as square next to the rounded surfaces the rest of the app is built from.
+  --mat-sys-corner-extra-small: var(--app-radius-sm);
+  --mat-sys-corner-small: var(--app-radius-md);
+  --mat-sys-corner-medium: var(--app-radius-lg);
+  --mat-sys-corner-large: var(--app-radius-xl);
+  --mat-menu-container-shape: var(--app-radius-lg);
+  --mat-form-field-outlined-container-shape: var(--app-radius-md);
+}
+
+body {
+  // Dark only, like the Twitch chrome this palette is pinned to: no light variant.
+  color-scheme: dark;
+
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  min-height: 100%;
+
+  // File names and error messages from the hosters have no spaces to break at.
+  overflow-wrap: anywhere;
+}
+
+// The icon font is self-hosted (@fontsource/material-icons), which ships the face but not the ligature class
+// that Google's stylesheet defines, so it is written out here.
+.material-icons {
+  font-family: 'Material Icons', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+// A 2px ring in the brand colour, offset far enough off the element to stay visible on a container of nearly
+// the same tone. Global because keyboard focus has to be obvious on every control, including unstyled ones.
+:where(a, button, [tabindex]):focus-visible,
+:where(input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+  border-radius: var(--app-radius-sm);
+}
+
+// --- Shared building blocks --------------------------------------------------------------------
+
+.app-page {
+  box-sizing: border-box;
+  max-width: var(--app-content-max);
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.app-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-block-end: 1.5rem;
+}
+
+.app-page-title {
+  margin: 0;
+  font: var(--mat-sys-headline-medium);
+}
+
+.app-panel {
+  background: var(--mat-sys-surface-container-low);
+  border: var(--app-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-elevation-1);
+}
+
+.app-hint {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.app-mono {
+  font-family: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+}
+
+// A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.
+.app-chip {
+  --chip-fg: var(--mat-sys-on-surface-variant);
+  --chip-bg: var(--mat-sys-surface-container-high);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--app-radius-pill);
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  font: var(--mat-sys-label-medium);
+  white-space: nowrap;
+
+  &[data-tone='info'] {
+    --chip-fg: var(--app-info);
+    --chip-bg: var(--app-info-container);
+  }
+
+  &[data-tone='success'] {
+    --chip-fg: var(--app-success);
+    --chip-bg: var(--app-success-container);
+  }
+
+  &[data-tone='warning'] {
+    --chip-fg: var(--app-warning);
+    --chip-bg: var(--app-warning-container);
+  }
+
+  &[data-tone='danger'] {
+    --chip-fg: var(--app-danger);
+    --chip-bg: var(--app-danger-container);
+  }
+}

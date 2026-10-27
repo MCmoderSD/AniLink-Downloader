@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+}
+
+.navbar {
+  background: color-mix(in srgb, var(--mat-sys-surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-block-end: var(--app-border);
+}
+
+.navbar-inner {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: var(--app-content-max);
+  height: var(--app-navbar-height);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-title-large);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.navbar-logo {
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: none;
+  stroke: var(--mat-sys-primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.navbar-logo-base {
+  stroke: var(--mat-sys-tertiary);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-inline-start: auto;
+}
+
+// The page the user is on reads as pressed, without taking the filled button's colour away from "New download".
+.navbar-link-active:not(.mat-mdc-unelevated-button) {
+  background: var(--app-tint-hover);
+}
+
+.navbar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+}
+
+.navbar-status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--app-success);
+}
+
+.navbar-status-offline {
+  color: var(--app-warning);
+
+  .navbar-status-dot {
+    background: var(--app-warning);
+  }
+}
+
+@media (max-width: 40rem) {
+  .navbar-status {
+    display: none;
+  }
+
+  .navbar-brand span {
+    display: none;
+  }
+}

@@ -30,6 +30,11 @@
               }
             ],
             "styles": [
+              "@fontsource/roboto/latin-300.css",
+              "@fontsource/roboto/latin-400.css",
+              "@fontsource/roboto/latin-500.css",
+              "@fontsource/roboto/latin-700.css",
+              "@fontsource/material-icons/latin-400.css",
               "src/styles.scss"
             ]
           },
@@ -38,13 +43,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "10kB"
                 }
               ],
               "outputHashing": "all"
@@ -67,7 +72,10 @@
               "buildTarget": "AniLink:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"

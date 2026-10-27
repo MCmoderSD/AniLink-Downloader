@@ -1,0 +1,31 @@
+<header class="navbar">
+  <nav class="navbar-inner" aria-label="Main">
+    <a class="navbar-brand" routerLink="/" aria-label="AniLink, back to the downloads">
+      <svg class="navbar-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path d="M32 12v26" />
+        <path d="M20 28l12 12 12-12" />
+        <path class="navbar-logo-base" d="M16 50h32" />
+      </svg>
+      <span>AniLink</span>
+    </a>
+
+    <div class="navbar-links">
+      <a mat-button routerLink="/" routerLinkActive="navbar-link-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        Downloads
+      </a>
+
+      <a mat-flat-button routerLink="/new" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        New download
+      </a>
+    </div>
+
+    @if (loaded()) {
+      <span class="navbar-status" [class.navbar-status-offline]="!connected()" role="status">
+        <span class="navbar-status-dot" aria-hidden="true"></span>
+        {{ connected() ? 'Live' : 'Reconnecting' }}
+      </span>
+    }
+  </nav>
+</header>

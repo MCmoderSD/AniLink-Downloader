@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.job {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.job-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.job-title {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}
+
+.job-subtitle {
+  margin: 0.125rem 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.job-bars {
+  display: grid;
+  gap: 1rem;
+}
+
+.job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.job-directory {
+  min-width: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.job-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: -0.25rem;
+}
+
+.job-details-toggle {
+  margin-inline-start: auto;
+}
+
+.job-details {
+  display: grid;
+  gap: 1.25rem;
+  padding-block-start: 1.25rem;
+  border-block-start: var(--app-border);
+}
+
+.job-items {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.job-activity-title {
+  margin: 0 0 0.5rem;
+  font: var(--mat-sys-title-small);
+}
+
+@media (max-width: 40rem) {
+  .job {
+    padding: 1rem;
+  }
+
+  .job-details-toggle {
+    margin-inline-start: 0;
+  }
+}
