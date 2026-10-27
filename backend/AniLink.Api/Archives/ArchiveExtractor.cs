@@ -27,7 +27,7 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
         {
             if (IsPasswordProblem(result.Combined)) return new ArchiveListing(true, []);
 
-            throw new ExtractionException($"The archive could not be read: {Summarize(result)}");
+            throw new ExtractionException($"The archive could not be read: {Summarize(result, first)}");
         }
 
         return new ArchiveListing(false, SevenZipListing.Parse(result.Output));
@@ -86,7 +86,7 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
             return;
         }
 
-        throw new ExtractionException($"Unpacking failed: {Summarize(result)}") { PasswordProblem = IsPasswordProblem(result.Combined) };
+        throw new ExtractionException($"Unpacking failed: {Summarize(result, first)}") { PasswordProblem = IsPasswordProblem(result.Combined) };
     }
 
     private static string RequireVolumes(IReadOnlyList<string> volumes)
@@ -106,15 +106,22 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
 
     private static bool IsPasswordProblem(string text)
     {
+        // "Enter password" is 7-Zip asking on a closed stdin, which is what an archive with encrypted
+        // headers does when it is opened without a password at all.
         return text.Contains("wrong password", StringComparison.OrdinalIgnoreCase)
+               || text.Contains("enter password", StringComparison.OrdinalIgnoreCase)
                || text.Contains("encrypted archive", StringComparison.OrdinalIgnoreCase)
                || text.Contains("CRC Failed in encrypted", StringComparison.OrdinalIgnoreCase);
     }
 
-    // The tail of 7-Zip's output is where it says what went wrong; the banner and the file list above it do not matter.
-    private static string Summarize(ToolResult result)
+    // The lines that say what went wrong; the banner and the file list around them do not matter. The folder is
+    // cut out of every path, since the user knows where the archives are and 7-Zip repeats it on each line.
+    private static string Summarize(ToolResult result, string archive)
     {
+        var folder = (Path.GetDirectoryName(archive) ?? "") + Path.DirectorySeparatorChar;
+
         var lines = result.Combined
+            .Replace(folder, "", StringComparison.Ordinal)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(line => line.Contains("ERROR", StringComparison.OrdinalIgnoreCase)
                            || line.Contains("Can not", StringComparison.OrdinalIgnoreCase)
