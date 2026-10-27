@@ -76,12 +76,16 @@ Everything is configured through environment variables in `docker-compose.yaml` 
 **Downloads** lists every download with a bar for the Debrid-Link creation, a bar for the download (size, speed,
 time left) and one row per episode. Finished files and problems also show up as messages in the corner.
 
+**Pause** stops the Debrid-Link requests, the downloads and an unpacking in progress; what has arrived stays on
+disk, and **Resume** carries on from there (an unpacking starts over). **Cancel** ends the download for good, **Retry**
+picks up what failed or was cancelled.
+
 **New download** takes:
 
 | Field | |
 |---|---|
 | Name | Becomes the folder (and the file name of a film). |
-| Type | *Season* for several episodes, *Episode / movie* for a single release. |
+| Type | *Season* for several episodes, *Movie* for a single release (an episode of its own counts as one). |
 | Season format | The text in front of the episode number, e.g. `Frieren.S01E`. Found automatically; type it only if the page says it could not. |
 | Season | The folder number (`01`). Read from the format, editable. |
 | Links | One per line, in any order. The page shows which episodes and parts it found before you start. |
@@ -111,6 +115,7 @@ typed in the form, then the defaults from `.env`. Only if none of them opens the
 The state of every unfinished download is kept in a `.anilink.json` next to its files, including the links Debrid-Link
 created. After a restart, the container carries on where it was: finished parts are not fetched again, half
 downloaded ones are continued, and no link is asked for twice.
+A paused download stays paused until you resume it.
 
 <br>
 
