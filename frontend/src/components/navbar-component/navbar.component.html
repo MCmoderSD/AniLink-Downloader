@@ -1,6 +1,6 @@
 <header class="navbar">
   <nav class="navbar-inner" aria-label="Main">
-    <a class="navbar-brand" routerLink="/" aria-label="AniLink, back to the downloads">
+    <a class="navbar-brand" routerLink="/downloads" aria-label="AniLink, back to the downloads">
       <svg class="navbar-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <path d="M32 12v26" />
         <path d="M20 28l12 12 12-12" />
@@ -10,12 +10,12 @@
     </a>
 
     <div class="navbar-links">
-      <a mat-button routerLink="/" routerLinkActive="navbar-link-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+      <a mat-button routerLink="/downloads" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
         <mat-icon aria-hidden="true">download</mat-icon>
         Downloads
       </a>
 
-      <a mat-flat-button routerLink="/new" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
+      <a mat-flat-button routerLink="/add-download" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
         <mat-icon aria-hidden="true">add</mat-icon>
         New download
       </a>

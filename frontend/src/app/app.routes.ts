@@ -4,11 +4,15 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
+    redirectTo: 'downloads',
+  },
+  {
+    path: 'downloads',
     loadComponent: () => import('../pages/downloads-page/downloads-page.component').then((module) => module.DownloadsPageComponent),
     title: 'Downloads',
   },
   {
-    path: 'new',
+    path: 'add-download',
     loadComponent: () => import('../pages/new-download-page/new-download-page.component').then((module) => module.NewDownloadPageComponent),
     title: 'New download',
   },

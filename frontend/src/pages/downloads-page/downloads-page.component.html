@@ -5,7 +5,7 @@
       <p class="app-hint downloads-subtitle">{{ subtitle() }}</p>
     </div>
 
-    <a mat-flat-button routerLink="/new">
+    <a mat-flat-button routerLink="/add-download">
       <mat-icon aria-hidden="true">add</mat-icon>
       New download
     </a>
@@ -25,7 +25,7 @@
       <mat-icon class="downloads-empty-icon" aria-hidden="true">cloud_download</mat-icon>
       <h2 class="downloads-empty-title" id="downloads-empty-title">No downloads yet</h2>
       <p class="app-hint">Paste the links of a season, an episode or a film, and the archives are downloaded, unpacked and sorted for you.</p>
-      <a mat-flat-button routerLink="/new">Start a download</a>
+      <a mat-flat-button routerLink="/add-download">Start a download</a>
     </section>
   } @else {
     <ul class="downloads-list">
