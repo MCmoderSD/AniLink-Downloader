@@ -1,0 +1,31 @@
+name: AniLink
+
+services:
+  anilink:
+    image: mcmodersd/anilink-downloader:latest
+    container_name: AniLink-Downloader
+    restart: unless-stopped
+    pull_policy: always
+    # The files in ./downloads belong to this user. On Linux it has to be the owner of the folder (id -u / id -g),
+    # and the folder has to exist before the first start; Docker Desktop on Windows and macOS does not care.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      # Private API key from https://debrid-link.com/webapp/apikey (required)
+      DebridLink__ApiKey: ${DEBRIDLINK_API_KEY}
+      # Minimum pause between two Debrid-Link requests. Raise it if the account gets flagged for flooding.
+      DebridLink__RequestDelayMs: ${DEBRIDLINK_REQUEST_DELAY_MS:-500}
+      # How many archive parts are downloaded at the same time (1-16)
+      Downloads__MaxConcurrency: ${MAX_CONCURRENCY:-3}
+      # Passwords tried automatically, in this order, before anyone is asked. Add as many as you like
+      # (Archive__Passwords__3, __4, ...); empty ones are ignored.
+      Archive__Passwords__0: ${ARCHIVE_PASSWORD_0:-}
+      Archive__Passwords__1: ${ARCHIVE_PASSWORD_1:-}
+      Archive__Passwords__2: ${ARCHIVE_PASSWORD_2:-}
+    ports:
+      - 8080:8080/tcp
+    volumes:
+      - ./downloads:/downloads
+
+networks:
+  default:
+    name: AniLink-Network

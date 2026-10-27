@@ -1,12 +1,30 @@
-# IDE
+# ── IDEs ──
 .idea/
 .vs/
 *.user
 
-# .NET
+# ── .NET ──
 **/bin/
 **/obj/
 
-# Local config
+# ── Angular / Node ──
+**/node_modules/
+**/dist/
+**/.angular/
+
+# ── Local configuration and secrets ──
 .env
+.env.*
+!.env.example
 appsettings.Local.json
+*.local.json
+
+# ── Downloaded media and test data ──
+/downloads/
+/data/
+
+# ── Claude Code ──
+.claude/
+
+# ── Frontend build copied next to the backend for local runs (the Docker image does this itself) ──
+backend/**/wwwroot/
