@@ -1,0 +1,12 @@
+# IDE
+.idea/
+.vs/
+*.user
+
+# .NET
+**/bin/
+**/obj/
+
+# Local config
+.env
+appsettings.Local.json
