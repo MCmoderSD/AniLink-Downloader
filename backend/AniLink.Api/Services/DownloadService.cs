@@ -107,6 +107,16 @@ public sealed class DownloadService(
         return true;
     }
 
+    public bool? Pause(Guid id)
+    {
+        return jobs.Get(id) is { } job ? pipeline.Pause(job) : null;
+    }
+
+    public bool? Resume(Guid id)
+    {
+        return jobs.Get(id) is { } job ? pipeline.Resume(job) : null;
+    }
+
     public bool? Retry(Guid id)
     {
         return jobs.Get(id) is { } job ? pipeline.Retry(job) : null;

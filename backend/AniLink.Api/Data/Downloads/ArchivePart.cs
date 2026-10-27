@@ -158,6 +158,19 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
         }
     }
 
+    // What was in flight stops here. The part keeps the bytes it has, and so does its file on disk, and goes back to
+    // waiting for its turn: Resume continues the download from that file.
+    public void Pause()
+    {
+        lock (Gate)
+        {
+            if (State is not (PartState.Resolving or PartState.Downloading)) return;
+
+            State = Debrid is null ? PartState.Pending : PartState.Resolved;
+            Touch();
+        }
+    }
+
     // The file this part was recorded as downloaded is gone or has the wrong size: it has to be fetched again.
     public void ForgetDownload()
     {

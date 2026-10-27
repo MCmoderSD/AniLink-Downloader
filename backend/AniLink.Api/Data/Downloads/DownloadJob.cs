@@ -53,6 +53,7 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
             var stages = _items.Select(item => item.Stage).ToList();
 
             if (stages.Any(stage => stage is ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting or ItemStage.Organizing)) return JobStatus.Active;
+            if (stages.Any(stage => stage is ItemStage.Paused)) return JobStatus.Paused;
             if (stages.Any(stage => stage is ItemStage.PasswordRequired)) return JobStatus.PasswordRequired;
             if (stages.Any(stage => stage is ItemStage.Failed)) return JobStatus.Failed;
             if (stages.Any(stage => stage is ItemStage.Cancelled)) return JobStatus.Cancelled;

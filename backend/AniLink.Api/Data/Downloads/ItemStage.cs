@@ -12,5 +12,6 @@ public enum ItemStage
     Organizing,
     Completed,
     Failed,
-    Cancelled
+    Cancelled,
+    Paused
 }

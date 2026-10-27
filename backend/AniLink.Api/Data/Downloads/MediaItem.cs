@@ -77,16 +77,19 @@ public sealed class MediaItem
         Move(ItemStage.Downloading);
     }
 
-    public void BeginExtracting()
+    // False when the item was cancelled or paused in the meantime, and the caller must not go on with it.
+    public bool BeginExtracting()
     {
         lock (Gate)
         {
-            if (Stage is ItemStage.Cancelled) return;
+            if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
 
             Stage = ItemStage.Extracting;
             ExtractPercent = 0;
             Error = null;
             Job.Touch();
+
+            return true;
         }
     }
 
@@ -99,21 +102,23 @@ public sealed class MediaItem
         }
     }
 
-    public void RequirePassword()
+    public bool RequirePassword()
     {
-        Move(ItemStage.PasswordRequired);
+        return Move(ItemStage.PasswordRequired);
     }
 
-    public void BeginOrganizing()
+    // False when the item was cancelled or paused in the meantime: the files must not be moved for an item that
+    // is no longer being worked on.
+    public bool BeginOrganizing()
     {
-        Move(ItemStage.Organizing);
+        return Move(ItemStage.Organizing);
     }
 
     public void Complete(IReadOnlyList<string> files)
     {
         lock (Gate)
         {
-            if (Stage is ItemStage.Cancelled) return;
+            if (Stage is ItemStage.Cancelled or ItemStage.Paused) return;
 
             Files = files;
             ExtractPercent = 100;
@@ -127,7 +132,7 @@ public sealed class MediaItem
     {
         lock (Gate)
         {
-            if (Stage is ItemStage.Completed or ItemStage.Cancelled) return;
+            if (Stage is ItemStage.Completed or ItemStage.Cancelled or ItemStage.Paused) return;
 
             Error = error;
             Stage = ItemStage.Failed;
@@ -143,6 +148,39 @@ public sealed class MediaItem
 
             Stage = ItemStage.Cancelled;
             Job.Touch();
+        }
+    }
+
+    // Stops the item where it stands: links being asked for, parts being downloaded, an unpacking in progress. What has
+    // arrived stays on disk. Sorting the finished files into place takes a moment and cannot be picked up halfway, so
+    // an item that is at that point is left to finish.
+    public bool Pause()
+    {
+        lock (Gate)
+        {
+            if (Stage is not (ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting)) return false;
+
+            foreach (var part in _parts) part.Pause();
+
+            Stage = ItemStage.Paused;
+            ExtractPercent = 0;
+            Job.Touch();
+
+            return true;
+        }
+    }
+
+    public bool Resume()
+    {
+        lock (Gate)
+        {
+            if (Stage is not ItemStage.Paused) return false;
+
+            Stage = AllLinksResolved ? ItemStage.Downloading : ItemStage.ResolvingLinks;
+            Error = null;
+            Job.Touch();
+
+            return true;
         }
     }
 
@@ -188,15 +226,17 @@ public sealed class MediaItem
         }
     }
 
-    private void Move(ItemStage stage)
+    private bool Move(ItemStage stage)
     {
         lock (Gate)
         {
-            if (Stage is ItemStage.Cancelled) return;
+            if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
 
             Stage = stage;
             Error = null;
             Job.Touch();
+
+            return true;
         }
     }
 }

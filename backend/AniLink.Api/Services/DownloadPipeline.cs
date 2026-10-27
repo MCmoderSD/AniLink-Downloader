@@ -31,7 +31,7 @@ public sealed class DownloadPipeline(
     // Starts the given items of a job (all unfinished ones by default). Returns at once; the work runs on.
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
     {
-        var items = (only ?? job.Items).Where(item => !item.IsTerminal).OrderBy(item => item.Number).ToList();
+        var items = (only ?? job.Items).Where(item => !item.IsTerminal && item.Stage is not ItemStage.Paused).OrderBy(item => item.Number).ToList();
         var source = _runs.GetOrAdd(job.Id, _ => new CancellationTokenSource());
 
         // ToList runs each workflow up to its first await right here, in episode order. That is what puts
@@ -70,9 +70,38 @@ public sealed class DownloadPipeline(
     {
         foreach (var item in job.Items) item.Cancel();
 
+        // A running workflow writes the manifest when it ends; a job without one (paused, or waiting for a password)
+        // has nobody to do that.
         if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
+        else _ = jobs.SaveAsync(job);
 
         Notify(job, NoticeLevel.Warning, $"{job.Name}: cancelled");
+    }
+
+    // Stops the links being asked for, the downloads and an unpacking in progress. The partial files stay where they
+    // are, so Resume goes on from them instead of starting over. Items that wait for a password are left alone.
+    public bool Pause(DownloadJob job)
+    {
+        var paused = job.Items.Count(item => item.Pause());
+        if (paused == 0) return false;
+
+        if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
+        else _ = jobs.SaveAsync(job);
+
+        Notify(job, NoticeLevel.Info, $"{job.Name}: paused");
+
+        return true;
+    }
+
+    public bool Resume(DownloadJob job)
+    {
+        var items = job.Items.Where(item => item.Resume()).ToList();
+        if (items.Count == 0) return false;
+
+        Notify(job, NoticeLevel.Info, $"{job.Name}: resumed");
+        Start(job, items);
+
+        return true;
     }
 
     private async Task ProcessAsync(DownloadJob job, MediaItem item, CancellationToken cancellationToken)
@@ -190,14 +219,13 @@ public sealed class DownloadPipeline(
 
         await scheduler.RunExtractionAsync(async token =>
         {
-            item.BeginExtracting();
+            if (!item.BeginExtracting()) return;
 
             var password = await passwords.ResolveAsync(volumes, job, token);
 
             if (password.Outcome is PasswordOutcome.Missing)
             {
-                item.RequirePassword();
-                Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+                if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
 
                 return;
             }
@@ -208,7 +236,8 @@ public sealed class DownloadPipeline(
 
             await extractor.ExtractAsync(volumes, output, password.Password, percent => item.ReportExtraction(percent), token);
 
-            item.BeginOrganizing();
+            if (!item.BeginOrganizing()) return;
+
             var files = organizer.Organize(workspace, item);
 
             item.Complete(files);
@@ -218,7 +247,11 @@ public sealed class DownloadPipeline(
 
     private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, CancellationToken jobToken)
     {
-        if (jobToken.IsCancellationRequested || cause is OperationCanceledException)
+        // Stopped on purpose: Cancel and Pause have already put the item where it belongs, and by now a later run may
+        // be working on it again.
+        if (jobToken.IsCancellationRequested) return;
+
+        if (cause is OperationCanceledException)
         {
             item.Cancel();
             return;
@@ -254,7 +287,7 @@ public sealed class DownloadPipeline(
     private async Task FinalizeAsync(DownloadJob job)
     {
         // Another batch of this job (a retry, a password) may still be running; the last one to end finishes the job.
-        if (job.IsRemoved || job.Items.Any(item => item.IsActive)) return;
+        if (job.IsRemoved || job.Items.Any(item => item.IsActive || item.Stage is ItemStage.Paused)) return;
 
         _runs.TryRemove(job.Id, out _);
 

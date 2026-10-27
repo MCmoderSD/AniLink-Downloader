@@ -65,6 +65,28 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         return downloads.Cancel(id) ? Ok(downloads.Get(id)) : NotFound();
     }
 
+    [HttpPost("{id:guid}/pause")]
+    public IActionResult Pause(Guid id)
+    {
+        return downloads.Pause(id) switch
+        {
+            null => NotFound(),
+            false => Conflict("Nothing in this download is running that could be paused."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPost("{id:guid}/resume")]
+    public IActionResult Resume(Guid id)
+    {
+        return downloads.Resume(id) switch
+        {
+            null => NotFound(),
+            false => Conflict("This download is not paused."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
     [HttpPost("{id:guid}/retry")]
     public IActionResult Retry(Guid id)
     {

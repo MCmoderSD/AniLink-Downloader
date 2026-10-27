@@ -6,6 +6,7 @@ namespace AniLink.Api.Data.Downloads;
 public enum JobStatus
 {
     Active,
+    Paused,
     PasswordRequired,
     Failed,
     Cancelled,

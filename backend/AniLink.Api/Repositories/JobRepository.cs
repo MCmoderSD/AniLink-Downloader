@@ -29,7 +29,7 @@ public sealed class JobRepository(JobManifestStore manifests)
     {
         return _jobs.Values.FirstOrDefault(job =>
             string.Equals(Path.GetFullPath(job.Workspace.Root), Path.GetFullPath(workdir), StringComparison.OrdinalIgnoreCase)
-            && job.Status is JobStatus.Active or JobStatus.PasswordRequired);
+            && job.Status is JobStatus.Active or JobStatus.Paused or JobStatus.PasswordRequired);
     }
 
     public DownloadJob? Remove(Guid id)
