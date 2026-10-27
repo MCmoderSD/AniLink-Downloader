@@ -60,11 +60,27 @@
   margin-inline-start: auto;
 }
 
+// The card puts a gap above every child. This one takes it back, because the space above the details is part of
+// what opens (see .job-details): left in place it would appear at once and only the rest would slide.
+.job-fold {
+  margin-block-start: -1.25rem;
+}
+
 .job-details {
   display: grid;
   gap: 1.25rem;
+  margin-block-start: 1.25rem;
   padding-block-start: 1.25rem;
   border-block-start: var(--app-border);
+}
+
+// One arrow that turns over, instead of two that swap.
+.job-chevron {
+  transition: transform var(--app-timing-base);
+}
+
+.job-chevron-open {
+  transform: rotate(180deg);
 }
 
 .job-items {

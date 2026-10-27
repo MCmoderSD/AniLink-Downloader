@@ -1,6 +1,6 @@
 export type ReleaseKind = 'Season' | 'Movie';
 
-export type JobStatus = 'Active' | 'PasswordRequired' | 'Failed' | 'Cancelled' | 'Completed';
+export type JobStatus = 'Active' | 'Paused' | 'PasswordRequired' | 'Failed' | 'Cancelled' | 'Completed';
 
 export type ItemStage =
   | 'ResolvingLinks'
@@ -10,7 +10,8 @@ export type ItemStage =
   | 'Organizing'
   | 'Completed'
   | 'Failed'
-  | 'Cancelled';
+  | 'Cancelled'
+  | 'Paused';
 
 export type PartState = 'Pending' | 'Resolving' | 'Resolved' | 'Downloading' | 'Downloaded' | 'Failed';
 
@@ -131,6 +132,7 @@ export type StreamMessage = JobMessage | NoticeMessage | RemovedMessage;
 
 export const STATUS_LABELS: Record<JobStatus, string> = {
   Active: 'Running',
+  Paused: 'Paused',
   PasswordRequired: 'Password needed',
   Failed: 'Failed',
   Cancelled: 'Cancelled',
@@ -139,6 +141,7 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
 
 export const STATUS_TONES: Record<JobStatus, Tone> = {
   Active: 'info',
+  Paused: 'warning',
   PasswordRequired: 'warning',
   Failed: 'danger',
   Cancelled: 'neutral',
@@ -154,6 +157,7 @@ export const STAGE_LABELS: Record<ItemStage, string> = {
   Completed: 'Done',
   Failed: 'Failed',
   Cancelled: 'Cancelled',
+  Paused: 'Paused',
 };
 
 export const STAGE_TONES: Record<ItemStage, Tone> = {
@@ -165,6 +169,7 @@ export const STAGE_TONES: Record<ItemStage, Tone> = {
   Completed: 'success',
   Failed: 'danger',
   Cancelled: 'neutral',
+  Paused: 'warning',
 };
 
 export const PART_LABELS: Record<PartState, string> = {

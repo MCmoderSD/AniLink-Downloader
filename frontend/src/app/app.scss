@@ -6,6 +6,9 @@
 .app-main {
   display: block;
 
+  // The part of the document that animates between two pages; the navbar around it does not take part.
+  view-transition-name: page;
+
   // The skip link moves focus here; a ring around the whole page would only be noise.
   &:focus {
     outline: none;

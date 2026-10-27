@@ -23,10 +23,15 @@ export class DownloadsPageComponent {
   protected readonly running: Signal<number> = computed((): number =>
     this.jobs().filter((job: Job): boolean => job.status === 'Active').length);
 
+  protected readonly paused: Signal<number> = computed((): number =>
+    this.jobs().filter((job: Job): boolean => job.status === 'Paused').length);
+
   protected readonly subtitle: Signal<string> = computed((): string => {
     const total: number = this.jobs().length;
     if (total === 0) return 'Nothing queued.';
 
-    return `${this.running()} running of ${total} ${total === 1 ? 'download' : 'downloads'}`;
+    const paused: number = this.paused();
+
+    return `${this.running()} running of ${total} ${total === 1 ? 'download' : 'downloads'}${paused > 0 ? ` · ${paused} paused` : ''}`;
   });
 }

@@ -45,8 +45,12 @@ export class JobCardComponent {
 
   protected readonly running: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
 
+  protected readonly canPause: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
+
+  protected readonly canResume: Signal<boolean> = computed((): boolean => this.job().status === 'Paused');
+
   protected readonly canCancel: Signal<boolean> = computed((): boolean =>
-    this.job().status === 'Active' || this.job().status === 'PasswordRequired');
+    this.job().status === 'Active' || this.job().status === 'Paused' || this.job().status === 'PasswordRequired');
 
   protected readonly canRetry: Signal<boolean> = computed((): boolean =>
     this.job().items.some((item: Item): boolean => item.stage === 'Failed' || item.stage === 'Cancelled'));
@@ -59,7 +63,7 @@ export class JobCardComponent {
 
   protected readonly downloadTone: Signal<Tone> = computed((): Tone => {
     const status: Job['status'] = this.job().status;
-    return status === 'Completed' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : 'info';
+    return status === 'Completed' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
   });
 
   protected readonly linksDetail: Signal<string> = computed((): string => `${this.job().links.done} of ${this.job().links.total} links`);
@@ -101,6 +105,14 @@ export class JobCardComponent {
     });
 
     if (confirmed) await this.act((): Promise<Job> => this.downloads.cancel(this.job().id), 'The download could not be cancelled.');
+  }
+
+  protected async pause(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.pause(this.job().id), 'The download could not be paused.');
+  }
+
+  protected async resume(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.resume(this.job().id), 'The download could not be resumed.');
   }
 
   protected async retry(): Promise<void> {

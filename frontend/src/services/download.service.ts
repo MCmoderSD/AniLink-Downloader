@@ -25,6 +25,14 @@ export class DownloadService extends ApiService {
     return this.post<Job>(`${id}/cancel`);
   }
 
+  pause(id: string): Promise<Job> {
+    return this.post<Job>(`${id}/pause`);
+  }
+
+  resume(id: string): Promise<Job> {
+    return this.post<Job>(`${id}/resume`);
+  }
+
   retry(id: string): Promise<Job> {
     return this.post<Job>(`${id}/retry`);
   }

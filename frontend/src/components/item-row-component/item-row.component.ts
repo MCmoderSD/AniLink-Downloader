@@ -58,6 +58,11 @@ export class ItemRowComponent {
 
       case 'Cancelled':
         return { label: 'Cancelled', detail: this.bytes(item), fraction: item.download.fraction, tone: 'neutral', active: false };
+
+      case 'Paused':
+        return item.links.done < item.links.total
+          ? { label: 'Paused, Debrid links', detail: `${item.links.done} of ${item.links.total}`, fraction: item.links.fraction, tone: 'warning', active: false }
+          : { label: 'Paused', detail: this.bytes(item), fraction: item.download.fraction, tone: 'warning', active: false };
     }
   });
 

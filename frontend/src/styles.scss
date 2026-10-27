@@ -212,3 +212,92 @@ input[type='number'] {
     margin: 0;
   }
 }
+
+// Opens and closes a block by its height, for content that an @if puts into the page and takes out again: the
+// block sits in .app-fold-inner inside .app-fold, and .app-fold carries animate.enter="app-fold-enter" and
+// animate.leave="app-fold-leave". The row of the grid runs between nothing and the height of the content, which is
+// the way to animate `auto` without measuring it.
+.app-fold {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.app-fold-inner {
+  min-height: 0;
+
+  // Cuts off what is below the fold line and nothing else: a focus ring or a hover tint is allowed to reach past the
+  // box on the other three sides, which `overflow: hidden` would not let it.
+  clip-path: inset(-0.5rem -0.5rem 0);
+}
+
+@keyframes app-fold-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes app-fold-out {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+//noinspection CssUnusedSymbol
+.app-fold-enter {
+  animation: app-fold-in var(--app-timing-base);
+}
+
+//noinspection CssUnusedSymbol
+.app-fold-leave {
+  animation: app-fold-out var(--app-timing-base) forwards;
+}
+
+// Between two pages (the router starts a view transition for every navigation, see app.config.ts): the page that is
+// leaving fades out and drifts up a little, the next one fades in from a little below. Only the page moves. The
+// navbar around it stays where it is, because only .app-main carries the name.
+@keyframes app-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes app-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+//noinspection CssUnusedSymbol
+::view-transition-old(page) {
+  mix-blend-mode: normal;
+  animation: app-page-out 160ms var(--app-ease) both;
+}
+
+//noinspection CssUnusedSymbol
+::view-transition-new(page) {
+  mix-blend-mode: normal;
+  animation: app-page-in 280ms var(--app-ease) 60ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  //noinspection CssUnusedSymbol
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

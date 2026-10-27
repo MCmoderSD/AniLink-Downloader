@@ -46,6 +46,20 @@
       </button>
     }
 
+    @if (canPause()) {
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="pause()">
+        <mat-icon aria-hidden="true">pause</mat-icon>
+        Pause
+      </button>
+    }
+
+    @if (canResume()) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="resume()">
+        <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        Resume
+      </button>
+    }
+
     @if (canCancel()) {
       <button mat-button type="button" [disabled]="busy()" (click)="cancel()">
         <mat-icon aria-hidden="true">stop_circle</mat-icon>
@@ -67,24 +81,28 @@
       (click)="toggleDetails()"
     >
       {{ detailsOpen() ? 'Hide details' : 'Show details' }}
-      <mat-icon iconPositionEnd aria-hidden="true">{{ detailsOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
+      <mat-icon iconPositionEnd class="job-chevron" [class.job-chevron-open]="detailsOpen()" aria-hidden="true">expand_more</mat-icon>
     </button>
   </div>
 
   @if (detailsOpen()) {
-    <div class="job-details" [id]="titleId + '-details'">
-      <ul class="job-items">
-        @for (item of job().items; track item.number) {
-          <li>
-            <app-item-row [item]="item" />
-          </li>
-        }
-      </ul>
+    <div class="app-fold job-fold" animate.enter="app-fold-enter" animate.leave="app-fold-leave">
+      <div class="app-fold-inner">
+        <div class="job-details" [id]="titleId + '-details'">
+          <ul class="job-items">
+            @for (item of job().items; track item.number) {
+              <li>
+                <app-item-row [item]="item" />
+              </li>
+            }
+          </ul>
 
-      <section class="job-activity" aria-label="Activity">
-        <h3 class="job-activity-title">Activity</h3>
-        <app-activity-log [entries]="job().activity" />
-      </section>
+          <section class="job-activity" aria-label="Activity">
+            <h3 class="job-activity-title">Activity</h3>
+            <app-activity-log [entries]="job().activity" />
+          </section>
+        </div>
+      </div>
     </div>
   }
 </article>

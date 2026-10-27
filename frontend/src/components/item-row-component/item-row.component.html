@@ -10,7 +10,7 @@
     (click)="togglePartsShown()"
   >
     {{ partCount() }} {{ partCount() === 1 ? 'part' : 'parts' }}
-    <mat-icon aria-hidden="true">{{ partsOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
+    <mat-icon class="item-chevron" [class.item-chevron-open]="partsOpen()" aria-hidden="true">expand_more</mat-icon>
   </button>
 </div>
 
@@ -28,17 +28,21 @@
 }
 
 @if (partsOpen()) {
-  <ul class="item-parts">
-    @for (part of item().parts; track part.index) {
-      <li class="item-part">
-        <span class="item-part-name app-mono">{{ part.fileName }}</span>
-        <span class="app-chip" [attr.data-tone]="partTone(part)">{{ partLabel(part) }}</span>
-        <span class="item-part-bytes">{{ partBytes(part) }}</span>
+  <div class="app-fold" animate.enter="app-fold-enter" animate.leave="app-fold-leave">
+    <div class="app-fold-inner">
+      <ul class="item-parts">
+        @for (part of item().parts; track part.index) {
+          <li class="item-part">
+            <span class="item-part-name app-mono">{{ part.fileName }}</span>
+            <span class="app-chip" [attr.data-tone]="partTone(part)">{{ partLabel(part) }}</span>
+            <span class="item-part-bytes">{{ partBytes(part) }}</span>
 
-        @if (part.error) {
-          <span class="item-part-error">{{ part.error }}</span>
+            @if (part.error) {
+              <span class="item-part-error">{{ part.error }}</span>
+            }
+          </li>
         }
-      </li>
-    }
-  </ul>
+      </ul>
+    </div>
+  </div>
 }
