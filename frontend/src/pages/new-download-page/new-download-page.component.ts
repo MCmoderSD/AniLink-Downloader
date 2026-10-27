@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, signal, Signal, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +8,7 @@ import { NumberStepperComponent } from '../../components/number-stepper-componen
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
 import { ScrollBarComponent } from '../../components/scroll-bar-component/scroll-bar.component';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
+import { SegmentedOption, SegmentedSwitchComponent } from '../../components/segmented-switch-component/segmented-switch.component';
 import { Analysis, AnalyzedEpisode, AnalyzeRequest, AppConfig, ReleaseKind } from '../../data/download';
 import { ConfigService } from '../../services/config.service';
 import { DownloadService } from '../../services/download.service';
@@ -18,11 +18,16 @@ import { NotificationService } from '../../services/notification.service';
 
 const ANALYZE_DELAY_MS: number = 350;
 
+const KINDS: SegmentedOption[] = [
+  { value: 'Season', label: 'Season' },
+  { value: 'Movie', label: 'Movie' },
+];
+
 @Component({
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrl: './new-download-page.component.scss',
-  imports: [MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective],
+  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent],
 })
 export class NewDownloadPageComponent {
 
@@ -51,6 +56,7 @@ export class NewDownloadPageComponent {
   protected readonly kind: Signal<ReleaseKind> = this.kindValue.asReadonly();
   protected readonly seasonText: Signal<string> = this.seasonValue.asReadonly();
   protected readonly gripSize: number = RESIZE_GRIP_SIZE;
+  protected readonly kinds: SegmentedOption[] = KINDS;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
@@ -148,8 +154,8 @@ export class NewDownloadPageComponent {
     this.nameValue.set((event.target as HTMLInputElement).value);
   }
 
-  protected setKind(event: MatButtonToggleChange): void {
-    this.kindValue.set(event.value as ReleaseKind);
+  protected setKind(kind: string): void {
+    this.kindValue.set(kind as ReleaseKind);
   }
 
   protected setLinks(event: Event): void {
@@ -196,7 +202,7 @@ export class NewDownloadPageComponent {
       this.sync.apply(job);
       this.notifications.success(`${job.name} is queued`);
 
-      await this.router.navigateByUrl('/');
+      await this.router.navigateByUrl('/downloads');
     } catch (error: unknown) {
       this.sendProblem.set(errorMessage(error, 'The download could not be created.'));
     } finally {

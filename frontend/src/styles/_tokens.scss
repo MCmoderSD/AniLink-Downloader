@@ -49,6 +49,9 @@
   --app-timing-fast: var(--app-motion-fast) var(--app-ease);
   --app-timing-base: var(--app-motion-base) var(--app-ease);
 
+  // --- Type ----------------------------------------------------------------------------------
+  --app-font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+
   // --- Layout ---------------------------------------------------------------------------------
   --app-content-max: 64rem;
   --app-navbar-height: 4rem;

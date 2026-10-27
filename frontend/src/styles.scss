@@ -132,7 +132,7 @@ body {
 }
 
 .app-mono {
-  font-family: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+  font-family: var(--app-font-mono);
 }
 
 // A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.

@@ -8,76 +8,66 @@
 
   <form class="new-form" (submit)="submit($event)" novalidate>
     <section class="new-section app-panel" aria-labelledby="new-what">
-      <h2 class="new-section-title" id="new-what">What is it</h2>
-
-      <div class="new-row">
-        <mat-form-field appearance="outline" class="new-field-wide">
-          <mat-label>Name</mat-label>
-          <input matInput type="text" autocomplete="off" required (input)="setName($event)" />
-          <mat-hint>Becomes the folder name, and the file name of a film.</mat-hint>
-        </mat-form-field>
-
-        <div class="new-kind">
-          <span class="new-kind-label" id="new-kind-label">Type</span>
-          <mat-button-toggle-group
-            aria-labelledby="new-kind-label"
-            hideSingleSelectionIndicator="true"
-            [value]="kind()"
-            (change)="setKind($event)"
-          >
-            <mat-button-toggle value="Season">Season</mat-button-toggle>
-            <mat-button-toggle value="Movie">Episode / movie</mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+      <div class="new-section-head">
+        <h2 class="new-section-title" id="new-what">What is it</h2>
+        <app-segmented-switch label="Type" [options]="kinds" [value]="kind()" (valueChange)="setKind($event)" />
       </div>
 
-      @if (isSeason()) {
-        <div class="new-row">
-          <mat-form-field appearance="outline" class="new-field-wide">
-            <mat-label>Season format</mat-label>
-            <input
-              matInput
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              [placeholder]="analysis()?.format ?? 'S01E'"
-              [attr.aria-invalid]="formatMissing()"
-              (input)="setFormat($event)"
-            />
-            <mat-hint [class.new-hint-error]="formatMissing()">{{ formatHint() }}</mat-hint>
-          </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" autocomplete="off" required (input)="setName($event)" />
+        <mat-hint>Becomes the folder name, and the file name of a film.</mat-hint>
+      </mat-form-field>
 
-          <mat-form-field appearance="outline" class="new-field-narrow">
-            <mat-label>Season</mat-label>
-            <input
-              matInput
-              type="number"
-              min="0"
-              max="999"
-              inputmode="numeric"
-              [placeholder]="'' + (analysis()?.season ?? 1)"
-              [attr.aria-invalid]="seasonInvalid()"
-              [value]="seasonText()"
-              (input)="setSeason($event)"
-            />
-            <app-number-stepper
-              matSuffix
-              [value]="seasonNumber() ?? 0"
-              [min]="0"
-              [max]="999"
-              (valueChange)="stepSeason($event)"
-            />
-            <mat-hint>Folder {{ seasonNumber() === null ? '?' : (seasonNumber()! < 10 ? '0' + seasonNumber() : seasonNumber()) }}</mat-hint>
-          </mat-form-field>
+      <div class="new-season" [class.new-season-folded]="!isSeason()" [attr.inert]="isSeason() ? null : ''">
+        <div class="new-season-inner">
+          <div class="new-row">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-wide">
+              <mat-label>Season format</mat-label>
+              <input
+                matInput
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                [placeholder]="analysis()?.format ?? 'S01E'"
+                [attr.aria-invalid]="formatMissing()"
+                (input)="setFormat($event)"
+              />
+              <mat-hint [class.new-hint-error]="formatMissing()">{{ formatHint() }}</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-narrow">
+              <mat-label>Season</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                max="999"
+                inputmode="numeric"
+                [placeholder]="'' + (analysis()?.season ?? 1)"
+                [attr.aria-invalid]="seasonInvalid()"
+                [value]="seasonText()"
+                (input)="setSeason($event)"
+              />
+              <app-number-stepper
+                matSuffix
+                [value]="seasonNumber() ?? 0"
+                [min]="0"
+                [max]="999"
+                (valueChange)="stepSeason($event)"
+              />
+              <mat-hint>Folder {{ seasonNumber() === null ? '?' : (seasonNumber()! < 10 ? '0' + seasonNumber() : seasonNumber()) }}</mat-hint>
+            </mat-form-field>
+          </div>
         </div>
-      }
+      </div>
     </section>
 
     <section class="new-section app-panel" aria-labelledby="new-links">
       <h2 class="new-section-title" id="new-links">Links</h2>
 
       <div class="new-links-box">
-        <mat-form-field appearance="outline" class="new-field-full">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
           <mat-label>One link per line</mat-label>
           <textarea
             matInput
@@ -143,7 +133,7 @@
     <section class="new-section app-panel" aria-labelledby="new-password">
       <h2 class="new-section-title" id="new-password">Archive password</h2>
 
-      <mat-form-field appearance="outline" class="new-field-full">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Password</mat-label>
         <input
           matInput
@@ -171,7 +161,7 @@
     }
 
     <div class="new-actions">
-      <a mat-button routerLink="/">Cancel</a>
+      <a mat-button routerLink="/downloads">Cancel</a>
       <button mat-flat-button type="submit" [disabled]="!valid()">
         <mat-icon aria-hidden="true">download</mat-icon>
         {{ submitting() ? 'Starting…' : 'Download' }}

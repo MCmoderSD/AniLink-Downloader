@@ -37,22 +37,40 @@
   width: 100%;
 }
 
-// As tall as the name field's box next to it (a form field's outline is 3.5rem), with the group centred in that
-// height. The label hangs above the group without taking part in the layout, so it does not push the group down.
-.new-kind {
-  position: relative;
+// The title and what the section is about to be: the type switch sits on the title's line, where it reads as the
+// section's own control instead of a field next to the name.
+.new-section-head {
   display: flex;
-  flex: none;
+  flex-wrap: wrap;
   align-items: center;
-  height: 3.5rem;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
 }
 
-.new-kind-label {
-  position: absolute;
-  inset-block-start: -0.875rem;
-  inset-inline-start: 0;
-  color: var(--mat-sys-on-surface-variant);
-  font: var(--mat-sys-label-medium);
+// The season fields stay in the page and fold away when the release is a movie, which is what lets them slide
+// instead of blinking out. A row of the grid goes between its natural height and none; the gap the section puts above
+// it is taken back by the same amount, so nothing is left standing where it was.
+.new-season {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--app-timing-base),
+    margin-block-start var(--app-timing-base),
+    opacity var(--app-timing-base);
+}
+
+.new-season-folded {
+  grid-template-rows: 0fr;
+  margin-block-start: -1.25rem;
+  opacity: 0;
+}
+
+.new-season-inner {
+  min-height: 0;
+
+  // Cuts off what is below the fold line, and nothing else: a floating label, a focus ring or a hint is allowed to
+  // reach past the box on the other three sides, which `overflow: hidden` would not let it.
+  clip-path: inset(-0.75rem -0.5rem 0 -0.5rem);
 }
 
 // The containing block for the scroll bar and the resize grip laid over the textarea.
@@ -60,10 +78,16 @@
   position: relative;
 }
 
-.new-links {
+// With the element in the selector: Material sets the input's font with a doubled class (inherit), which a bare
+// class of ours would only tie with.
+textarea.new-links {
   min-height: 12rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
+
+  // Links are long and there are many of them: monospace, and small enough to see most of a line at once. The family
+  // is set here as well as by .app-mono, because Material's own rule resets the font of the input to `inherit`.
+  font-family: var(--app-font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.0625rem;
   white-space: pre;
   overflow-x: auto;
 
