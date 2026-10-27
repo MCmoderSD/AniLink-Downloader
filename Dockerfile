@@ -1,6 +1,4 @@
 # ---- Stage 1: Frontend ----
-# Built as a plain browser bundle (no server-side rendering): the .NET backend serves it from wwwroot,
-# so the page and the API share one origin and one container.
 FROM node:26-alpine AS frontend
 WORKDIR /app
 
@@ -15,7 +13,6 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS backend
 WORKDIR /src
 
-# The project file alone first, so the restored packages stay cached until a dependency changes.
 COPY backend/AniLink.Api/AniLink.Api.csproj ./
 RUN dotnet restore AniLink.Api.csproj
 
@@ -26,9 +23,6 @@ RUN dotnet publish AniLink.Api.csproj -c Release -o /app/publish --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 
-# 7-Zip unpacks the (password protected, multipart) RAR archives. Alpine's package is built from the official
-# source, which includes the RAR decoder.
-# The build stops here, not months later in a user's logs, if the package ever ships without RAR5.
 RUN apk add --no-cache 7zip \
     && 7zz i | grep -q Rar5
 
@@ -41,7 +35,6 @@ COPY --from=frontend --chown=anilink:anilink /app/dist/AniLink/browser ./wwwroot
 ENV Downloads__Root=/downloads
 ENV Archive__SevenZipPath=7zz
 
-# The container may be started as any user (see docker-compose.yaml), and such a user has no home directory.
 ENV HOME=/tmp
 
 USER anilink

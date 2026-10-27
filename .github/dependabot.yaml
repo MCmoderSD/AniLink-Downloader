@@ -1,14 +1,21 @@
 version: 2
 updates:
+
   # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
 
-  # The one image: node, dotnet sdk and aspnet base images
+  # Docker images
   - package-ecosystem: "docker"
     directory: "/"
+    schedule:
+      interval: "daily"
+
+  # Backend: .NET / NuGet
+  - package-ecosystem: "nuget"
+    directory: "/backend"
     schedule:
       interval: "daily"
 
@@ -48,19 +55,6 @@ updates:
           - "*"
         exclude-patterns:
           - "@angular/*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  # Backend: .NET / NuGet (no packages beyond the framework at the moment)
-  - package-ecosystem: "nuget"
-    directory: "/backend"
-    schedule:
-      interval: "daily"
-    groups:
-      dotnet-dependencies:
-        patterns:
-          - "*"
         update-types:
           - "minor"
           - "patch"
