@@ -1,5 +1,4 @@
 # ---- Stage 1: Frontend ----
-# The web page does not depend on the CPU, and node has no image for 32-bit ARM, so this stage runs on the build machine.
 FROM --platform=$BUILDPLATFORM node:26-alpine AS frontend
 WORKDIR /app
 
@@ -11,7 +10,6 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- Stage 2: Backend ----
-# The published API is portable (no apphost), so it is built once on the build machine, not emulated per CPU.
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS backend
 WORKDIR /src
 
