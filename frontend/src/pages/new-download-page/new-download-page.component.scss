@@ -59,6 +59,7 @@
     opacity var(--app-timing-base);
 }
 
+//noinspection CssUnusedSymbol
 .new-season-folded {
   grid-template-rows: 0fr;
   margin-block-start: -1.25rem;
@@ -85,7 +86,7 @@ textarea.new-links {
 
   // Links are long and there are many of them: monospace, and small enough to see most of a line at once. The family
   // is set here as well as by .app-mono, because Material's own rule resets the font of the input to `inherit`.
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-mono), monospace;
   font-size: 0.6875rem;
   line-height: 1.0625rem;
   white-space: pre;

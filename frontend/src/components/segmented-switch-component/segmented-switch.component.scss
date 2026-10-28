@@ -71,10 +71,12 @@
   }
 }
 
+//noinspection CssUnusedSymbol
 .segmented-option:hover:not(.segmented-selected) {
   color: var(--mat-sys-on-surface);
 }
 
+//noinspection CssUnusedSymbol
 .segmented-selected {
   color: var(--mat-sys-primary);
   font-weight: 700;

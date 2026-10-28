@@ -135,7 +135,7 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
   Paused: 'Paused',
   PasswordRequired: 'Password needed',
   Failed: 'Failed',
-  Cancelled: 'Cancelled',
+  Cancelled: 'Canceled',
   Completed: 'Done'
 };
 
@@ -156,7 +156,7 @@ export const STAGE_LABELS: Record<ItemStage, string> = {
   Organizing: 'Sorting files',
   Completed: 'Done',
   Failed: 'Failed',
-  Cancelled: 'Cancelled',
+  Cancelled: 'Canceled',
   Paused: 'Paused'
 };
 

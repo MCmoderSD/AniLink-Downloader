@@ -47,6 +47,7 @@
   transition: transform var(--app-timing-base);
 }
 
+//noinspection CssUnusedSymbol
 .item-chevron-open {
   transform: rotate(180deg);
 }

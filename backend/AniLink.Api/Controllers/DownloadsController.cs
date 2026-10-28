@@ -93,7 +93,7 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         return downloads.Retry(id) switch
         {
             null => NotFound(),
-            false => Conflict("Nothing failed or was cancelled in this download."),
+            false => Conflict("Nothing failed or was canceled in this download."),
             true => Ok(downloads.Get(id))
         };
     }

@@ -79,6 +79,7 @@
   transition: transform var(--app-timing-base);
 }
 
+//noinspection CssUnusedSymbol
 .job-chevron-open {
   transform: rotate(180deg);
 }

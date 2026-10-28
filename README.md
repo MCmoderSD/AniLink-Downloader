@@ -78,7 +78,7 @@ time left) and one row per episode. Finished files and problems also show up as 
 
 **Pause** stops the Debrid-Link requests, the downloads and an unpacking in progress; what has arrived stays on
 disk, and **Resume** carries on from there (an unpacking starts over). **Cancel** ends the download for good, **Retry**
-picks up what failed or was cancelled.
+picks up what failed or was canceled.
 
 **New download** takes:
 

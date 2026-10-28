@@ -1,6 +1,5 @@
 import { ComponentType } from '@angular/cdk/portal';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
 
 export interface DialogOptions {
   width: string;
@@ -24,8 +23,4 @@ export function openDialog<C, D, R>(
     maxHeight: options.maxHeight,
     autoFocus: options.autoFocus
   });
-}
-
-export function askDialog<C, D, R>(dialog: MatDialog, component: ComponentType<C>, data: D, options: DialogOptions): Promise<R | undefined> {
-  return firstValueFrom(openDialog<C, D, R>(dialog, component, data, options).afterClosed());
 }

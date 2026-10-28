@@ -104,7 +104,7 @@ export class JobCardComponent {
       cancelLabel: 'Keep running'
     });
 
-    if (confirmed) await this.act((): Promise<Job> => this.downloads.cancel(this.job().id), 'The download could not be cancelled.');
+    if (confirmed) await this.act((): Promise<Job> => this.downloads.cancel(this.job().id), 'The download could not be canceled.');
   }
 
   protected async pause(): Promise<void> {

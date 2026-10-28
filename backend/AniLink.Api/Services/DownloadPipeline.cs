@@ -75,7 +75,7 @@ public sealed class DownloadPipeline(
         if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
         else _ = jobs.SaveAsync(job);
 
-        Notify(job, NoticeLevel.Warning, $"{job.Name}: cancelled");
+        Notify(job, NoticeLevel.Warning, $"{job.Name}: canceled");
     }
 
     // Stops the links being asked for, the downloads and an unpacking in progress. The partial files stay where they

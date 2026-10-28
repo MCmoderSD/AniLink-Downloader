@@ -54,6 +54,7 @@
 }
 
 // The page the user is on reads as pressed, without taking the filled button's colour away from "New download".
+//noinspection CssUnusedSymbol
 .navbar-link-active:not(.mat-mdc-unelevated-button) {
   background: var(--app-tint-hover);
 }
@@ -73,6 +74,7 @@
   background: var(--app-success);
 }
 
+//noinspection CssUnusedSymbol
 .navbar-status-offline {
   color: var(--app-warning);
 

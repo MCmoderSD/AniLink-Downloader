@@ -55,7 +55,7 @@ export class ItemRowComponent {
         return { label: 'Stopped', detail: this.bytes(item), fraction: item.download.fraction, tone: 'danger', active: false };
 
       case 'Cancelled':
-        return { label: 'Cancelled', detail: this.bytes(item), fraction: item.download.fraction, tone: 'neutral', active: false };
+        return { label: 'Canceled', detail: this.bytes(item), fraction: item.download.fraction, tone: 'neutral', active: false };
 
       case 'Paused':
         return item.links.done < item.links.total

@@ -34,10 +34,6 @@ export class DownloadSyncService {
     );
   }
 
-  get(id: string): Job | undefined {
-    return this.store().get(id);
-  }
-
   apply(job: Job): void {
     this.store.update((jobs: ReadonlyMap<string, Job>): ReadonlyMap<string, Job> => new Map(jobs).set(job.id, job));
   }

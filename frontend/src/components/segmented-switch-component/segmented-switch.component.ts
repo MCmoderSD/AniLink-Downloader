@@ -17,6 +17,7 @@ type PillDirection = 'none' | 'forward' | 'backward';
   templateUrl: './segmented-switch.component.html',
   styleUrls: ['./segmented-switch.component.scss'],
   host: {
+    // noinspection SpellCheckingInspection
     role: 'radiogroup',
     '[attr.aria-label]': 'label()',
     '[class.segmented-ready]': 'ready()',

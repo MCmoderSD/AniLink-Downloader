@@ -68,8 +68,9 @@ body {
   overflow-wrap: anywhere;
 }
 
-// The icon font is self-hosted (@fontsource/material-icons), which ships the face but not the ligature class
+// The icon font is self-hosted through its npm package, which ships the face but not the ligature class
 // that Google's stylesheet defines, so it is written out here.
+//noinspection CssUnusedSymbol
 .material-icons {
   font-family: 'Material Icons', sans-serif;
   font-weight: normal;
@@ -132,7 +133,7 @@ body {
 }
 
 .app-mono {
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-mono), monospace;
 }
 
 // A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.
