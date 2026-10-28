@@ -11,6 +11,7 @@
 **/node_modules/
 **/dist/
 **/.angular/
+**/coverage/
 
 # ── Local configuration and secrets ──
 .env
@@ -23,6 +24,10 @@ appsettings.Local.json
 /downloads/
 /data/
 /testing/
+
+# ── System files ──
+.DS_Store
+Thumbs.db
 
 # ── Claude Code ──
 .claude/
