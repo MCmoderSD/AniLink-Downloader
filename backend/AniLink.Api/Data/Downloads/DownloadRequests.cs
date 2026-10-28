@@ -16,7 +16,7 @@ public sealed record AnalyzeRequest
 public sealed record CreateDownloadRequest
 {
     [Required(AllowEmptyStrings = false)]
-    [MaxLength(DownloadLimits.MaxNameLength)]
+    [MaxBytes(DownloadLimits.MaxNameBytes)]
     public string Name { get; init; } = "";
 
     public ReleaseKind Kind { get; init; }
@@ -44,8 +44,8 @@ public sealed record PasswordRequest
 
 public static class DownloadLimits
 {
-    public const int MaxNameLength = 150;
-    public const int MaxFormatLength = 150;
-    public const int MaxPasswordLength = 200;
+    public const int MaxNameBytes = 251;
+    public const int MaxFormatLength = 255;
+    public const int MaxPasswordLength = 127;
     public const int MaxLinksLength = 1_000_000;
 }

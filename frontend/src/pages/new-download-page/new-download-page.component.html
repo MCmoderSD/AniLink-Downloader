@@ -15,8 +15,8 @@
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Name</mat-label>
-        <input matInput type="text" autocomplete="off" required (input)="setName($event)"/>
-        <mat-hint>Becomes the folder name, and the file name of a film.</mat-hint>
+        <input matInput type="text" autocomplete="off" required [attr.aria-invalid]="nameTooLong()" (input)="setName($event)"/>
+        <mat-hint [class.new-hint-error]="nameTooLong()">{{ nameHint() }}</mat-hint>
       </mat-form-field>
 
       <div class="new-season" [class.new-season-folded]="!isSeason()" [attr.inert]="isSeason() ? null : ''">
@@ -30,6 +30,7 @@
                 autocomplete="off"
                 spellcheck="false"
                 [placeholder]="analysis()?.format ?? 'S01E'"
+                [attr.maxlength]="limits()?.formatLength ?? null"
                 [attr.aria-invalid]="formatMissing()"
                 (input)="setFormat($event)"
               />
@@ -87,7 +88,9 @@
       </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">
-        @if (analysisError(); as problem) {
+        @if (linksProblem(); as tooLong) {
+          <p class="new-callout new-callout-error" role="alert">{{ tooLong }}</p>
+        } @else if (analysisError(); as problem) {
           <p class="new-callout new-callout-error" role="alert">{{ problem }}</p>
         } @else if (analysis(); as result) {
           <p class="new-summary">
@@ -140,6 +143,7 @@
           [type]="passwordVisible() ? 'text' : 'password'"
           autocomplete="off"
           spellcheck="false"
+          [attr.maxlength]="limits()?.passwordLength ?? null"
           (input)="setPassword($event)"
         />
         <button

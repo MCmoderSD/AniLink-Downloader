@@ -5,6 +5,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
+import { Limits } from '../../data/download';
+import { ConfigService } from '../../services/config.service';
 import { openDialog } from '../../services/dialog';
 import { ScrollBarComponent } from '../scroll-bar-component/scroll-bar.component';
 
@@ -24,17 +26,23 @@ export class PasswordPromptDialogComponent {
   private readonly dialogRef: MatDialogRef<PasswordPromptDialogComponent, string> =
     inject<MatDialogRef<PasswordPromptDialogComponent, string>>(MatDialogRef);
 
+  private readonly configuration: ConfigService = inject(ConfigService);
   private readonly entered: WritableSignal<string> = signal('');
   private readonly shown: WritableSignal<boolean> = signal(false);
 
   protected readonly data: PasswordPromptDialogData = inject<PasswordPromptDialogData>(MAT_DIALOG_DATA);
 
+  protected readonly limits: Signal<Limits | null> = computed((): Limits | null => this.configuration.config()?.limits ?? null);
   protected readonly visible: Signal<boolean> = this.shown.asReadonly();
   protected readonly valid: Signal<boolean> = computed((): boolean => this.entered().length > 0);
 
   protected readonly summary: string = this.data.waiting.length > 3
     ? `${this.data.waiting.slice(0, 3).join(', ')} and ${this.data.waiting.length - 3} more`
     : this.data.waiting.join(', ');
+
+  constructor() {
+    void this.configuration.load();
+  }
 
   static async ask(dialog: MatDialog, data: PasswordPromptDialogData): Promise<string | undefined> {
     const ref: MatDialogRef<PasswordPromptDialogComponent, string> = openDialog<PasswordPromptDialogComponent, PasswordPromptDialogData, string>(

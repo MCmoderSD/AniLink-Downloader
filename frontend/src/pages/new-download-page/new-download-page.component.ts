@@ -18,6 +18,7 @@ import {
   AnalyzeRequest,
   AppConfig,
   Job,
+  Limits,
   ReleaseKind
 } from '../../data/download';
 import { ConfigService } from '../../services/config.service';
@@ -27,6 +28,8 @@ import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
 
 const ANALYZE_DELAY_MS: number = 350;
+
+const ENCODER: TextEncoder = new TextEncoder();
 
 const KINDS: SegmentedOption[] = [
   { value: 'Season', label: 'Season' },
@@ -77,9 +80,35 @@ export class NewDownloadPageComponent {
 
   protected readonly isSeason: Signal<boolean> = computed((): boolean => this.kindValue() === 'Season');
 
+  protected readonly limits: Signal<Limits | null> = computed((): Limits | null => this.config()?.limits ?? null);
+
+  protected readonly nameBytes: Signal<number> = computed((): number => ENCODER.encode(this.nameValue().trim()).length);
+
+  protected readonly nameTooLong: Signal<boolean> = computed((): boolean => {
+    const limits: Limits | null = this.limits();
+    return limits !== null && this.nameBytes() > limits.nameBytes;
+  });
+
+  protected readonly nameHint: Signal<string> = computed((): string => {
+    const limits: Limits | null = this.limits();
+
+    return this.nameTooLong() && limits !== null
+      ? `Too long: ${this.nameBytes()} of ${limits.nameBytes} bytes. The name becomes a file name, and file systems allow 255 bytes.`
+      : 'Becomes the folder name, and the file name of a film.';
+  });
+
+  protected readonly linksProblem: Signal<string | null> = computed((): string | null => {
+    const limits: Limits | null = this.limits();
+    const length: number = this.linksValue().length;
+
+    return limits !== null && length > limits.linksLength
+      ? `Too many characters: ${length} of ${limits.linksLength}. Add the rest as a second download.`
+      : null;
+  });
+
   protected readonly request: Signal<AnalyzeRequest | null> = computed((): AnalyzeRequest | null => {
     const links: string = this.linksValue();
-    if (!links.trim()) return null;
+    if (!links.trim() || this.linksProblem() !== null) return null;
 
     return { kind: this.kindValue(), links, format: this.formatValue().trim() || null };
   });
@@ -122,6 +151,8 @@ export class NewDownloadPageComponent {
 
   protected readonly valid: Signal<boolean> = computed((): boolean =>
     this.nameValue().trim().length > 0
+    && !this.nameTooLong()
+    && this.linksProblem() === null
     && this.episodes().length > 0
     && this.unmatched().length === 0
     && !this.seasonInvalid()

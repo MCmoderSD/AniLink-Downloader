@@ -17,7 +17,7 @@ public sealed class DownloadService(
 {
     public ConfigResponse GetConfig()
     {
-        return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root);
+        return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root, LimitsResponse.Current);
     }
 
     public AnalysisResponse Analyze(AnalyzeRequest request)

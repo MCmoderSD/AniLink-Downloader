@@ -89,12 +89,12 @@ picks up what failed or was canceled.
 
 | Field | |
 |---|---|
-| Name | Becomes the folder (and the file name of a film). |
+| Name | Becomes the folder (and the file name of a film), so it has to fit into a file name: at most 251 bytes in UTF-8 (255 for a file name, minus `.mkv`). Plain letters are one byte each, accented ones two, most Japanese characters three. |
 | Type | *Season* for several episodes, *Movie* for a single release (an episode of its own counts as one). |
-| Season format | The text in front of the episode number, e.g. `Frieren.S01E`. Found automatically; type it only if the page says it could not. |
+| Season format | The text in front of the episode number, e.g. `Frieren.S01E`. Found automatically; type it only if the page says it could not. At most 255 characters, the length of a file name. |
 | Season | The folder number (`01`). Read from the format, editable. |
-| Links | One per line, in any order. The page shows which episodes and parts it found before you start. |
-| Password | Optional. Tried before the defaults. |
+| Links | One per line, in any order. The page shows which episodes and parts it found before you start. Up to 1,000,000 characters in one download. |
+| Password | Optional. Tried before the defaults. At most 127 characters, the longest password RAR allows. |
 
 ### What ends up on disk
 ```

@@ -103,10 +103,18 @@ export interface CreateDownloadRequest extends AnalyzeRequest {
   password: string | null;
 }
 
+export interface Limits {
+  nameBytes: number;
+  formatLength: number;
+  passwordLength: number;
+  linksLength: number;
+}
+
 export interface AppConfig {
   maxConcurrency: number;
   defaultPasswords: number;
   downloadsRoot: string;
+  limits: Limits;
 }
 
 export interface JobMessage {
