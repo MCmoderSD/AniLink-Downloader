@@ -15,21 +15,19 @@ type PillDirection = 'none' | 'forward' | 'backward';
 @Component({
   selector: 'app-segmented-switch',
   templateUrl: './segmented-switch.component.html',
-  styleUrl: './segmented-switch.component.scss',
+  styleUrls: ['./segmented-switch.component.scss'],
   host: {
     role: 'radiogroup',
     '[attr.aria-label]': 'label()',
     '[class.segmented-ready]': 'ready()',
     '[class.segmented-forward]': "direction() === 'forward'",
-    '[class.segmented-backward]': "direction() === 'backward'",
-  },
+    '[class.segmented-backward]': "direction() === 'backward'"
+  }
 })
 export class SegmentedSwitchComponent {
 
   readonly options: InputSignal<SegmentedOption[]> = input.required<SegmentedOption[]>();
   readonly value: InputSignal<string> = input.required<string>();
-
-  // The accessible name of the group; whatever is drawn next to it is the caller's.
   readonly label: InputSignal<string> = input.required<string>();
 
   readonly valueChange: OutputEmitterRef<string> = output<string>();
@@ -48,13 +46,12 @@ export class SegmentedSwitchComponent {
   protected readonly index: Signal<number> = computed((): number =>
     Math.max(0, this.options().findIndex((option: SegmentedOption): boolean => option.value === this.value())));
 
-  // Which way the pill travels, read from how the selection moved: the leading edge runs ahead of the trailing one.
   protected readonly direction: Signal<PillDirection> = linkedSignal<number, PillDirection>({
     source: this.index,
     computation: (next: number, previous?: { source: number; value: PillDirection }): PillDirection => {
       if (!previous || next === previous.source) return previous?.value ?? 'none';
       return next > previous.source ? 'forward' : 'backward';
-    },
+    }
   });
 
   protected readonly pill: Signal<PillSpan | null> = computed((): PillSpan | null => this.spans()[this.index()] ?? null);
@@ -66,7 +63,6 @@ export class SegmentedSwitchComponent {
       const sizes: ResizeObserver | undefined = typeof ResizeObserver === 'function' ? new ResizeObserver((): void => this.measure()) : undefined;
       sizes?.observe(this.host.nativeElement);
 
-      // Placed first and only then allowed to move, so the pill does not slide in from the corner on load.
       const frame: number = requestAnimationFrame((): void => this.settled.set(true));
 
       this.destroyRef.onDestroy((): void => {
@@ -114,14 +110,12 @@ export class SegmentedSwitchComponent {
     this.select(option);
   }
 
-  // Positions are read off the buttons, not computed from the text: the font, the padding and the user's text size
-  // all decide how wide one is.
   private measure(): void {
     const width: number = this.host.nativeElement.clientWidth;
 
     this.spans.set(this.choices().map(({ nativeElement }: ElementRef<HTMLButtonElement>): PillSpan => ({
       left: nativeElement.offsetLeft,
-      right: width - nativeElement.offsetLeft - nativeElement.offsetWidth,
+      right: width - nativeElement.offsetLeft - nativeElement.offsetWidth
     })));
   }
 }

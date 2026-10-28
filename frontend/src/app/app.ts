@@ -9,7 +9,7 @@ import { DownloadSyncService } from '../services/download-sync.service';
   imports: [RouterOutlet, NavbarComponent, NotificationsComponent, PageScrollBarComponent],
   selector: 'app-root',
   styleUrl: './app.scss',
-  templateUrl: './app.html',
+  templateUrl: './app.html'
 })
 export class App {
 

@@ -9,12 +9,12 @@ const NO_POINTER: string = '(pointer: coarse), (hover: none)';
 @Component({
   selector: 'app-page-scroll-bar',
   templateUrl: './page-scroll-bar.component.html',
-  styleUrl: './page-scroll-bar.component.scss',
+  styleUrls: ['./page-scroll-bar.component.scss'],
   host: {
     'aria-hidden': 'true',
     '[class.page-scroll-bar-revealed]': 'revealed()',
-    '[class.page-scroll-bar-dragging]': 'dragging()',
-  },
+    '[class.page-scroll-bar-dragging]': 'dragging()'
+  }
 })
 export class PageScrollBarComponent {
 
@@ -26,7 +26,6 @@ export class PageScrollBarComponent {
   private readonly scrollTop: WritableSignal<number> = signal(0);
   private readonly scrollHeight: WritableSignal<number> = signal(0);
   private readonly viewportHeight: WritableSignal<number> = signal(0);
-
   private readonly trackHeight: WritableSignal<number> = signal(0);
 
   private readonly pointerNear: WritableSignal<boolean> = signal(false);
@@ -41,14 +40,14 @@ export class PageScrollBarComponent {
   private grabbedScrollTop = 0;
 
   protected readonly axis: Signal<ScrollBarAxis> = computed((): ScrollBarAxis => scrollBarAxis(
-    this.trackHeight(), this.viewportHeight(), this.scrollHeight(), this.scrollTop(),
+    this.trackHeight(), this.viewportHeight(), this.scrollHeight(), this.scrollTop()
   ));
 
   protected readonly scrollable: Signal<boolean> = computed((): boolean => this.untouchable() && this.axis().visible);
 
   protected readonly revealed: Signal<boolean> = computed((): boolean =>
     this.scrollable() &&
-    (this.dragging() || this.pointerOnBar() || this.pointerNear() || this.scrolling()),
+    (this.dragging() || this.pointerOnBar() || this.pointerNear() || this.scrolling())
   );
 
   constructor() {
@@ -104,7 +103,7 @@ export class PageScrollBarComponent {
 
   private listen(view: Window & typeof globalThis): void {
     this.zone.runOutsideAngular((): void => {
-      const scrolled = (): void => {
+      const scrolled: () => void = (): void => {
         this.measure();
         this.flashOnScroll();
       };
@@ -113,8 +112,8 @@ export class PageScrollBarComponent {
         this.pointerNear.set(view.innerWidth - event.clientX <= REVEAL_DISTANCE);
       };
 
-      const left = (): void => this.pointerNear.set(false);
-      const resized = (): void => this.measure();
+      const left: () => void = (): void => this.pointerNear.set(false);
+      const resized: () => void = (): void => this.measure();
 
       view.addEventListener('scroll', scrolled, { passive: true });
       view.addEventListener('resize', resized);
@@ -123,7 +122,7 @@ export class PageScrollBarComponent {
 
       const sizes: ResizeObserver | undefined = typeof ResizeObserver === 'function' ? new ResizeObserver((): void => this.measure()) : undefined;
 
-      const observe = (): void => {
+      const observe: () => void = (): void => {
         sizes?.disconnect();
         sizes?.observe(this.document.body);
         for (const child of this.document.body.children) sizes?.observe(child);

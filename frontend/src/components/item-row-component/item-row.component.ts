@@ -12,13 +12,11 @@ interface Bar {
   active: boolean;
 }
 
-// One episode (or the film) of a download: where it is in its stages, one bar for the stage it is in, and the
-// archive parts behind it for whoever wants to see them.
 @Component({
   selector: 'app-item-row',
   templateUrl: './item-row.component.html',
-  styleUrl: './item-row.component.scss',
-  imports: [MatIconModule, ProgressBarComponent],
+  styleUrls: ['./item-row.component.scss'],
+  imports: [MatIconModule, ProgressBarComponent]
 })
 export class ItemRowComponent {
 

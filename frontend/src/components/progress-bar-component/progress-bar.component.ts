@@ -1,16 +1,14 @@
 import { Component, computed, input, InputSignal, Signal } from '@angular/core';
 import { Tone } from '../../data/download';
 
-// A labelled bar. The label says what is measured, the detail says in what units, and the percentage is always
-// written out as well, so the bar is never the only carrier of the number.
 @Component({
   selector: 'app-progress-bar',
   templateUrl: './progress-bar.component.html',
-  styleUrl: './progress-bar.component.scss',
+  styleUrls: ['./progress-bar.component.scss'],
   host: {
     '[attr.data-tone]': 'tone()',
-    '[class.progress-compact]': 'compact()',
-  },
+    '[class.progress-compact]': 'compact()'
+  }
 })
 export class ProgressBarComponent {
 
@@ -19,8 +17,6 @@ export class ProgressBarComponent {
   readonly fraction: InputSignal<number> = input.required<number>();
   readonly tone: InputSignal<Tone> = input<Tone>('info');
   readonly compact: InputSignal<boolean> = input<boolean>(false);
-
-  // Moving bars shimmer; a finished, failed or waiting one stands still.
   readonly active: InputSignal<boolean> = input<boolean>(false);
 
   protected readonly percent: Signal<number> = computed((): number =>

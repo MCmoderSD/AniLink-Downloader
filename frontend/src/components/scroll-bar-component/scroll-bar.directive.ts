@@ -2,7 +2,7 @@ import { afterNextRender, ComponentRef, DestroyRef, Directive, ElementRef, injec
 import { ScrollBarComponent } from './scroll-bar.component';
 
 @Directive({
-  selector: '[appScrollBar]',
+  selector: '[appScrollBar]'
 })
 export class ScrollBarDirective {
 

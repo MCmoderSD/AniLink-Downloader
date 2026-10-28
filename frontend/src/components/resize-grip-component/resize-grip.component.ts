@@ -24,7 +24,7 @@ const NO_CORNER: GripCorner = { top: 0, left: 0 };
     '(pointerdown)': 'grab($event)'
   },
   templateUrl: './resize-grip.component.html',
-  styleUrl: './resize-grip.component.scss',
+  styleUrls: ['./resize-grip.component.scss']
 })
 export class ResizeGripComponent {
 
@@ -135,7 +135,7 @@ export class ResizeGripComponent {
 
       this.corner.set({
         top: bottom - RESIZE_GRIP_SIZE + (view?.scrollY ?? 0),
-        left: right - RESIZE_GRIP_SIZE + (view?.scrollX ?? 0),
+        left: right - RESIZE_GRIP_SIZE + (view?.scrollX ?? 0)
       });
 
       return;
@@ -145,7 +145,7 @@ export class ResizeGripComponent {
 
     this.corner.set({
       top: bottom - origin.top - parent.clientTop + parent.scrollTop - RESIZE_GRIP_SIZE,
-      left: right - origin.left - parent.clientLeft + parent.scrollLeft - RESIZE_GRIP_SIZE,
+      left: right - origin.left - parent.clientLeft + parent.scrollLeft - RESIZE_GRIP_SIZE
     });
   }
 }

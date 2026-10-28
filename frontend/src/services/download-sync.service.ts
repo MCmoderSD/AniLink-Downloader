@@ -4,8 +4,6 @@ import { DownloadService } from './download.service';
 import { NotificationService } from './notification.service';
 import { SseService, StreamListener } from './sse.service';
 
-// The one place that knows the current jobs. The server pushes a full snapshot of every job that changed, so the
-// page only ever replaces what it holds; a reload after each (re)connect covers whatever was missed meanwhile.
 @Service()
 export class DownloadSyncService {
 
@@ -32,7 +30,7 @@ export class DownloadSyncService {
       'downloads/stream',
       (message: StreamMessage): void => this.receive(message),
       (): void => void this.reload(),
-      (): void => this.open.set(false),
+      (): void => this.open.set(false)
     );
   }
 
@@ -40,7 +38,6 @@ export class DownloadSyncService {
     return this.store().get(id);
   }
 
-  // Used right after an action: the response is already the newest state, no need to wait for the stream.
   apply(job: Job): void {
     this.store.update((jobs: ReadonlyMap<string, Job>): ReadonlyMap<string, Job> => new Map(jobs).set(job.id, job));
   }
@@ -79,7 +76,6 @@ export class DownloadSyncService {
   }
 
   private announce(message: NoticeMessage): void {
-    // The texts that start with the job name already say which download they belong to.
     const text: string = message.text.startsWith(message.job) ? message.text : `${message.job} · ${message.text}`;
     const level: NoticeLevel = message.level;
 

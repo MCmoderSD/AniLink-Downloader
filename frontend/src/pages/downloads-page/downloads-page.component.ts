@@ -9,8 +9,8 @@ import { DownloadSyncService } from '../../services/download-sync.service';
 @Component({
   selector: 'app-downloads-page',
   templateUrl: './downloads-page.component.html',
-  styleUrl: './downloads-page.component.scss',
-  imports: [MatButtonModule, MatIconModule, RouterLink, JobCardComponent],
+  styleUrls: ['./downloads-page.component.scss'],
+  imports: [MatButtonModule, MatIconModule, RouterLink, JobCardComponent]
 })
 export class DownloadsPageComponent {
 

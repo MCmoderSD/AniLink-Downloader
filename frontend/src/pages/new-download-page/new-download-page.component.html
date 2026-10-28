@@ -10,12 +10,12 @@
     <section class="new-section app-panel" aria-labelledby="new-what">
       <div class="new-section-head">
         <h2 class="new-section-title" id="new-what">What is it</h2>
-        <app-segmented-switch label="Type" [options]="kinds" [value]="kind()" (valueChange)="setKind($event)" />
+        <app-segmented-switch label="Type" [options]="kinds" [value]="kind()" (valueChange)="setKind($event)"/>
       </div>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Name</mat-label>
-        <input matInput type="text" autocomplete="off" required (input)="setName($event)" />
+        <input matInput type="text" autocomplete="off" required (input)="setName($event)"/>
         <mat-hint>Becomes the folder name, and the file name of a film.</mat-hint>
       </mat-form-field>
 
@@ -82,8 +82,8 @@
           <mat-hint>The order does not matter. Duplicates and empty lines are dropped.</mat-hint>
         </mat-form-field>
 
-        <app-scroll-bar [target]="links" [endInset]="gripSize" />
-        <app-resize-grip [target]="links" />
+        <app-scroll-bar [target]="links" [endInset]="gripSize"/>
+        <app-resize-grip [target]="links"/>
       </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">

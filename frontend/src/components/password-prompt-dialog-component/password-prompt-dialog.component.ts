@@ -16,8 +16,8 @@ export interface PasswordPromptDialogData {
 @Component({
   selector: 'app-password-prompt-dialog',
   templateUrl: './password-prompt-dialog.component.html',
-  styleUrl: './password-prompt-dialog.component.scss',
-  imports: [MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, ScrollBarComponent],
+  styleUrls: ['./password-prompt-dialog.component.scss'],
+  imports: [MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, ScrollBarComponent]
 })
 export class PasswordPromptDialogComponent {
 
@@ -32,7 +32,6 @@ export class PasswordPromptDialogComponent {
   protected readonly visible: Signal<boolean> = this.shown.asReadonly();
   protected readonly valid: Signal<boolean> = computed((): boolean => this.entered().length > 0);
 
-  // The first few names, so the user sees which episodes are waiting without a wall of text.
   protected readonly summary: string = this.data.waiting.length > 3
     ? `${this.data.waiting.slice(0, 3).join(', ')} and ${this.data.waiting.length - 3} more`
     : this.data.waiting.join(', ');

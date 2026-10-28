@@ -1,5 +1,20 @@
 import { DOCUMENT } from '@angular/common';
-import { afterNextRender, Component, computed, effect, ElementRef, inject, input, InputSignal, NgZone, Signal, signal, viewChild, WritableSignal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  EffectCleanupRegisterFn,
+  ElementRef,
+  inject,
+  input,
+  InputSignal,
+  NgZone,
+  Signal,
+  signal,
+  viewChild,
+  WritableSignal
+} from '@angular/core';
 
 const NATIVE_BAR_HIDDEN: string = 'app-native-scrollbar-hidden';
 
@@ -80,7 +95,7 @@ export function nearEdge(
 @Component({
   selector: 'app-scroll-bar',
   templateUrl: './scroll-bar.component.html',
-  styleUrl: './scroll-bar.component.scss',
+  styleUrls: ['./scroll-bar.component.scss'],
   host: {
     'aria-hidden': 'true',
     '[class.scroll-bar-dragging]': 'dragging()',
@@ -88,8 +103,8 @@ export function nearEdge(
     '[style.top.px]': 'box().top',
     '[style.left.px]': 'box().left',
     '[style.width.px]': 'box().width',
-    '[style.height.px]': 'box().height',
-  },
+    '[style.height.px]': 'box().height'
+  }
 })
 export class ScrollBarComponent {
 
@@ -121,13 +136,13 @@ export class ScrollBarComponent {
   protected readonly dragging: WritableSignal<boolean> = signal(false);
 
   protected readonly revealed: Signal<boolean> = computed((): boolean =>
-    this.dragging() || this.pointerOnBar() || this.pointerNear() || this.scrolling(),
+    this.dragging() || this.pointerOnBar() || this.pointerNear() || this.scrolling()
   );
 
   constructor() {
     afterNextRender((): void => this.rendered.set(true));
 
-    effect((onCleanup): void => {
+    effect((onCleanup: EffectCleanupRegisterFn): void => {
       const target: HTMLElement = this.target();
       if (!this.rendered()) return;
 
@@ -205,7 +220,7 @@ export class ScrollBarComponent {
         (): void => target.removeEventListener('pointermove', track),
         (): void => target.removeEventListener('pointerleave', leave),
         (): void => bars.removeEventListener('pointerenter', enterBar),
-        (): void => bars.removeEventListener('pointerleave', leaveBar),
+        (): void => bars.removeEventListener('pointerleave', leaveBar)
       ];
 
       if (typeof ResizeObserver !== 'function') return stop;

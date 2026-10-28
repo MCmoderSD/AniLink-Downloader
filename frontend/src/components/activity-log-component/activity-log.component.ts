@@ -6,14 +6,13 @@ import { ScrollBarDirective } from '../scroll-bar-component/scroll-bar.directive
 @Component({
   selector: 'app-activity-log',
   templateUrl: './activity-log.component.html',
-  styleUrl: './activity-log.component.scss',
-  imports: [DatePipe, ScrollBarDirective],
+  styleUrls: ['./activity-log.component.scss'],
+  imports: [DatePipe, ScrollBarDirective]
 })
 export class ActivityLogComponent {
 
   readonly entries: InputSignal<Notice[]> = input.required<Notice[]>();
 
-  // Newest first: what just happened is what the user opened the log for.
   protected readonly newestFirst: Signal<Notice[]> = computed((): Notice[] => [...this.entries()].reverse());
 
   protected tone(entry: Notice): Tone {

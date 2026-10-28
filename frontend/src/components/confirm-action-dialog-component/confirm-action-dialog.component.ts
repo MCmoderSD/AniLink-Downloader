@@ -15,8 +15,8 @@ export interface ConfirmActionDialogData {
 @Component({
   selector: 'app-confirm-action-dialog',
   templateUrl: './confirm-action-dialog.component.html',
-  styleUrl: './confirm-action-dialog.component.scss',
-  imports: [MatButtonModule, MatDialogModule, ScrollBarComponent],
+  styleUrls: ['./confirm-action-dialog.component.scss'],
+  imports: [MatButtonModule, MatDialogModule, ScrollBarComponent]
 })
 export class ConfirmActionDialogComponent {
 
@@ -28,7 +28,8 @@ export class ConfirmActionDialogComponent {
   static async confirm(dialog: MatDialog, data: ConfirmActionDialogData): Promise<boolean> {
     const ref: MatDialogRef<ConfirmActionDialogComponent, boolean> = openDialog<ConfirmActionDialogComponent, ConfirmActionDialogData, boolean>(
       dialog, ConfirmActionDialogComponent, data,
-      { width: '28rem', minWidth: 'min(20rem, 92vw)', autoFocus: 'dialog' });
+      { width: '28rem', minWidth: 'min(20rem, 92vw)', autoFocus: 'dialog' }
+    );
 
     return await firstValueFrom(ref.afterClosed()) === true;
   }

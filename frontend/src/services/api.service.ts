@@ -2,8 +2,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-// The API is served by the same origin as the page, so there is no host to configure and no credentials to send.
-// In development the dev server forwards /api to the backend (proxy.conf.json).
 export const API_BASE: string = '/api';
 
 export abstract class ApiService {

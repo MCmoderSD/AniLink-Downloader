@@ -8,8 +8,18 @@ import { NumberStepperComponent } from '../../components/number-stepper-componen
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
 import { ScrollBarComponent } from '../../components/scroll-bar-component/scroll-bar.component';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
-import { SegmentedOption, SegmentedSwitchComponent } from '../../components/segmented-switch-component/segmented-switch.component';
-import { Analysis, AnalyzedEpisode, AnalyzeRequest, AppConfig, ReleaseKind } from '../../data/download';
+import {
+  SegmentedOption,
+  SegmentedSwitchComponent
+} from '../../components/segmented-switch-component/segmented-switch.component';
+import {
+  Analysis,
+  AnalyzedEpisode,
+  AnalyzeRequest,
+  AppConfig,
+  Job,
+  ReleaseKind
+} from '../../data/download';
 import { ConfigService } from '../../services/config.service';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
@@ -20,14 +30,14 @@ const ANALYZE_DELAY_MS: number = 350;
 
 const KINDS: SegmentedOption[] = [
   { value: 'Season', label: 'Season' },
-  { value: 'Movie', label: 'Movie' },
+  { value: 'Movie', label: 'Movie' }
 ];
 
 @Component({
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
-  styleUrl: './new-download-page.component.scss',
-  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent],
+  styleUrls: ['./new-download-page.component.scss'],
+  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent]
 })
 export class NewDownloadPageComponent {
 
@@ -50,7 +60,6 @@ export class NewDownloadPageComponent {
   private readonly sending: WritableSignal<boolean> = signal(false);
   private readonly sendProblem: WritableSignal<string | null> = signal<string | null>(null);
 
-  // Only the newest answer may land: a slow response to an earlier edit must not overwrite a later one.
   private analysisTicket: number = 0;
 
   protected readonly kind: Signal<ReleaseKind> = this.kindValue.asReadonly();
@@ -75,7 +84,6 @@ export class NewDownloadPageComponent {
     return { kind: this.kindValue(), links, format: this.formatValue().trim() || null };
   });
 
-  // What the season folder will be called: what the user typed, else what was read from the format, else 1.
   protected readonly seasonNumber: Signal<number | null> = computed((): number | null => {
     if (!this.isSeason()) return null;
 
@@ -131,7 +139,6 @@ export class NewDownloadPageComponent {
   constructor() {
     void inject(ConfigService).load();
 
-    // Re-reads the links shortly after the last keystroke or paste, so the preview is there before the button is.
     effect((onCleanup: (cleanup: () => void) => void): void => {
       const request: AnalyzeRequest | null = this.request();
 
@@ -190,13 +197,13 @@ export class NewDownloadPageComponent {
     this.sendProblem.set(null);
 
     try {
-      const job = await this.downloads.create({
+      const job: Job = await this.downloads.create({
         name: this.nameValue().trim(),
         kind: this.kindValue(),
         links: this.linksValue(),
         format: this.formatValue().trim() || null,
         season: this.seasonNumber(),
-        password: this.passwordValue() || null,
+        password: this.passwordValue() || null
       });
 
       this.sync.apply(job);

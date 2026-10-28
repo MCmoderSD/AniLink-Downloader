@@ -17,7 +17,6 @@ export function formatPercent(fraction: number): string {
   return `${Math.round(Math.min(Math.max(fraction, 0), 1) * 100)}%`;
 }
 
-// Time left at the current speed. Only worth showing once there is a speed to divide by.
 export function formatEta(remainingBytes: number, bytesPerSecond: number): string | null {
   if (remainingBytes <= 0 || bytesPerSecond < 1) return null;
 

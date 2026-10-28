@@ -3,7 +3,7 @@ import { Component, computed, input, InputSignal, output, OutputEmitterRef, Sign
 @Component({
   selector: 'app-number-stepper',
   templateUrl: './number-stepper.component.html',
-  styleUrl: './number-stepper.component.scss',
+  styleUrls: ['./number-stepper.component.scss']
 })
 export class NumberStepperComponent {
 

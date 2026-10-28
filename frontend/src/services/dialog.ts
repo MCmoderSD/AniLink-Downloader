@@ -14,7 +14,7 @@ const DEFAULT_MIN_WIDTH: string = 'min(22rem, 92vw)';
 const DEFAULT_MAX_WIDTH: string = '92vw';
 
 export function openDialog<C, D, R>(
-  dialog: MatDialog, component: ComponentType<C>, data: D, options: DialogOptions,
+  dialog: MatDialog, component: ComponentType<C>, data: D, options: DialogOptions
 ): MatDialogRef<C, R> {
   return dialog.open<C, D, R>(component, {
     data,
@@ -22,7 +22,7 @@ export function openDialog<C, D, R>(
     minWidth: options.minWidth ?? DEFAULT_MIN_WIDTH,
     maxWidth: options.maxWidth ?? DEFAULT_MAX_WIDTH,
     maxHeight: options.maxHeight,
-    autoFocus: options.autoFocus,
+    autoFocus: options.autoFocus
   });
 }
 

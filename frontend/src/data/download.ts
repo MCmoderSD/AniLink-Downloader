@@ -136,7 +136,7 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
   PasswordRequired: 'Password needed',
   Failed: 'Failed',
   Cancelled: 'Cancelled',
-  Completed: 'Done',
+  Completed: 'Done'
 };
 
 export const STATUS_TONES: Record<JobStatus, Tone> = {
@@ -145,7 +145,7 @@ export const STATUS_TONES: Record<JobStatus, Tone> = {
   PasswordRequired: 'warning',
   Failed: 'danger',
   Cancelled: 'neutral',
-  Completed: 'success',
+  Completed: 'success'
 };
 
 export const STAGE_LABELS: Record<ItemStage, string> = {
@@ -157,7 +157,7 @@ export const STAGE_LABELS: Record<ItemStage, string> = {
   Completed: 'Done',
   Failed: 'Failed',
   Cancelled: 'Cancelled',
-  Paused: 'Paused',
+  Paused: 'Paused'
 };
 
 export const STAGE_TONES: Record<ItemStage, Tone> = {
@@ -169,7 +169,7 @@ export const STAGE_TONES: Record<ItemStage, Tone> = {
   Completed: 'success',
   Failed: 'danger',
   Cancelled: 'neutral',
-  Paused: 'warning',
+  Paused: 'warning'
 };
 
 export const PART_LABELS: Record<PartState, string> = {
@@ -178,7 +178,7 @@ export const PART_LABELS: Record<PartState, string> = {
   Resolved: 'Link ready',
   Downloading: 'Downloading',
   Downloaded: 'Downloaded',
-  Failed: 'Failed',
+  Failed: 'Failed'
 };
 
 export const PART_TONES: Record<PartState, Tone> = {
@@ -187,14 +187,14 @@ export const PART_TONES: Record<PartState, Tone> = {
   Resolved: 'neutral',
   Downloading: 'info',
   Downloaded: 'success',
-  Failed: 'danger',
+  Failed: 'danger'
 };
 
 export const NOTICE_TONES: Record<NoticeLevel, Tone> = {
   Info: 'neutral',
   Success: 'success',
   Warning: 'warning',
-  Error: 'danger',
+  Error: 'danger'
 };
 
 export function jobSubtitle(job: Job): string {

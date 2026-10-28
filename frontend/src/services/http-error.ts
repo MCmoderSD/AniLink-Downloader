@@ -1,7 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-// A failed call as text for the user. The backend answers with a plain string for its own refusals, and with a
-// problem-details object when the request did not pass validation, so both shapes are read.
 export function errorMessage(error: unknown, fallback: string): string {
   if (!(error instanceof HttpErrorResponse)) return fallback;
 

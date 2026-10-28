@@ -7,8 +7,8 @@ import { DownloadSyncService } from '../../services/download-sync.service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
-  imports: [MatButtonModule, MatIconModule, RouterLink, RouterLinkActive],
+  styleUrls: ['./navbar.component.scss'],
+  imports: [MatButtonModule, MatIconModule, RouterLink, RouterLinkActive]
 })
 export class NavbarComponent {
 

@@ -5,7 +5,7 @@ const LIFETIME_MS: Record<NotificationKind, number> = {
   info: 4000,
   success: 5000,
   warning: 9000,
-  failure: 12000,
+  failure: 12000
 };
 
 const MAX_VISIBLE: number = 5;
@@ -17,7 +17,7 @@ export class NotificationService {
 
   private readonly timers: Map<number, ReturnType<typeof setTimeout>> = new Map<number, ReturnType<typeof setTimeout>>();
 
-  private nextId = 0;
+  private nextId: number = 0;
 
   readonly notifications: Signal<Notification[]> = this.entries.asReadonly();
 

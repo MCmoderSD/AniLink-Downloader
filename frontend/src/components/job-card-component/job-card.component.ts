@@ -19,8 +19,8 @@ let nextCardId: number = 0;
 @Component({
   selector: 'app-job-card',
   templateUrl: './job-card.component.html',
-  styleUrl: './job-card.component.scss',
-  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, ItemRowComponent, ActivityLogComponent],
+  styleUrls: ['./job-card.component.scss'],
+  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, ItemRowComponent, ActivityLogComponent]
 })
 export class JobCardComponent {
 
@@ -101,7 +101,7 @@ export class JobCardComponent {
       title: 'Cancel this download?',
       message: `${this.job().name} stops here. What has been downloaded stays on disk, and Retry picks it up again.`,
       confirmLabel: 'Cancel download',
-      cancelLabel: 'Keep running',
+      cancelLabel: 'Keep running'
     });
 
     if (confirmed) await this.act((): Promise<Job> => this.downloads.cancel(this.job().id), 'The download could not be cancelled.');
@@ -122,7 +122,7 @@ export class JobCardComponent {
   protected async enterPassword(): Promise<void> {
     const password: string | undefined = await PasswordPromptDialogComponent.ask(this.dialog, {
       jobName: this.job().name,
-      waiting: this.waiting().map((item: Item): string => item.label),
+      waiting: this.waiting().map((item: Item): string => item.label)
     });
 
     if (password) await this.act((): Promise<Job> => this.downloads.submitPassword(this.job().id, password), 'The password could not be sent.');
@@ -132,7 +132,7 @@ export class JobCardComponent {
     const confirmed: boolean = await ConfirmActionDialogComponent.confirm(this.dialog, {
       title: 'Remove from the list?',
       message: `${this.job().name} disappears from this list${this.running() ? ' and stops downloading' : ''}. Files on disk are not deleted.`,
-      confirmLabel: 'Remove',
+      confirmLabel: 'Remove'
     });
 
     if (!confirmed) return;

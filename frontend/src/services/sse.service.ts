@@ -13,13 +13,11 @@ export class SseService {
 
   private readonly view: (Window & typeof globalThis) | null = inject(DOCUMENT).defaultView;
 
-  // The browser reconnects an EventSource by itself, so `opened` fires again after every drop. That is the
-  // moment to reload whatever the stream only describes changes to.
   open<T>(
     path: string,
     receive: (message: T) => void,
     opened: () => void = (): void => undefined,
-    interrupted: () => void = (): void => undefined,
+    interrupted: () => void = (): void => undefined
   ): StreamListener {
     const supported: typeof EventSource | undefined = this.view?.EventSource;
     if (!supported) return CLOSED;
