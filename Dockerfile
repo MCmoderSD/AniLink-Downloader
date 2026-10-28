@@ -20,29 +20,26 @@ COPY backend/AniLink.Api/ ./
 RUN dotnet publish AniLink.Api.csproj -c Release -o /app/publish --no-restore
 
 # ---- Stage 3: 7-Zip ----
-# Alpine's own "7zip" package is built without RAR support, so the official static build is used instead.
-# 7zzs is the statically linked binary (7zz needs glibc and does not run on Alpine/musl).
+# Alpine's own "7zip" package is built without RAR support, so the official static build is used instead (7zzs: the
+# statically linked binary; the regular 7zz needs glibc and does not run on Alpine/musl).
+#
+# It is always the newest release, which keeps the fixes of a program that unpacks archives from the internet. The tag
+# comes from the redirect of /releases/latest, the file name from the tag (26.05 -> 7z2605). The stage cannot succeed
+# without the Rar5 format, and the file is unpacked by xz instead of `tar -J`, because BusyBox's decoder cannot read
+# 7-Zip's archive. SEVENZIP_REFRESH only changes the cache key (the echo is what uses it, BuildKit ignores an argument
+# the command does not mention): CI passes the run id, so every pipeline run looks for a newer release again, while a
+# local build reuses the layer (use --no-cache to look again).
 FROM alpine:3 AS sevenzip
 ARG TARGETARCH
-# Releases are published on GitHub (ip7z/7zip); 7-zip.org/a/ stopped having them with 26.05. 26.04 fixed CVE-2026-58052,
-# and this program unpacks archives from the internet, so the version is kept current.
-ARG SEVENZIP_VERSION=2605
-ARG SEVENZIP_SHA256_AMD64=22cf82fcc6eb7474f1d5bb4f02c0f8ebd573a718089d6833dc30f8350a3b232e
-ARG SEVENZIP_SHA256_ARM64=0b71f6cfc34669b3bf69f2347efd3429f77020665003a13b9cdc53b784270421
+ARG SEVENZIP_REFRESH=0
 
-# The archive is unpacked by the xz package, not by `tar -J`: BusyBox tar uses its own xz decoder, which cannot read
-# 7-Zip's archive (it is packed with the x86 BCJ filter) and fails with "corrupted data".
 RUN apk add --no-cache curl xz \
-    && case "$TARGETARCH" in \
-         amd64) arch=x64;   sha="$SEVENZIP_SHA256_AMD64" ;; \
-         arm64) arch=arm64; sha="$SEVENZIP_SHA256_ARM64" ;; \
-         *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; \
-       esac \
-    && curl -fsSL --retry 3 -o /tmp/7z.tar.xz "https://github.com/ip7z/7zip/releases/download/${SEVENZIP_VERSION%??}.${SEVENZIP_VERSION#??}/7z${SEVENZIP_VERSION}-linux-${arch}.tar.xz" \
-    && echo "${sha}  /tmp/7z.tar.xz" | sha256sum -c - \
-    && mkdir /tmp/7z \
-    && xz -dc /tmp/7z.tar.xz | tar -xf - -C /tmp/7z 7zzs \
-    && install -m 0755 /tmp/7z/7zzs /usr/local/bin/7zz \
+    && arch="$([ "$TARGETARCH" = arm64 ] && echo arm64 || echo x64)" \
+    && tag="$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/ip7z/7zip/releases/latest | sed 's|.*/||')" \
+    && echo "7-Zip $tag for $arch (refresh $SEVENZIP_REFRESH)" \
+    && curl -fsSL --retry 3 "https://github.com/ip7z/7zip/releases/download/$tag/7z$(echo "$tag" | tr -d .)-linux-$arch.tar.xz" \
+        | xz -dc | tar -x 7zzs \
+    && install -m 0755 7zzs /usr/local/bin/7zz \
     && 7zz i | grep -q Rar5
 
 # ---- Stage 4: Runtime ----
