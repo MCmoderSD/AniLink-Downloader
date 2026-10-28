@@ -12,7 +12,7 @@ public sealed class ArchiveOptions
     {
         var section = configuration.GetSection("Archive");
 
-        // Compose passes every entry as Archive__Passwords__<n>, and an entry whose variable is unset arrives
+        // Compose passes every entry as Archive_Password_<n>, and an entry whose variable is unset arrives
         // as an empty string. Those are not passwords, so they are dropped here.
         var passwords = section.GetSection("Passwords").Get<string[]>() ?? [];
 

@@ -14,7 +14,7 @@ public sealed class DebridLinkOptions
     {
         var section = configuration.GetSection("DebridLink");
 
-        var apiKey = configuration.GetRequiredValue("DebridLink:ApiKey", "Debrid-Link private API key, created at https://debrid-link.com/webapp/apikey");
+        var apiKey = configuration.GetRequiredValue("DebridLink:ApiKey", "Debrid-Link private API key, created at https://debrid-link.com/webapp/apikey", "Debrid_ApiKey");
         var baseUrl = section["BaseUrl"] ?? "";
         var delay = section.GetValue("RequestDelayMs", 500);
 
@@ -25,7 +25,7 @@ public sealed class DebridLinkOptions
 
         if (delay is < 0 or > 60_000)
         {
-            throw new InvalidOperationException($"DebridLink:RequestDelayMs must be between 0 and 60000 milliseconds, got {delay}.");
+            throw new InvalidOperationException($"Debrid_Request_Delay (DebridLink:RequestDelayMs) must be between 0 and 60000 milliseconds, got {delay}.");
         }
 
         return new DebridLinkOptions

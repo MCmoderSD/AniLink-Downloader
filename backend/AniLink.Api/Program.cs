@@ -11,6 +11,8 @@ builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 #endif
 
+builder.Configuration.UseShortSettingNames();
+
 var debridLink = DebridLinkOptions.From(builder.Configuration);
 var downloads = DownloadOptions.From(builder.Configuration, builder.Environment);
 var archives = ArchiveOptions.From(builder.Configuration);

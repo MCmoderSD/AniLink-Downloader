@@ -22,7 +22,7 @@ public sealed class DownloadOptions
 
         if (concurrency is < 1 or > MaxAllowedConcurrency)
         {
-            throw new InvalidOperationException($"Downloads:MaxConcurrency must be between 1 and {MaxAllowedConcurrency}, got {concurrency}.");
+            throw new InvalidOperationException($"Concurrent_Downloads (Downloads:MaxConcurrency) must be between 1 and {MaxAllowedConcurrency}, got {concurrency}.");
         }
 
         return new DownloadOptions
