@@ -46,7 +46,7 @@ mkdir downloads
 
 #### 2. Fill in `.env`
 ```dotenv
-DEBRIDLINK_API_KEY=your-api-key
+DEBRID_API_KEY=your-api-key
 ARCHIVE_PASSWORD_0=www.example.org
 ```
 
@@ -59,15 +59,20 @@ Open [http://localhost:8080](http://localhost:8080).
 <br>
 
 ## Configuration
-Everything is configured through environment variables in `docker-compose.yaml` (values come from `.env`).
+`.env` only holds what is secret:
 
-| Variable | Default | Meaning |
+| Variable | Meaning |
+|---|---|
+| `DEBRID_API_KEY` | Private Debrid-Link API key (required). The container refuses to start without it. |
+| `ARCHIVE_PASSWORD_0`, `_1` | Default passwords, tried in this order. Add more as `Archive_Password_2`, `Archive_Password_3`, … in the compose file. |
+
+The rest is written into `docker-compose.yaml` itself; change it there if you need to:
+
+| Setting | Value | Meaning |
 |---|---|---|
-| `DEBRIDLINK_API_KEY` | – (required) | Private Debrid-Link API key. The container refuses to start without it. |
-| `DEBRIDLINK_REQUEST_DELAY_MS` | `500` | Minimum pause between two Debrid-Link requests. Raise it if the account is flagged for flooding. |
-| `MAX_CONCURRENCY` | `3` | How many archive **parts** are downloaded at the same time (1–16). |
-| `ARCHIVE_PASSWORD_0`, `_1`, `_2` | – | Default passwords, tried in this order. Add more as `Archive__Passwords__3`, `__4`, … in the compose file. |
-| `PUID`, `PGID` | `1000` | Linux only: the user that owns `./downloads`, so the files you get are yours. |
+| `Debrid_Request_Delay` | `500` | Minimum pause between two Debrid-Link requests. Raise it if the account is flagged for flooding. |
+| `Concurrent_Downloads` | `3` | How many archive **parts** are downloaded at the same time (1–16). |
+| `user` | `1000:1000` | The user the container runs as, and so the owner of the files in `./downloads`. On Linux, use your own `id -u` and `id -g`, and create the folder before the first start. |
 
 <br>
 

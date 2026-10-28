@@ -6,14 +6,13 @@ services:
     container_name: AniLink-Downloader
     restart: unless-stopped
     pull_policy: always
-    user: "${PUID:-1000}:${PGID:-1000}"
+    user: 1000:1000
     environment:
-      DebridLink__ApiKey: ${DEBRIDLINK_API_KEY}
-      DebridLink__RequestDelayMs: ${DEBRIDLINK_REQUEST_DELAY_MS:-500}
-      Downloads__MaxConcurrency: ${MAX_CONCURRENCY:-3}
-      Archive__Passwords__0: ${ARCHIVE_PASSWORD_0:-}
-      Archive__Passwords__1: ${ARCHIVE_PASSWORD_1:-}
-      Archive__Passwords__2: ${ARCHIVE_PASSWORD_2:-}
+      Concurrent_Downloads: 3
+      Debrid_Request_Delay: 500
+      Debrid_ApiKey: ${DEBRID_API_KEY}
+      Archive_Password_0: ${ARCHIVE_PASSWORD_0:-}
+      Archive_Password_1: ${ARCHIVE_PASSWORD_1:-}
     ports:
       - 8080:8080/tcp
     volumes:
