@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     pull_policy: always
     user: 1000:1000
+    build: .
     environment:
       Concurrent_Downloads: 3
       Debrid_Request_Delay: 500
