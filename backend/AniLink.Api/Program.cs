@@ -23,6 +23,13 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+if (downloads.RequestedConcurrency > downloads.MaxConcurrency)
+{
+    app.Logger.LogWarning(
+        "Concurrent_Downloads is {Requested}, but the server has {Available} threads; {Used} downloads run at the same time.",
+        downloads.RequestedConcurrency, DownloadOptions.MaxAllowedConcurrency, downloads.MaxConcurrency);
+}
+
 app.UseAniLinkRequestLogging();
 
 app.UseDefaultFiles();

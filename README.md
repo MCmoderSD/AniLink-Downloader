@@ -71,7 +71,7 @@ The rest is written into `docker-compose.yaml` itself; change it there if you ne
 | Setting | Value | Meaning |
 |---|---|---|
 | `Debrid_Request_Delay` | `500` | Minimum pause between two Debrid-Link requests. Raise it if the account is flagged for flooding. |
-| `Concurrent_Downloads` | `3` | How many archive **parts** are downloaded at the same time (1–16). |
+| `Concurrent_Downloads` | `3` | How many archive **parts** are downloaded at the same time: at least 1, at most the number of threads the server has (the CPUs available to the container, which follows a Docker CPU limit). A higher value is lowered to that number, and the log says so. |
 | `user` | `1000:1000` | The user the container runs as, and so the owner of the files in `./downloads`. On Linux, use your own `id -u` and `id -g`, and create the folder before the first start. |
 
 <br>

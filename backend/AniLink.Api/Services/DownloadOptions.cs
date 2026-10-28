@@ -2,11 +2,13 @@ namespace AniLink.Api.Services;
 
 public sealed class DownloadOptions
 {
-    private const int MaxAllowedConcurrency = 16;
+    public static int MaxAllowedConcurrency => Environment.ProcessorCount;
 
     public string Root { get; init; } = "";
 
     public int MaxConcurrency { get; init; }
+
+    public int RequestedConcurrency { get; init; }
 
     public static DownloadOptions From(IConfiguration configuration, IHostEnvironment environment)
     {
@@ -20,15 +22,16 @@ public sealed class DownloadOptions
             throw new InvalidOperationException("Downloads:Root is empty. It is the folder finished media is written to; in Docker it is the /downloads volume.");
         }
 
-        if (concurrency is < 1 or > MaxAllowedConcurrency)
+        if (concurrency < 1)
         {
-            throw new InvalidOperationException($"Concurrent_Downloads (Downloads:MaxConcurrency) must be between 1 and {MaxAllowedConcurrency}, got {concurrency}.");
+            throw new InvalidOperationException($"Concurrent_Downloads (Downloads:MaxConcurrency) must be at least 1, got {concurrency}.");
         }
 
         return new DownloadOptions
         {
             Root = Path.GetFullPath(root, environment.ContentRootPath),
-            MaxConcurrency = concurrency
+            MaxConcurrency = Math.Min(concurrency, MaxAllowedConcurrency),
+            RequestedConcurrency = concurrency
         };
     }
 }
