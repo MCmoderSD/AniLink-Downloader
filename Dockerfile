@@ -17,7 +17,7 @@ COPY backend/AniLink.Api/AniLink.Api.csproj ./
 RUN dotnet restore AniLink.Api.csproj
 
 COPY backend/AniLink.Api/ ./
-RUN dotnet publish AniLink.Api.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish AniLink.Api.csproj -c Release -o /app/publish --no-restore -p:UseAppHost=false
 
 # ---- Stage 3: 7-Zip ----
 FROM alpine:3 AS sevenzip
@@ -37,21 +37,15 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 
 COPY --from=sevenzip /usr/local/bin/7zz /usr/local/bin/7zz
+COPY --from=backend /app/publish .
+COPY --from=frontend /app/dist/AniLink/browser ./wwwroot
 
-RUN addgroup -S anilink \ 
-    && adduser -S anilink -G anilink \
-    && mkdir /downloads \
-    && chown anilink:anilink /downloads
+ENV Downloads__Root=/downloads \
+    Archive__SevenZipPath=7zz \
+    HOME=/tmp
 
-COPY --from=backend --chown=anilink:anilink /app/publish .
-COPY --from=frontend --chown=anilink:anilink /app/dist/AniLink/browser ./wwwroot
-
-ENV Downloads__Root=/downloads
-ENV Archive__SevenZipPath=7zz
-
-ENV HOME=/tmp
-
-USER anilink
+RUN mkdir /downloads && chown 1000:1000 /downloads
+USER 1000:1000
 
 EXPOSE 8080
 VOLUME /downloads
