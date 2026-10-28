@@ -30,6 +30,8 @@ ARG SEVENZIP_VERSION=2605
 ARG SEVENZIP_SHA256_AMD64=22cf82fcc6eb7474f1d5bb4f02c0f8ebd573a718089d6833dc30f8350a3b232e
 ARG SEVENZIP_SHA256_ARM64=0b71f6cfc34669b3bf69f2347efd3429f77020665003a13b9cdc53b784270421
 
+# The archive is unpacked by the xz package, not by `tar -J`: BusyBox tar uses its own xz decoder, which cannot read
+# 7-Zip's archive (it is packed with the x86 BCJ filter) and fails with "corrupted data".
 RUN apk add --no-cache curl xz \
     && case "$TARGETARCH" in \
          amd64) arch=x64;   sha="$SEVENZIP_SHA256_AMD64" ;; \
@@ -39,7 +41,7 @@ RUN apk add --no-cache curl xz \
     && curl -fsSL --retry 3 -o /tmp/7z.tar.xz "https://github.com/ip7z/7zip/releases/download/${SEVENZIP_VERSION%??}.${SEVENZIP_VERSION#??}/7z${SEVENZIP_VERSION}-linux-${arch}.tar.xz" \
     && echo "${sha}  /tmp/7z.tar.xz" | sha256sum -c - \
     && mkdir /tmp/7z \
-    && tar -xJf /tmp/7z.tar.xz -C /tmp/7z 7zzs \
+    && xz -dc /tmp/7z.tar.xz | tar -xf - -C /tmp/7z 7zzs \
     && install -m 0755 /tmp/7z/7zzs /usr/local/bin/7zz \
     && 7zz i | grep -q Rar5
 
