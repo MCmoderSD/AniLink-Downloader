@@ -24,7 +24,7 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         var output = new StringBuilder();
         var error = process.StandardError.ReadToEndAsync(cancellationToken);
 
-        await using var registration = cancellationToken.Register(() => Kill(process));
+        await using var registration = cancellationToken.Register(static state => Kill((Process)state!), process);
 
         var buffer = new char[4096];
         var window = "";
@@ -56,7 +56,7 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
         _ = process.StandardError.ReadToEndAsync(cancellationToken);
 
-        await using var registration = cancellationToken.Register(() => Kill(process));
+        await using var registration = cancellationToken.Register(static state => Kill((Process)state!), process);
 
         var buffer = new byte[count];
         var total = 0;
