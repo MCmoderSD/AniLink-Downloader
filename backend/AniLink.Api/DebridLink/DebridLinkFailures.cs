@@ -3,7 +3,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.DebridLink;
 
-// Maps the error codes of the Debrid-Link API to a readable message and to whether asking again can help.
 internal static class DebridLinkFailures
 {
     public static DebridLinkException For(string code)

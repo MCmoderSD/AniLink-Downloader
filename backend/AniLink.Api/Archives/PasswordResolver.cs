@@ -11,8 +11,6 @@ public enum PasswordOutcome
 
 public sealed record PasswordResult(PasswordOutcome Outcome, string? Password);
 
-// Works through the passwords of a job until one opens the archive. Whatever worked is remembered on the job, so
-// the next episode tries it first and usually needs exactly one attempt.
 public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<PasswordResolver> logger)
 {
     public async Task<PasswordResult> ResolveAsync(IReadOnlyList<string> volumes, DownloadJob job, CancellationToken cancellationToken)
@@ -30,7 +28,6 @@ public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<Passwor
             return new PasswordResult(PasswordOutcome.Found, candidate);
         }
 
-        // Passwords are never logged, only how many were tried.
         logger.LogInformation("None of {Count} passwords opened the archive of job {Job}", candidates.Count, job.Id);
 
         return new PasswordResult(PasswordOutcome.Missing, null);

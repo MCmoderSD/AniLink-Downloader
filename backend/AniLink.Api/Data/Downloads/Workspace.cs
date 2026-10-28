@@ -2,18 +2,17 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Data.Downloads;
 
-// Every path a job touches, derived from one folder. Season jobs live in <name>/<season>, a film directly in <name>.
 public sealed class Workspace(string root)
 {
     public const string ManifestName = ".anilink.json";
 
     public string Root => root;
 
-    public string ArchivesRoot => Path.Combine(root, "archives");
+    private string ArchivesRoot => Path.Combine(root, "archives");
 
-    public string OutputRoot => Path.Combine(root, "output");
+    private string OutputRoot => Path.Combine(root, "output");
 
-    public string LinkList => Path.Combine(root, "Downloads.txt");
+    private string LinkList => Path.Combine(root, "Downloads.txt");
 
     public string Manifest => Path.Combine(root, ManifestName);
 
@@ -52,8 +51,6 @@ public sealed class Workspace(string root)
             .Select(part => part.Link.Url));
     }
 
-    // Archives and unpacked leftovers are only worth deleting when nothing is lost with them. A file still
-    // in output/ is something the organizer did not recognise, and the archives are the way to unpack it again.
     public bool CleanUp()
     {
         if (Directory.Exists(OutputRoot) && Directory.EnumerateFiles(OutputRoot, "*", SearchOption.AllDirectories).Any()) return false;

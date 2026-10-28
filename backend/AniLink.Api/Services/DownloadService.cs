@@ -7,8 +7,6 @@ using AniLink.Api.Services.Streaming;
 
 namespace AniLink.Api.Services;
 
-// What the controller talks to: it validates what a user typed, turns it into a job and hands the job to the
-// pipeline. The analysis that fills the preview is the same one that decides what is queued.
 public sealed class DownloadService(
     DownloadOptions options,
     ArchiveOptions archive,
@@ -127,7 +125,6 @@ public sealed class DownloadService(
         return jobs.Get(id) is { } job ? pipeline.SubmitPassword(job, password) : null;
     }
 
-    // Takes the job off the list. Files on disk stay: archives and media are the user's, not ours to delete.
     public bool Remove(Guid id)
     {
         if (jobs.Get(id) is not { } job) return false;

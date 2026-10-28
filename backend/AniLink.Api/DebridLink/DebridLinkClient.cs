@@ -6,8 +6,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.DebridLink;
 
-// The one Debrid-Link endpoint the app needs: turn a hoster link into a direct download link. It is a singleton
-// so the pause between two requests is kept across every job; Debrid-Link answers floods with an hour-long ban.
 public sealed class DebridLinkClient(IHttpClientFactory httpClients, DebridLinkOptions options, ILogger<DebridLinkClient> logger)
 {
     public const string ApiClient = "DebridLink";
@@ -22,10 +20,8 @@ public sealed class DebridLinkClient(IHttpClientFactory httpClients, DebridLinkO
 
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, "downloader/add")
-            {
-                Content = new FormUrlEncodedContent([new KeyValuePair<string, string>("url", url)])
-            };
+            using var request = new HttpRequestMessage(HttpMethod.Post, "downloader/add");
+            request.Content = new FormUrlEncodedContent([new KeyValuePair<string, string>("url", url)]);
 
             using var response = await httpClients.CreateClient(ApiClient).SendAsync(request, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -90,7 +86,6 @@ public sealed class DebridLinkClient(IHttpClientFactory httpClients, DebridLinkO
 
             if (!root.TryGetProperty("value", out var value)) throw new DebridLinkException("badResponse", "Debrid-Link answered without a value.", false);
 
-            // A folder link answers with an array of links; the app only ever asks for single files.
             if (value.ValueKind is JsonValueKind.Array) throw new DebridLinkException("multipleLinks", "This link is a folder with several files. Paste the links of the single files instead.", false);
             if (value.ValueKind is not JsonValueKind.Object) throw new DebridLinkException("badResponse", "Debrid-Link answered with an unexpected value.", false);
 

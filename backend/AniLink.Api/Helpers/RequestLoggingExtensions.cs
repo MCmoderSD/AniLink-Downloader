@@ -4,7 +4,7 @@ namespace AniLink.Api.Helpers;
 
 public static class RequestLoggingExtensions
 {
-    public const string Category = "AniLink.Api.Requests";
+    private const string Category = "AniLink.Api.Requests";
 
     public static WebApplication UseAniLinkRequestLogging(this WebApplication app)
     {
@@ -12,7 +12,6 @@ public static class RequestLoggingExtensions
 
         app.Use(async (context, next) =>
         {
-            // Health probes and the endless SSE stream would only drown the log.
             if (context.Request.Path.StartsWithSegments("/health") || context.Request.Path.StartsWithSegments("/api/downloads/stream"))
             {
                 await next(context);

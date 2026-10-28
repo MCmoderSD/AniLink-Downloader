@@ -2,8 +2,6 @@ using System.Globalization;
 
 namespace AniLink.Api.Archives;
 
-// Reads the output of "7zz l -slt": a header about the archive, a line of dashes, then one block of
-// "Key = Value" lines per entry, separated by blank lines.
 internal static class SevenZipListing
 {
     public static IReadOnlyList<ArchiveEntry> Parse(string output)

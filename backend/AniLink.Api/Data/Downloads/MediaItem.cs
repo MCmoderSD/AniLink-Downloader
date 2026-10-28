@@ -1,7 +1,5 @@
 namespace AniLink.Api.Data.Downloads;
 
-// One thing that ends up as a playable file: an episode of a season, or the film. It owns the archive parts
-// that make it up and walks through the stages from waiting for links to a finished media file.
 public sealed class MediaItem
 {
     private readonly List<ArchivePart> _parts = [];
@@ -23,10 +21,8 @@ public sealed class MediaItem
 
     public int Number { get; }
 
-    // Folder name below archives/ and output/, padded so a file manager sorts episodes the way they run.
     public string Key { get; }
 
-    // File name (without extension) the finished media gets in the workdir.
     public string TargetName { get; }
 
     public IReadOnlyList<ArchivePart> Parts => _parts;
@@ -77,7 +73,6 @@ public sealed class MediaItem
         Move(ItemStage.Downloading);
     }
 
-    // False when the item was cancelled or paused in the meantime, and the caller must not go on with it.
     public bool BeginExtracting()
     {
         lock (Gate)
@@ -107,8 +102,6 @@ public sealed class MediaItem
         return Move(ItemStage.PasswordRequired);
     }
 
-    // False when the item was cancelled or paused in the meantime: the files must not be moved for an item that
-    // is no longer being worked on.
     public bool BeginOrganizing()
     {
         return Move(ItemStage.Organizing);
@@ -151,9 +144,6 @@ public sealed class MediaItem
         }
     }
 
-    // Stops the item where it stands: links being asked for, parts being downloaded, an unpacking in progress. What has
-    // arrived stays on disk. Sorting the finished files into place takes a moment and cannot be picked up halfway, so
-    // an item that is at that point is left to finish.
     public bool Pause()
     {
         lock (Gate)
@@ -184,7 +174,6 @@ public sealed class MediaItem
         }
     }
 
-    // Failed and cancelled items start over from where they have something: parts that already arrived stay.
     public bool ResetForRetry()
     {
         lock (Gate)
@@ -214,7 +203,6 @@ public sealed class MediaItem
             Error = manifest.Error;
             Files = manifest.Files;
 
-            // Extraction and organizing are not resumable halfway; they run again from the downloaded parts.
             Stage = manifest.Stage switch
             {
                 ItemStage.Extracting or ItemStage.Organizing or ItemStage.Downloading => AllLinksResolved ? ItemStage.Downloading : ItemStage.ResolvingLinks,

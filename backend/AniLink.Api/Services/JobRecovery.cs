@@ -4,8 +4,6 @@ using AniLink.Api.Repositories;
 
 namespace AniLink.Api.Services;
 
-// At startup, finds the manifests that earlier runs left in the downloads folder and brings their jobs back.
-// Jobs that still have work to do go straight on; failed, cancelled and paused ones only reappear in the list.
 public sealed class JobRecovery(
     DownloadOptions options,
     ArchiveOptions archive,
@@ -16,7 +14,6 @@ public sealed class JobRecovery(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // The root may not exist yet on a fresh volume; creating it also proves it is writable.
         try
         {
             Directory.CreateDirectory(options.Root);
@@ -30,7 +27,7 @@ public sealed class JobRecovery(
         var resumed = 0;
         var listed = 0;
 
-        foreach (var path in manifests.Find(options.Root))
+        foreach (var path in JobManifestStore.Find(options.Root))
         {
             if (stoppingToken.IsCancellationRequested) return;
 

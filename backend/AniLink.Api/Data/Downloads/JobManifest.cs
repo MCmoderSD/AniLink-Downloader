@@ -1,7 +1,5 @@
 namespace AniLink.Api.Data.Downloads;
 
-// The on-disk shape of a job, written to .anilink.json in its workdir. It is a copy of the state that
-// matters for resuming, deliberately separate from the live entities.
 public sealed record JobManifest(
     int Version,
     Guid Id,
@@ -14,8 +12,7 @@ public sealed record JobManifest(
     string? WorkingPassword,
     IReadOnlyList<ItemManifest> Items,
     IReadOnlyList<ActivityEntry> Activity
-)
-{
+) {
     public const int CurrentVersion = 1;
 
     public static JobManifest From(DownloadJob job)
@@ -44,8 +41,7 @@ public sealed record ItemManifest(
     string? Error,
     IReadOnlyList<string> Files,
     IReadOnlyList<PartManifest> Parts
-)
-{
+) {
     public static ItemManifest From(MediaItem item)
     {
         return new ItemManifest(item.Number, item.Stage, item.Error, item.Files, [.. item.Parts.Select(PartManifest.From)]);
@@ -62,8 +58,7 @@ public sealed record PartManifest(
     int Attempts,
     string? Error,
     DebridLinkFile? Debrid
-)
-{
+) {
     public static PartManifest From(ArchivePart part)
     {
         return new PartManifest(

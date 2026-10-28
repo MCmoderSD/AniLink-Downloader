@@ -5,8 +5,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Repositories;
 
-// Reads and writes the .anilink.json of a job. A write goes to a temporary file first and replaces the real one
-// in a single rename, so a container that is killed halfway never leaves a manifest that cannot be parsed.
 public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web) { WriteIndented = true };
@@ -20,7 +18,6 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 
         try
         {
-            // A job that was removed while a save was queued must not bring its manifest back.
             if (job.IsRemoved) return;
 
             var path = job.Workspace.Manifest;
@@ -54,8 +51,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         _gates.TryRemove(job.Id, out _);
     }
 
-    // Season jobs keep their manifest in <name>/<season>, films in <name>, so two levels cover everything.
-    public IEnumerable<string> Find(string root)
+    public static IEnumerable<string> Find(string root)
     {
         if (!Directory.Exists(root)) return [];
 

@@ -6,12 +6,9 @@ public sealed record ArchiveEntry(string Path, long Size, bool Encrypted, bool I
 
 public sealed record ArchiveListing(bool Locked, IReadOnlyList<ArchiveEntry> Entries)
 {
-    public bool IsEncrypted => Locked || Entries.Any(entry => !entry.IsFolder && entry.Encrypted);
+    public bool IsEncrypted => Locked || Entries.Any(entry => entry is { IsFolder: false, Encrypted: true });
 }
 
-// Everything the app asks of an archive, answered by 7-Zip: is it encrypted, does a password open it, and
-// unpack it with progress. 7-Zip finds the later volumes of a multipart archive by their names, so the first
-// volume is all it is given.
 public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
 {
     private const int SniffLength = 16;
@@ -22,7 +19,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
 
         var result = await sevenZip.RunAsync(["l", "-slt", "-y", "-bd", .. PasswordArguments(password), first], null, cancellationToken);
 
-        // Headers that are encrypted as well: the archive cannot even be listed without the right password.
         if (result.ExitCode is not (0 or 1))
         {
             if (IsPasswordProblem(result.Combined)) return new ArchiveListing(true, []);
@@ -33,8 +29,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
         return new ArchiveListing(false, SevenZipListing.Parse(result.Output));
     }
 
-    // A wrong password rarely fails loudly: the decrypted bytes are just garbage. So the first bytes of the
-    // video are checked against the signature of the container the file name claims to be.
     public async Task<bool> AcceptsPasswordAsync(IReadOnlyList<string> volumes, string password, CancellationToken cancellationToken)
     {
         var first = RequireVolumes(volumes);
@@ -78,8 +72,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
             onProgress,
             cancellationToken);
 
-        // 1 means warnings only (a file that could not be touched, a comment that could not be read); the
-        // media is there, and anything really wrong shows up as a missing file in the organizer.
         if (result.ExitCode is 0 or 1)
         {
             onProgress(100);
@@ -106,16 +98,12 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
 
     private static bool IsPasswordProblem(string text)
     {
-        // "Enter password" is 7-Zip asking on a closed stdin, which is what an archive with encrypted
-        // headers does when it is opened without a password at all.
         return text.Contains("wrong password", StringComparison.OrdinalIgnoreCase)
                || text.Contains("enter password", StringComparison.OrdinalIgnoreCase)
                || text.Contains("encrypted archive", StringComparison.OrdinalIgnoreCase)
                || text.Contains("CRC Failed in encrypted", StringComparison.OrdinalIgnoreCase);
     }
 
-    // The lines that say what went wrong; the banner and the file list around them do not matter. The folder is
-    // cut out of every path, since the user knows where the archives are and 7-Zip repeats it on each line.
     private static string Summarize(ToolResult result, string archive)
     {
         var folder = (Path.GetDirectoryName(archive) ?? "") + Path.DirectorySeparatorChar;

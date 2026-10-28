@@ -5,8 +5,6 @@ using AniLink.Api.Services.Streaming;
 
 namespace AniLink.Api.Services;
 
-// Turns the constant stream of tiny changes into one snapshot per job every half second, and measures the
-// download speed while at it. A job that did not change since the last tick is not sent again.
 public sealed class ProgressPublisher(JobRepository jobs, ProgressHub hub) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromMilliseconds(500);
@@ -49,7 +47,6 @@ public sealed class ProgressPublisher(JobRepository jobs, ProgressHub hub) : Bac
                 var seconds = Stopwatch.GetElapsedTime(previous.Stamp, now).TotalSeconds;
                 var instant = seconds > 0 ? Math.Max(bytes - previous.Bytes, 0) / seconds : 0;
 
-                // Smoothed, so the number on screen does not jitter with every burst of the network.
                 speed = previous.Speed * 0.6 + instant * 0.4;
                 if (speed < 1) speed = 0;
             }

@@ -10,9 +10,6 @@ using AniLink.Api.Services.Streaming;
 
 namespace AniLink.Api.Services;
 
-// Drives every item of a job through its stages: links, downloads, unpacking, organizing. Each item is one
-// async workflow that waits on the shared queues (the link resolver, the download limit, the extraction slot),
-// so the order, the limits and the cancellation all come from those queues instead of from bookkeeping here.
 public sealed class DownloadPipeline(
     LinkResolver resolver,
     DownloadScheduler scheduler,
@@ -28,14 +25,11 @@ public sealed class DownloadPipeline(
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runs = new();
 
-    // Starts the given items of a job (all unfinished ones by default). Returns at once; the work runs on.
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
     {
-        var items = (only ?? job.Items).Where(item => !item.IsTerminal && item.Stage is not ItemStage.Paused).OrderBy(item => item.Number).ToList();
+        var items = (only ?? job.Items).Where(item => item is { IsTerminal: false, Stage: not ItemStage.Paused }).OrderBy(item => item.Number).ToList();
         var source = _runs.GetOrAdd(job.Id, _ => new CancellationTokenSource());
 
-        // ToList runs each workflow up to its first await right here, in episode order. That is what puts
-        // the first episode ahead of the second in the resolver queue (see ProcessAsync).
         var tasks = items.Select(item => ProcessAsync(job, item, source.Token)).ToList();
 
         _ = FinishAsync(job, tasks);
@@ -70,16 +64,12 @@ public sealed class DownloadPipeline(
     {
         foreach (var item in job.Items) item.Cancel();
 
-        // A running workflow writes the manifest when it ends; a job without one (paused, or waiting for a password)
-        // has nobody to do that.
         if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
         else _ = jobs.SaveAsync(job);
 
         Notify(job, NoticeLevel.Warning, $"{job.Name}: canceled");
     }
 
-    // Stops the links being asked for, the downloads and an unpacking in progress. The partial files stay where they
-    // are, so Resume goes on from them instead of starting over. Items that wait for a password are left alone.
     public bool Pause(DownloadJob job)
     {
         var paused = job.Items.Count(item => item.Pause());
@@ -108,8 +98,6 @@ public sealed class DownloadPipeline(
     {
         using var run = new ItemRun(cancellationToken);
 
-        // Nothing above this line may await: the links are queued here, and the resolver serves its queue in the
-        // order requests arrive, so an item that is started earlier gets all of its links earlier.
         var pending = item.Parts.Where(part => !part.HasLink).ToList();
         var resolutions = pending.Select(part => resolver.ResolveAsync(part, false, run.Token)).ToList();
 
@@ -146,7 +134,6 @@ public sealed class DownloadPipeline(
                 throw new DebridLinkException(exception.Code, $"{pending[index].Link.FileName}: {exception.Message}", exception.Retryable, exception);
             }
 
-            // Every link is on disk before the next one is awaited, so a restart loses at most one.
             await jobs.SaveAsync(job);
         }
 
@@ -162,7 +149,6 @@ public sealed class DownloadPipeline(
     {
         item.BeginDownloading();
 
-        // A part recorded as downloaded whose file is gone (or truncated) has to come again.
         foreach (var part in item.Parts.Where(part => part.State is PartState.Downloaded))
         {
             var path = Path.Combine(job.Workspace.ArchiveDirectory(item), part.StorageName);
@@ -183,8 +169,6 @@ public sealed class DownloadPipeline(
         {
             try
             {
-                // The retry loop sits outside the download slot, so a part that waits for a new link does not
-                // hold up the others.
                 await scheduler.RunDownloadAsync(token => downloader.DownloadAsync(part, token), run.Token);
                 await jobs.SaveAsync(job);
 
@@ -230,11 +214,10 @@ public sealed class DownloadPipeline(
                 return;
             }
 
-            // Whatever an earlier, interrupted attempt left behind must not end up in the result.
             var output = workspace.OutputDirectory(item);
             if (Directory.Exists(output)) Directory.Delete(output, true);
 
-            await extractor.ExtractAsync(volumes, output, password.Password, percent => item.ReportExtraction(percent), token);
+            await extractor.ExtractAsync(volumes, output, password.Password, item.ReportExtraction, token);
 
             if (!item.BeginOrganizing()) return;
 
@@ -247,8 +230,6 @@ public sealed class DownloadPipeline(
 
     private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, CancellationToken jobToken)
     {
-        // Stopped on purpose: Cancel and Pause have already put the item where it belongs, and by now a later run may
-        // be working on it again.
         if (jobToken.IsCancellationRequested) return;
 
         if (cause is OperationCanceledException)
@@ -286,7 +267,6 @@ public sealed class DownloadPipeline(
 
     private async Task FinalizeAsync(DownloadJob job)
     {
-        // Another batch of this job (a retry, a password) may still be running; the last one to end finishes the job.
         if (job.IsRemoved || job.Items.Any(item => item.IsActive || item.Stage is ItemStage.Paused)) return;
 
         _runs.TryRemove(job.Id, out _);
@@ -338,8 +318,6 @@ public sealed class DownloadPipeline(
         return exception is HttpRequestException or IOException or TimeoutException;
     }
 
-    // One workflow's own cancellation: it ends with the job, and also when any of its parts fails for good, so the
-    // other parts of the same episode stop downloading something that can no longer be unpacked.
     private sealed class ItemRun(CancellationToken parent) : IDisposable
     {
         private readonly CancellationTokenSource _source = CancellationTokenSource.CreateLinkedTokenSource(parent);

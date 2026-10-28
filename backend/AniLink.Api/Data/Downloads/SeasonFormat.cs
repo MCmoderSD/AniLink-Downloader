@@ -2,8 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace AniLink.Api.Data.Downloads;
 
-// The text in front of the episode number, e.g. "Frieren.S01E". An episode is the run of digits directly
-// after it, so a link tells which episode it belongs to without any knowledge of the show.
 public sealed partial record SeasonFormat(string Prefix)
 {
     [GeneratedRegex(@"S\d+E(?=\d)", RegexOptions.IgnoreCase)]
@@ -23,8 +21,6 @@ public sealed partial record SeasonFormat(string Prefix)
 
     public bool TryGetEpisode(ArchiveLink link, out int episode)
     {
-        // The file name is tried first; the whole URL only matters for a format the user typed that
-        // reaches into the path.
         foreach (var haystack in new[] { link.FileName, link.Url })
         {
             var index = haystack.IndexOf(Prefix, StringComparison.OrdinalIgnoreCase);
@@ -43,20 +39,11 @@ public sealed partial record SeasonFormat(string Prefix)
 
     public static SeasonFormat? TryDetect(IReadOnlyList<ArchiveLink> links)
     {
-        if (links.Count == 0) return null;
-
-        foreach (var candidate in Candidates(links))
-        {
-            var format = new SeasonFormat(candidate);
-            if (links.All(link => format.TryGetEpisode(link, out _))) return format;
-        }
-
-        return null;
+        return links.Count == 0 ? null : Candidates(links).Select(candidate => new SeasonFormat(candidate)).FirstOrDefault(format => links.All(link => format.TryGetEpisode(link, out _)));
     }
 
     private static IEnumerable<string> Candidates(IReadOnlyList<ArchiveLink> links)
     {
-        // Most specific first: the whole name up to the season marker, then the marker alone.
         var marker = EpisodeMarker().Match(links[0].FileName);
 
         if (marker.Success)
@@ -65,7 +52,6 @@ public sealed partial record SeasonFormat(string Prefix)
             yield return marker.Value;
         }
 
-        // No marker: the longest stretch every file name starts with, minus the digits it ends on.
         var common = links[0].FileName;
         foreach (var link in links.Skip(1))
         {

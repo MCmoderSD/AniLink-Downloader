@@ -2,7 +2,7 @@ namespace AniLink.Api.Services;
 
 public sealed class DownloadOptions
 {
-    public const int MaxAllowedConcurrency = 16;
+    private const int MaxAllowedConcurrency = 16;
 
     public string Root { get; init; } = "";
 
@@ -27,7 +27,6 @@ public sealed class DownloadOptions
 
         return new DownloadOptions
         {
-            // A relative root is anchored at the project folder, not at wherever dotnet happened to be started.
             Root = Path.GetFullPath(root, environment.ContentRootPath),
             MaxConcurrency = concurrency
         };

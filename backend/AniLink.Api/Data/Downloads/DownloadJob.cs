@@ -4,8 +4,6 @@ namespace AniLink.Api.Data.Downloads;
 
 public sealed record Release(ReleaseKind Kind, int? Season, string? Format);
 
-// The aggregate root: everything the user asked for in one go. Items, parts and the activity log hang off it,
-// and its lock is the single one all of them share.
 public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, Release release, Workspace workspace, PasswordBook passwords)
 {
     private readonly List<MediaItem> _items = [];

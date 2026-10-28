@@ -2,8 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace AniLink.Api.Data.Downloads;
 
-// One hoster link, parsed once. FileName and PartNumber come from the URL alone, because that is all
-// there is before Debrid-Link has been asked.
 public sealed partial record ArchiveLink(string Url, string FileName, int PartNumber)
 {
     [GeneratedRegex(@"part0*(\d+)", RegexOptions.IgnoreCase)]
@@ -15,7 +13,6 @@ public sealed partial record ArchiveLink(string Url, string FileName, int PartNu
     [GeneratedRegex(@"\.(rar|r\d{2,3}|7z|zip|\d{3})$", RegexOptions.IgnoreCase)]
     private static partial Regex ArchiveExtension();
 
-    // Some hosters put an id in the URL instead of the file name; then the name says nothing about the archive.
     public bool LooksLikeArchive => ArchiveExtension().IsMatch(FileName);
 
     public static ArchiveLink Parse(string url)
@@ -52,8 +49,6 @@ public sealed partial record ArchiveLink(string Url, string FileName, int PartNu
         return name.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ? name[..^".html".Length] : name;
     }
 
-    // The old naming (.rar, .r00, .r01) puts the first volume under .rar, so .rNN is shifted by one;
-    // the new one (.part1.rar, .part2.rar) already counts from the first volume. A lone archive is 0.
     private static int PartNumberOf(string fileName)
     {
         var volume = VolumePattern().Match(fileName);

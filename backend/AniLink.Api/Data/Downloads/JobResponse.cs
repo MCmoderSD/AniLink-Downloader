@@ -25,8 +25,7 @@ public sealed record PartResponse(
     int Attempts,
     string? Error,
     string? Host
-)
-{
+) {
     public static PartResponse From(ArchivePart part)
     {
         return new PartResponse(
@@ -51,8 +50,7 @@ public sealed record ItemResponse(
     double ExtractPercent,
     IReadOnlyList<string> Files,
     IReadOnlyList<PartResponse> Parts
-)
-{
+) {
     public static ItemResponse From(MediaItem item)
     {
         return new ItemResponse(
@@ -83,8 +81,7 @@ public sealed record JobResponse(
     int ItemsCompleted,
     IReadOnlyList<ItemResponse> Items,
     IReadOnlyList<NoticeResponse> Activity
-)
-{
+) {
     private const int ActivityShown = 60;
 
     public static JobResponse From(DownloadJob job)

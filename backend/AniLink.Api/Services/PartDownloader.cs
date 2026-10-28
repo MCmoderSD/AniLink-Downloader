@@ -9,9 +9,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Services;
 
-// Streams one part from its Debrid-Link URL to disk. The file grows as name.download and is renamed once it is
-// complete, so an archive in archives/ is always a whole one. A leftover .download file from an earlier run is
-// continued with a range request instead of starting over.
 public sealed class PartDownloader(IHttpClientFactory httpClients, ILogger<PartDownloader> logger)
 {
     private const int BufferSize = 128 * 1024;
@@ -46,7 +43,6 @@ public sealed class PartDownloader(IHttpClientFactory httpClients, ILogger<PartD
 
         if (response.StatusCode is HttpStatusCode.RequestedRangeNotSatisfiable)
         {
-            // Either the partial file already is the whole file, or it does not belong to this link.
             if (response.Content.Headers.ContentRange?.Length == existing)
             {
                 File.Move(partial, path, true);

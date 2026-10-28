@@ -1,7 +1,5 @@
 namespace AniLink.Api.Data.Downloads;
 
-// The passwords one job may try, in the order they are tried: the one that already worked for this job,
-// then what the user typed for it (newest first), and last the defaults from docker-compose.
 public sealed class PasswordBook(IReadOnlyList<string> defaults)
 {
     private readonly Lock _gate = new();

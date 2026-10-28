@@ -10,8 +10,6 @@ public sealed record ToolResult(int ExitCode, string Output, string Error)
     public string Combined => (Output + "\n" + Error).Trim();
 }
 
-// Runs the 7-Zip console binary. The password is one argument of its own, never a command line the shell could
-// split, and standard input is closed at once so 7-Zip can never sit at a password prompt that nobody sees.
 public sealed partial class SevenZipProcess(ArchiveOptions options)
 {
     [GeneratedRegex(@"(\d{1,3})%")]
@@ -40,7 +38,6 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
             if (onProgress is null) continue;
 
-            // Progress arrives as "\r 42% ..." without line breaks, so the newest percentage in the chunk wins.
             window = (window + chunk)[^Math.Min(window.Length + chunk.Length, 64)..];
             var matches = ProgressPattern().Matches(window);
             if (matches.Count > 0 && double.TryParse(matches[^1].Groups[1].ValueSpan, out var percent)) onProgress(Math.Min(percent, 100));
@@ -87,11 +84,12 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
             UseShellExecute = false,
             CreateNoWindow = true,
             StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8
+            StandardErrorEncoding = Encoding.UTF8,
+            Environment =
+            {
+                ["LC_ALL"] = "C.UTF-8"
+            }
         };
-
-        // File names inside archives are not always ASCII, and the container has no locale of its own.
-        info.Environment["LC_ALL"] = "C.UTF-8";
 
         foreach (var argument in arguments) info.ArgumentList.Add(argument);
 

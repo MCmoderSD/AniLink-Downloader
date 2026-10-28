@@ -11,8 +11,7 @@ public sealed record AnalysisResponse(
     int LinkCount,
     IReadOnlyList<AnalyzedEpisode> Episodes,
     IReadOnlyList<string> Unmatched
-)
-{
+) {
     public static AnalysisResponse From(LinkAnalysis analysis)
     {
         return new AnalysisResponse(

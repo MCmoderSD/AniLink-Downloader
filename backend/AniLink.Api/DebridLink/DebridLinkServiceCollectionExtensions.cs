@@ -8,8 +8,6 @@ public static class DebridLinkServiceCollectionExtensions
     {
         services.AddSingleton(options);
 
-        // The API client carries the key. The file client deliberately does not: download links point at
-        // Debrid-Link's CDN hosts and the key has no business there.
         services.AddHttpClient(DebridLinkClient.ApiClient, client =>
         {
             client.BaseAddress = new Uri(options.BaseUrl);
@@ -17,7 +15,6 @@ public static class DebridLinkServiceCollectionExtensions
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
         });
 
-        // A multi-gigabyte part takes as long as it takes, so there is no overall timeout, only a connect timeout.
         services.AddHttpClient(DebridLinkClient.FileClient, client => client.Timeout = Timeout.InfiniteTimeSpan)
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {

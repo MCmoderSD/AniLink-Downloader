@@ -3,7 +3,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AniLink.Api.Archives;
 
-// 7-Zip prints its banner when it is started without arguments, which is all it takes to know it is there and runs.
 public sealed partial class SevenZipHealthCheck(SevenZipProcess sevenZip) : IHealthCheck
 {
     [GeneratedRegex(@"7-Zip[^\r\n]*")]

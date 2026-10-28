@@ -5,10 +5,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Services;
 
-// Asks Debrid-Link for the direct link of each part, one request at a time and in the order the parts were
-// queued. That order is the point: every episode gets all of its links before the next one is started, so the
-// first episode begins downloading while the later ones are still being resolved. A link that stopped
-// working jumps the queue.
 public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> logger) : BackgroundService
 {
     private const int MaxAttempts = 3;
@@ -46,7 +42,6 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
                 Request? request;
                 lock (_gate) _queue.TryDequeue(out request, out _);
 
-                // Cancelled while it was waiting in line: nothing to ask Debrid-Link for.
                 if (request is null || request.Completion.Task.IsCompleted) continue;
 
                 await ResolveOneAsync(request, stoppingToken);

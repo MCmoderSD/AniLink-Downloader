@@ -4,9 +4,8 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace AniLink.Api.Helpers;
 
-public static class ConfigurationExtensions
+public static partial class ConfigurationExtensions
 {
-    // What the container is configured with, and the setting each name stands for.
     private static readonly Dictionary<string, string> ShortNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ["Debrid_ApiKey"] = "DebridLink:ApiKey",
@@ -14,13 +13,10 @@ public static class ConfigurationExtensions
         ["Concurrent_Downloads"] = "Downloads:MaxConcurrency"
     };
 
-    private static readonly Regex PasswordName = new("^Archive_Password_([0-9]+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex PasswordName = MyRegex();
 
     extension(ConfigurationManager configuration)
     {
-        // The environment knows Debrid_ApiKey, Debrid_Request_Delay, Concurrent_Downloads and Archive_Password_0, _1, ...; the code
-        // knows DebridLink:ApiKey, Archive:Passwords:0 and so on. This copies the first onto the second, after every
-        // other source, so a short name wins. The structured names keep working: they are simply not touched.
         public void UseShortSettingNames()
         {
             var mapped = new Dictionary<string, string?>();
@@ -59,8 +55,11 @@ public static class ConfigurationExtensions
             throw new InvalidOperationException(
                 $"Missing configuration '{key}'" + (context is null ? "" : $" ({context})") + ". " +
                 $"In Docker it arrives as the environment variable {environmentVariable} (docker-compose.yaml, filled from .env). " +
-                "In development it comes from appsettings.Local.json or user secrets " +
+                "In development, it comes from appsettings.Local.json or user secrets " +
                 $"(UserSecretsId {secretsId ?? "<none>"}; check with: dotnet user-secrets list).");
         }
     }
+
+    [GeneratedRegex("^Archive_Password_([0-9]+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex MyRegex();
 }

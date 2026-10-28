@@ -2,8 +2,6 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Data.Downloads;
 
-// One file of a (possibly multipart) archive. All state changes go through the methods below, which take the
-// lock of the owning job, so the pipeline, the downloads and the progress publisher can all touch a part at once.
 public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
 {
     private Lock Gate => item.Job.Gate;
@@ -52,10 +50,6 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
 
     public bool HasLink => Debrid is not null;
 
-    // The name on disk. 7-Zip finds the later volumes of an archive by their names, so the name from the pasted
-    // URL (which carries .part2.rar or .r01) is kept whenever it looks like an archive; hosts that hide it in
-    // the URL fall back to the name Debrid-Link reports. Two parts that would end up with the same name are
-    // told apart by their position, which keeps both files at the price of 7-Zip not finding the second.
     public string StorageName
     {
         get
@@ -101,7 +95,6 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
         }
     }
 
-    // A download link that Debrid-Link no longer honours: the part goes back to needing a link.
     public void InvalidateLink()
     {
         lock (Gate)
@@ -158,8 +151,6 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
         }
     }
 
-    // What was in flight stops here. The part keeps the bytes it has, and so does its file on disk, and goes back to
-    // waiting for its turn: Resume continues the download from that file.
     public void Pause()
     {
         lock (Gate)
@@ -171,7 +162,6 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
         }
     }
 
-    // The file this part was recorded as downloaded is gone or has the wrong size: it has to be fetched again.
     public void ForgetDownload()
     {
         lock (Gate)
@@ -205,8 +195,6 @@ public sealed class ArchivePart(MediaItem item, int index, ArchiveLink link)
             Attempts = manifest.Attempts;
             Error = manifest.Error;
 
-            // Whatever was in flight when the container went down starts over (a partial file is resumed by
-            // the downloader); only a finished download and a recorded failure are taken at face value.
             State = manifest.State switch
             {
                 PartState.Downloaded => PartState.Downloaded,
