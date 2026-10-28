@@ -15,7 +15,7 @@ public sealed class StreamSubscription(ChannelReader<string> reader, Action rele
 
 public class StreamHub
 {
-    private const int Backlog = 256;
+    private const int Backlog = 32;
 
     private readonly ConcurrentDictionary<Guid, Channel<string>> _listeners = new();
 
