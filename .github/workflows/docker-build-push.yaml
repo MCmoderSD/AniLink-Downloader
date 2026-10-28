@@ -78,6 +78,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
+          build-args: SEVENZIP_REFRESH=${{ github.run_id }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }},${{ steps.prepare.outputs.ghcr-image }}",push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ steps.prepare.outputs.slug }}
