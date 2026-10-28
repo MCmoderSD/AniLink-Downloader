@@ -19,6 +19,7 @@ public sealed class DownloadPipeline(
     MediaOrganizer organizer,
     JobRepository jobs,
     ProgressHub hub,
+    IHostApplicationLifetime lifetime,
     ILogger<DownloadPipeline> logger)
 {
     private const int MaxAttempts = 3;
@@ -234,7 +235,8 @@ public sealed class DownloadPipeline(
 
         if (cause is OperationCanceledException)
         {
-            item.Cancel();
+            if (!lifetime.ApplicationStopping.IsCancellationRequested) item.Cancel();
+
             return;
         }
 
