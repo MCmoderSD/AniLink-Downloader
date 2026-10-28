@@ -78,7 +78,6 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          # A new value per run makes the 7-Zip stage look for the newest release again instead of reusing its cached layer.
           build-args: SEVENZIP_REFRESH=${{ github.run_id }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }},${{ steps.prepare.outputs.ghcr-image }}",push-by-digest=true,name-canonical=true,push=true

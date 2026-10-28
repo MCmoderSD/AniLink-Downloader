@@ -20,15 +20,6 @@ COPY backend/AniLink.Api/ ./
 RUN dotnet publish AniLink.Api.csproj -c Release -o /app/publish --no-restore
 
 # ---- Stage 3: 7-Zip ----
-# Alpine's own "7zip" package is built without RAR support, so the official static build is used instead (7zzs: the
-# statically linked binary; the regular 7zz needs glibc and does not run on Alpine/musl).
-#
-# It is always the newest release, which keeps the fixes of a program that unpacks archives from the internet. The tag
-# comes from the redirect of /releases/latest, the file name from the tag (26.05 -> 7z2605). The stage cannot succeed
-# without the Rar5 format, and the file is unpacked by xz instead of `tar -J`, because BusyBox's decoder cannot read
-# 7-Zip's archive. SEVENZIP_REFRESH only changes the cache key (the echo is what uses it, BuildKit ignores an argument
-# the command does not mention): CI passes the run id, so every pipeline run looks for a newer release again, while a
-# local build reuses the layer (use --no-cache to look again).
 FROM alpine:3 AS sevenzip
 ARG TARGETARCH
 ARG SEVENZIP_REFRESH=0
@@ -37,8 +28,7 @@ RUN apk add --no-cache curl xz \
     && arch="$([ "$TARGETARCH" = arm64 ] && echo arm64 || echo x64)" \
     && tag="$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/ip7z/7zip/releases/latest | sed 's|.*/||')" \
     && echo "7-Zip $tag for $arch (refresh $SEVENZIP_REFRESH)" \
-    && curl -fsSL --retry 3 "https://github.com/ip7z/7zip/releases/download/$tag/7z$(echo "$tag" | tr -d .)-linux-$arch.tar.xz" \
-        | xz -dc | tar -x 7zzs \
+    && curl -fsSL --retry 3 "https://github.com/ip7z/7zip/releases/download/$tag/7z$(echo "$tag" | tr -d .)-linux-$arch.tar.xz" | xz -dc | tar -x 7zzs \
     && install -m 0755 7zzs /usr/local/bin/7zz \
     && 7zz i | grep -q Rar5
 
@@ -48,8 +38,10 @@ WORKDIR /app
 
 COPY --from=sevenzip /usr/local/bin/7zz /usr/local/bin/7zz
 
-RUN addgroup -S anilink && adduser -S anilink -G anilink \
-    && mkdir /downloads && chown anilink:anilink /downloads
+RUN addgroup -S anilink \ 
+    && adduser -S anilink -G anilink \
+    && mkdir /downloads \
+    && chown anilink:anilink /downloads
 
 COPY --from=backend --chown=anilink:anilink /app/publish .
 COPY --from=frontend --chown=anilink:anilink /app/dist/AniLink/browser ./wwwroot
