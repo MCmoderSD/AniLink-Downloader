@@ -23,12 +23,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux/amd64, linux/arm64]
+        platform: [linux/amd64, linux/arm64, linux/arm/v7]
         include:
           - platform: linux/amd64
             runner: ubuntu-latest
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
+          - platform: linux/arm/v7
+            runner: ubuntu-latest
 
     steps:
       - id: checkout
@@ -44,6 +46,13 @@ jobs:
         run: |
           echo "slug=${PLATFORM//\//-}" >> "$GITHUB_OUTPUT"
           echo "ghcr-image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
+      - id: qemu
+        name: Set up QEMU
+        if: matrix.platform == 'linux/arm/v7'
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm
 
       - id: buildx
         name: Set up Docker Buildx

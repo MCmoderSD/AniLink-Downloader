@@ -1,5 +1,6 @@
 # ---- Stage 1: Frontend ----
-FROM node:26-alpine AS frontend
+# The web page does not depend on the CPU, and node has no image for 32-bit ARM, so this stage runs on the build machine.
+FROM --platform=$BUILDPLATFORM node:26-alpine AS frontend
 WORKDIR /app
 
 COPY frontend/package.json frontend/package-lock.json ./
@@ -10,7 +11,8 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- Stage 2: Backend ----
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS backend
+# The published API is portable (no apphost), so it is built once on the build machine, not emulated per CPU.
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS backend
 WORKDIR /src
 
 COPY backend/AniLink.Api/AniLink.Api.csproj ./
@@ -25,7 +27,7 @@ ARG TARGETARCH
 ARG SEVENZIP_REFRESH=0
 
 RUN apk add --no-cache curl xz \
-    && arch="$([ "$TARGETARCH" = arm64 ] && echo arm64 || echo x64)" \
+    && arch="$(case "$TARGETARCH" in arm64) echo arm64;; arm) echo arm;; *) echo x64;; esac)" \
     && tag="$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/ip7z/7zip/releases/latest | sed 's|.*/||')" \
     && echo "7-Zip $tag for $arch (refresh $SEVENZIP_REFRESH)" \
     && curl -fsSL --retry 3 "https://github.com/ip7z/7zip/releases/download/$tag/7z$(echo "$tag" | tr -d .)-linux-$arch.tar.xz" | xz -dc | tar -x 7zzs \

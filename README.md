@@ -56,8 +56,8 @@ the internet**; put it behind a VPN or a reverse proxy with authentication if it
 
 ## Requirements
 - [Docker](https://docs.docker.com/get-docker/) with Compose v2 (the `docker compose` command): Docker Desktop on
-  Windows and macOS, or Docker Engine on Linux. The image exists for `linux/amd64` and `linux/arm64`, so it also runs
-  on a Raspberry Pi.
+  Windows and macOS, or Docker Engine on Linux. The image exists for `linux/amd64`, `linux/arm64` and `linux/arm/v7`,
+  so it also runs on a Raspberry Pi 2 or newer, with a 32-bit or a 64-bit system.
 - [Debrid-Link Premium](https://debrid-link.com/premium) and a private API key from
   [debrid-link.com/webapp/apikey](https://debrid-link.com/webapp/apikey).
 - Free disk space of about twice the size of what you download: the archives stay until everything is unpacked and
@@ -70,8 +70,9 @@ There are two ways to get the image: run the one that is published (A), or build
 Configuration and usage are the same for both.
 
 ### A. Run the published image
-GitHub Actions builds the image for `amd64` and `arm64` on every push to the `master` branch and publishes it as
-`mcmodersd/anilink-downloader:latest` on Docker Hub and as `ghcr.io/mcmodersd/anilink-downloader:latest` on GitHub.
+GitHub Actions builds the image for `amd64`, `arm64` and `arm/v7` on every push to the `master` branch and
+publishes it as `mcmodersd/anilink-downloader:latest` on Docker Hub and as
+`ghcr.io/mcmodersd/anilink-downloader:latest` on GitHub.
 
 #### 1. Get the compose file and create the downloads folder
 ```bash
@@ -118,12 +119,12 @@ docker compose up -d --build
 image. Nothing is pulled. The build runs four stages, and only the last one ends up in the image, which takes about
 120 MB on disk and about 55 MB to download (Docker Desktop adds the two up and lists about 190 MB):
 
-| Stage      | Base image                  | What it does                                                                   |
-| ---------- | --------------------------- | ------------------------------------------------------------------------------ |
-| `frontend` | `node:26-alpine`            | Installs the npm packages and builds the web page.                             |
-| `backend`  | `dotnet/sdk:10.0-alpine`    | Restores the NuGet packages and publishes the API.                             |
-| `sevenzip` | `alpine:3`                  | Downloads the newest official 7-Zip for the CPU and checks that it reads RAR5. |
-| `runtime`  | `dotnet/aspnet:10.0-alpine` | Takes the results of the three, runs as user `1000:1000` and starts the API.   |
+| Stage      | Base image                  | What it does                                                                                   |
+| ---------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `frontend` | `node:26-alpine`            | Installs the npm packages and builds the web page. Runs on the CPU of the machine that builds. |
+| `backend`  | `dotnet/sdk:10.0-alpine`    | Restores the NuGet packages and publishes the API. Runs on the CPU of the machine that builds. |
+| `sevenzip` | `alpine:3`                  | Downloads the newest official 7-Zip for the CPU and checks that it reads RAR5.                 |
+| `runtime`  | `dotnet/aspnet:10.0-alpine` | Takes the results of the three, runs as user `1000:1000` and starts the API.                   |
 
 The build needs internet access (Docker Hub for the base images, the npm and NuGet registries, and GitHub for 7-Zip).
 The first build takes a few minutes; later ones reuse every layer that did not change, so editing the backend does not
@@ -170,11 +171,15 @@ services:
 Now `docker compose up -d` builds the image `anilink-downloader:local` if it does not exist yet, and never pulls.
 After `git pull`, rebuild it with `docker compose build`.
 
-To build for another CPU, for example for a Raspberry Pi on your PC, use Buildx (the build is slower, because it runs
-in emulation):
+To build for another CPU, for example for a Raspberry Pi on your PC, use Buildx and name the CPU: `linux/arm64` for a
+64-bit system, `linux/arm/v7` for a 32-bit one. The web page and the API are built on your own CPU, and only a few small
+steps run in emulation:
 ```bash
 docker buildx build --platform linux/arm64 -t anilink-downloader:arm64 --load .
+docker buildx build --platform linux/arm/v7 -t anilink-downloader:armv7 --load .
 ```
+Docker Desktop includes the emulation. On Linux, install it once with
+`docker run --privileged --rm tonistiigi/binfmt --install all`.
 
 <br>
 
