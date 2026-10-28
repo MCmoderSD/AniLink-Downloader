@@ -44,6 +44,11 @@ public sealed class JobRepository(JobManifestStore manifests)
         return manifests.WriteAsync(job);
     }
 
+    public void SaveProgress(DownloadJob job)
+    {
+        manifests.WriteProgress(job);
+    }
+
     public void DeleteManifest(DownloadJob job)
     {
         manifests.Delete(job);

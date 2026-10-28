@@ -12,6 +12,7 @@ public static class FeatureServiceCollectionExtensions
         services.AddSingleton(archives);
 
         services.AddSingleton<JobManifestStore>();
+        services.AddHostedService<ManifestFlusher>();
         services.AddSingleton<JobRepository>();
         services.AddSingleton<ProgressHub>();
 

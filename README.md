@@ -119,7 +119,8 @@ typed in the form, then the defaults from `.env`. Only if none of them opens the
 ### Restarts
 The state of every unfinished download is kept in a `.anilink.json` next to its files, including the links Debrid-Link
 created. After a restart, the container carries on where it was: finished parts are not fetched again, half
-downloaded ones are continued, and no link is asked for twice.
+downloaded ones are continued, and no link is asked for twice. Progress is written to that file every two seconds and
+when the container stops, so after a crash at most the last two seconds are done again.
 A paused download stays paused until you resume it.
 
 <br>

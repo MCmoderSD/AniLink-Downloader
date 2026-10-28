@@ -134,7 +134,7 @@ public sealed class DownloadPipeline(
                 throw new DebridLinkException(exception.Code, $"{pending[index].Link.FileName}: {exception.Message}", exception.Retryable, exception);
             }
 
-            await jobs.SaveAsync(job);
+            jobs.SaveProgress(job);
         }
 
         Notify(job, NoticeLevel.Success, $"{item.Label}: all {item.Parts.Count} Debrid links created");
@@ -170,7 +170,7 @@ public sealed class DownloadPipeline(
             try
             {
                 await scheduler.RunDownloadAsync(token => downloader.DownloadAsync(part, token), run.Token);
-                await jobs.SaveAsync(job);
+                jobs.SaveProgress(job);
 
                 return;
             }
@@ -180,7 +180,7 @@ public sealed class DownloadPipeline(
 
                 part.InvalidateLink();
                 await resolver.ResolveAsync(part, true, run.Token);
-                await jobs.SaveAsync(job);
+                jobs.SaveProgress(job);
             }
             catch (Exception exception) when (IsTransient(exception) && attempt < MaxAttempts)
             {
