@@ -115,7 +115,8 @@ mkdir downloads
 docker compose up -d --build
 ```
 `--build` builds the `Dockerfile`, tags the result as `mcmodersd/anilink-downloader:latest` and starts exactly that
-image. Nothing is pulled. The build runs four stages, and only the last one ends up in the image (about 190 MB):
+image. Nothing is pulled. The build runs four stages, and only the last one ends up in the image, which takes about
+120 MB on disk and about 55 MB to download (Docker Desktop adds the two up and lists about 190 MB):
 
 | Stage      | Base image                  | What it does                                                                   |
 | ---------- | --------------------------- | ------------------------------------------------------------------------------ |
