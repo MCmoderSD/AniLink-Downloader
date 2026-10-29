@@ -276,7 +276,7 @@ public sealed class DownloadPipeline(
         var workspace = job.Workspace;
         var volumes = item.Parts.Select(part => Path.Combine(workspace.ArchiveDirectory(item), part.StorageName)).ToList();
 
-        var label = job.Release.Kind is ReleaseKind.Movie ? LogSafe.OneLine(job.Name) : $"{item.Label} of {LogSafe.OneLine(job.Name)}";
+        var label = item.LogLabel;
         var queued = Stopwatch.StartNew();
 
         if (scheduler.ExtractionsRunning >= DownloadScheduler.ExtractionLimit)
@@ -352,7 +352,7 @@ public sealed class DownloadPipeline(
             return;
         }
 
-        logger.LogWarning(cause, "{Item} of {Job} failed", item.Label, LogSafe.OneLine(job.Name));
+        logger.LogWarning(cause, "{Item} failed", item.LogLabel);
 
         item.Fail(cause.Message);
         Notify(job, NoticeLevel.Error, $"{item.Label} failed: {cause.Message}");

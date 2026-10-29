@@ -22,6 +22,7 @@ public sealed class ToolActivity
     private string _first = "";
     private string _tail = "";
     private double _percent;
+    private Process? _process;
 
     public long Chunks
     {
@@ -66,11 +67,43 @@ public sealed class ToolActivity
     {
         lock (_gate) _percent = percent;
     }
+
+    public void Attach(Process process)
+    {
+        lock (_gate) _process = process;
+    }
+
+    // The CPU time the tool has used so far, or null once it has ended. Next to the elapsed time it tells a tool
+    // that computes from one that waits for the disk.
+    public TimeSpan? CpuTime
+    {
+        get
+        {
+            Process? process;
+
+            lock (_gate) process = _process;
+
+            try
+            {
+                return process?.TotalProcessorTime;
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or System.ComponentModel.Win32Exception)
+            {
+                return null;
+            }
+        }
+    }
 }
 
 public sealed partial class SevenZipProcess(ArchiveOptions options)
 {
-    [GeneratedRegex(@"(\d{1,3})%")]
+    // Enough output to always hold the latest progress line whole, even with a long file name in it
+    private const int WindowLength = 1024;
+
+    // 7-Zip redraws its progress with backspaces: each redraw is one segment that starts with the percentage, followed by
+    // the number of files and the name of the current one, as in " 12% 1 - Some.Long.Release.Name.mkv". Only a
+    // percentage at the start of a segment counts, so digits and % signs in a file name are never taken for it.
+    [GeneratedRegex(@"^\s*(\d{1,3})%")]
     private static partial Regex ProgressPattern();
 
     public string Executable => options.SevenZipPath;
@@ -78,6 +111,8 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
     public async Task<ToolResult> RunAsync(IEnumerable<string> arguments, Action<double>? onProgress, CancellationToken cancellationToken, ToolActivity? activity = null)
     {
         using var process = Start(arguments);
+
+        activity?.Attach(process);
 
         var output = new StringBuilder();
         var error = process.StandardError.ReadToEndAsync(cancellationToken);
@@ -98,19 +133,33 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
             if (onProgress is null) continue;
 
-            window = (window + chunk)[^Math.Min(window.Length + chunk.Length, 64)..];
-            var matches = ProgressPattern().Matches(window);
+            var cut = window.Length + chunk.Length > WindowLength;
+            window = (window + chunk)[^Math.Min(window.Length + chunk.Length, WindowLength)..];
 
-            if (matches.Count > 0 && double.TryParse(matches[^1].Groups[1].ValueSpan, out var percent))
-            {
-                activity?.Reported(Math.Min(percent, 100));
-                onProgress(Math.Min(percent, 100));
-            }
+            if (LatestPercent(window, cut) is not { } percent) continue;
+
+            activity?.Reported(percent);
+            onProgress(percent);
         }
 
         await process.WaitForExitAsync(cancellationToken);
 
         return new ToolResult(process.ExitCode, output.ToString(), await error);
+    }
+
+    // The newest segment that starts with a percentage. When the window was cut, its first segment may have lost the
+    // front of its number ("12%" read as "2%"), so it is left out.
+    private static double? LatestPercent(string window, bool cut)
+    {
+        var segments = window.Split(['\b', '\r', '\n']);
+
+        for (var index = segments.Length - 1; index >= (cut ? 1 : 0); index--)
+        {
+            var match = ProgressPattern().Match(segments[index]);
+            if (match.Success && double.TryParse(match.Groups[1].ValueSpan, out var percent)) return Math.Min(percent, 100);
+        }
+
+        return null;
     }
 
     // Reads the first bytes of one entry, decrypted, and stops the tool there. That is enough to tell a good

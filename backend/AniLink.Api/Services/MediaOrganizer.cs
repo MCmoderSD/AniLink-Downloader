@@ -40,7 +40,7 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 
         DeleteIgnored(files);
 
-        logger.LogInformation("Organized {Item} of {Job} into {Files}", item.Label, item.Job.Name, string.Join(", ", moves.Select(move => Path.GetFileName(move.To))));
+        logger.LogInformation("Organized {Item} into {Files}", item.LogLabel, string.Join(", ", moves.Select(move => Path.GetFileName(move.To))));
 
         return [.. moves.Select(move => Path.GetFileName(move.To))];
     }

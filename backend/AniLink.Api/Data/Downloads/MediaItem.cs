@@ -1,3 +1,5 @@
+using AniLink.Api.Helpers;
+
 namespace AniLink.Api.Data.Downloads;
 
 public sealed class MediaItem
@@ -28,6 +30,9 @@ public sealed class MediaItem
     public IReadOnlyList<ArchivePart> Parts => _parts;
 
     public string Label => Job.Release.Kind is ReleaseKind.Movie ? Job.Name : $"Episode {Number}";
+
+    // How the log names it: a film by its name alone, an episode together with the name of its download
+    public string LogLabel => Job.Release.Kind is ReleaseKind.Movie ? LogSafe.OneLine(Job.Name) : $"Episode {Number} of {LogSafe.OneLine(Job.Name)}";
 
     public ItemStage Stage
     {

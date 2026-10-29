@@ -124,6 +124,7 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
 
             var seen = DirectorySize(outputDirectory);
             var since = clock.Elapsed;
+            var cpu = activity.CpuTime;
 
             using var timer = new PeriodicTimer(Heartbeat);
 
@@ -131,19 +132,25 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
             {
                 var written = DirectorySize(outputDirectory);
                 var seconds = (clock.Elapsed - since).TotalSeconds;
+                var used = activity.CpuTime;
+
+                // Close to 100% means 7-Zip computes as fast as one thread can; far below, it waits for the disk
+                var load = cpu is { } before && used is { } after && seconds > 0 ? $"{(after - before).TotalSeconds / seconds * 100:0}%" : "unknown";
 
                 logger.LogInformation(
-                    "7-Zip is unpacking {Label}: {Percent:0}% reported, {Written} written ({Rate}/s), running for {Elapsed}, {Chunks} progress messages, last: {Last}",
+                    "7-Zip is unpacking {Label}: {Percent:0}% reported, {Written} written ({Rate}/s), CPU {Load} of one thread, running for {Elapsed}, {Chunks} progress messages, last: {Last}",
                     label,
                     activity.Percent,
                     ByteSize.Format(written),
                     ByteSize.Format(seconds > 0 ? (long)((written - seen) / seconds) : 0),
+                    load,
                     DurationText.Format(clock.Elapsed),
                     activity.Chunks,
                     LogSafe.Excerpt(activity.Tail, 80, true));
 
                 seen = written;
                 since = clock.Elapsed;
+                cpu = used;
             }
         }
         catch (OperationCanceledException)

@@ -356,7 +356,7 @@ Compose; to get rid of a download, delete its folder.
 | *Reconnecting* at the top right                  | The server is unreachable or restarting. It reconnects by itself.            |
 | *Password needed* on an episode                  | No default password fits. **Enter password**, or add it to `.env`.           |
 | *N of M links could not be assigned*             | The season format is not in every file name. Type it, or split the list.     |
-| Unpacking stays at 0%                            | The log shows every 20 s how much 7-Zip has written and what it printed.     |
+| Slow unpacking on Docker Desktop (Windows)       | Its shared folder `./downloads` is the limit, about 100–200 MB/s.            |
 | *The archive contains no .mkv or .mp4 file*      | The release holds something else, or several videos. Unpack it by hand.      |
 | *… already exists in …* when sorting             | That episode's file is in the folder already. Move it away, then **Retry**.  |
 | *… is already being downloaded into …*           | The same name and season is still active. Finish, cancel or remove it first. |
