@@ -303,8 +303,9 @@ downloads/
     └── Downloads.txt
 ```
 Characters that file systems do not allow (`\ / : * ? " < > |`) become `-` in the folder name. Each archive must hold
-exactly one `.mkv` or `.mp4`; its `.nfo` is taken along when there is one. If anything else is left in `output/`, or an
-episode failed, `archives/` and `output/` are kept, so nothing is lost with them.
+exactly one `.mkv` or `.mp4`; its `.nfo` is taken along when there is one, and files ending in `.md5` or `.download`
+are deleted without a notice. If anything else is left in `output/`, or an episode failed, `archives/` and `output/`
+are kept, so nothing is lost with them.
 
 ### Passwords
 For every archive, the passwords are tried in this order: the one that already worked for the download, the ones you

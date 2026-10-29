@@ -7,6 +7,8 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 {
     private static readonly string[] VideoExtensions = [".mkv", ".mp4"];
 
+    private static readonly string[] IgnoredExtensions = [".md5", ".download"];
+
     public IReadOnlyList<string> Organize(Workspace workspace, MediaItem item)
     {
         var output = workspace.OutputDirectory(item);
@@ -36,8 +38,25 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 
         foreach (var (from, to) in moves) File.Move(from, to);
 
+        DeleteIgnored(files);
+
         logger.LogInformation("Organized {Item} of {Job} into {Files}", item.Label, item.Job.Name, string.Join(", ", moves.Select(move => Path.GetFileName(move.To))));
 
         return [.. moves.Select(move => Path.GetFileName(move.To))];
+    }
+
+    private static void DeleteIgnored(IEnumerable<string> files)
+    {
+        foreach (var file in files.Where(file => IgnoredExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase)))
+        {
+            try
+            {
+                File.Delete(file);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                // A file that cannot be deleted stays in output/ with the rest, so nothing is lost and the item is not failed for it
+            }
+        }
     }
 }
