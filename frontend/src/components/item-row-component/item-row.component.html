@@ -12,6 +12,78 @@
     {{ partCount() }} {{ partCount() === 1 ? 'part' : 'parts' }}
     <mat-icon class="item-chevron" [class.item-chevron-open]="partsOpen()" aria-hidden="true">expand_more</mat-icon>
   </button>
+
+  @if (manageable()) {
+    <div class="item-actions" role="group" [attr.aria-label]="'Actions for ' + item().label">
+      @if (canRetry()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Retry ' + item().label"
+          title="Retry"
+          (click)="retry()"
+        >
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+        </button>
+      }
+
+      @if (canPause()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Pause ' + item().label"
+          title="Pause"
+          (click)="pause()"
+        >
+          <mat-icon aria-hidden="true">pause</mat-icon>
+        </button>
+      }
+
+      @if (canResume()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Resume ' + item().label"
+          title="Resume"
+          (click)="resume()"
+        >
+          <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        </button>
+      }
+
+      @if (canCancel()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Cancel ' + item().label"
+          title="Cancel"
+          (click)="cancel()"
+        >
+          <mat-icon aria-hidden="true">stop_circle</mat-icon>
+        </button>
+      }
+
+      <button
+        mat-icon-button
+        type="button"
+        class="item-action"
+        [disabled]="busy()"
+        [attr.aria-label]="'Remove ' + item().label"
+        title="Remove"
+        (click)="remove()"
+      >
+        <mat-icon aria-hidden="true">delete_outline</mat-icon>
+      </button>
+    </div>
+  }
 </div>
 
 <app-progress-bar

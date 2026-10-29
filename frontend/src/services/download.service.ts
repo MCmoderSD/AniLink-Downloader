@@ -44,4 +44,25 @@ export class DownloadService extends ApiService {
   remove(id: string): Promise<void> {
     return this.delete(id);
   }
+
+  cancelItem(id: string, number: number): Promise<Job> {
+    return this.post<Job>(`${id}/items/${number}/cancel`);
+  }
+
+  pauseItem(id: string, number: number): Promise<Job> {
+    return this.post<Job>(`${id}/items/${number}/pause`);
+  }
+
+  resumeItem(id: string, number: number): Promise<Job> {
+    return this.post<Job>(`${id}/items/${number}/resume`);
+  }
+
+  retryItem(id: string, number: number): Promise<Job> {
+    return this.post<Job>(`${id}/items/${number}/retry`);
+  }
+
+  // The job is gone with its last item, which the server answers with no content
+  removeItem(id: string, number: number): Promise<Job | null> {
+    return this.delete<Job | null>(`${id}/items/${number}`);
+  }
 }

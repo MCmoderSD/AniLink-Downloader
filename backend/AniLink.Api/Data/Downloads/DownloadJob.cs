@@ -6,7 +6,9 @@ public sealed record Release(ReleaseKind Kind, int? Season, string? Format);
 
 public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, Release release, Workspace workspace, PasswordBook passwords)
 {
-    private readonly List<MediaItem> _items = [];
+    // Replaced as a whole whenever an item is added or removed, so the many readers that walk it without a lock
+    // always see one consistent list.
+    private volatile MediaItem[] _items = [];
     private long _revision;
     private int _linksAnnounced;
 
@@ -91,9 +93,21 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
             movie ? FileNames.Sanitize(name) : number.ToString(),
             links);
 
-        _items.Add(item);
+        lock (Gate) _items = [.. _items, item];
 
         return item;
+    }
+
+    public MediaItem? FindItem(int number)
+    {
+        return _items.FirstOrDefault(item => item.Number == number);
+    }
+
+    public void RemoveItem(MediaItem item)
+    {
+        lock (Gate) _items = [.. _items.Where(candidate => candidate != item)];
+
+        Touch();
     }
 
     public ActivityEntry Log(NoticeLevel level, string text)

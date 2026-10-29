@@ -98,6 +98,59 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         };
     }
 
+    [HttpPost("{id:guid}/items/{number:int}/cancel")]
+    public IActionResult CancelItem(Guid id, int number)
+    {
+        return downloads.CancelItem(id, number) switch
+        {
+            null => NotFound(),
+            false => Conflict("This item has already ended."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPost("{id:guid}/items/{number:int}/pause")]
+    public IActionResult PauseItem(Guid id, int number)
+    {
+        return downloads.PauseItem(id, number) switch
+        {
+            null => NotFound(),
+            false => Conflict("This item is not running, so it cannot be paused."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPost("{id:guid}/items/{number:int}/resume")]
+    public IActionResult ResumeItem(Guid id, int number)
+    {
+        return downloads.ResumeItem(id, number) switch
+        {
+            null => NotFound(),
+            false => Conflict("This item is not paused."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPost("{id:guid}/items/{number:int}/retry")]
+    public IActionResult RetryItem(Guid id, int number)
+    {
+        return downloads.RetryItem(id, number) switch
+        {
+            null => NotFound(),
+            false => Conflict("This item neither failed nor was canceled."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpDelete("{id:guid}/items/{number:int}")]
+    public IActionResult RemoveItem(Guid id, int number)
+    {
+        if (!downloads.RemoveItem(id, number)) return NotFound();
+
+        // The job is gone as well when this was its last item
+        return downloads.Get(id) is { } job ? Ok(job) : NoContent();
+    }
+
     [HttpDelete("{id:guid}")]
     public IActionResult Remove(Guid id)
     {

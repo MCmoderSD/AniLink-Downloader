@@ -133,14 +133,16 @@ public sealed class MediaItem
         }
     }
 
-    public void Cancel()
+    public bool Cancel()
     {
         lock (Gate)
         {
-            if (IsTerminal) return;
+            if (IsTerminal) return false;
 
             Stage = ItemStage.Cancelled;
             Job.Touch();
+
+            return true;
         }
     }
 

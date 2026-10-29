@@ -120,6 +120,41 @@ public sealed class DownloadService(
         return jobs.Get(id) is { } job ? pipeline.Retry(job) : null;
     }
 
+    public bool? CancelItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.CancelItem(item) : null;
+    }
+
+    public bool? PauseItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.PauseItem(item) : null;
+    }
+
+    public bool? ResumeItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.ResumeItem(item) : null;
+    }
+
+    public bool? RetryItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.RetryItem(item) : null;
+    }
+
+    // Removing the only item left removes the whole job, because a job without items has nothing to show.
+    public bool RemoveItem(Guid id, int number)
+    {
+        if (jobs.Get(id)?.FindItem(number) is not { } item) return false;
+
+        var job = item.Job;
+
+        if (job.Items.Count == 1) return Remove(id);
+
+        pipeline.RemoveItem(item);
+        hub.Publish(DownloadEvents.Job(job));
+
+        return true;
+    }
+
     public bool? SubmitPassword(Guid id, string password)
     {
         return jobs.Get(id) is { } job ? pipeline.SubmitPassword(job, password) : null;

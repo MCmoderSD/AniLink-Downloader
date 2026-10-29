@@ -92,7 +92,7 @@
           <ul class="job-items">
             @for (item of job().items; track item.number) {
               <li>
-                <app-item-row [item]="item"/>
+                <app-item-row [item]="item" [jobId]="job().id" [manageable]="job().items.length > 1"/>
               </li>
             }
           </ul>

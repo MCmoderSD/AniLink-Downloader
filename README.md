@@ -248,6 +248,11 @@ with their state (*Waiting for link*, *Creating link*, *Link ready*, *Downloadin
 much has arrived. Below the episodes, the activity log keeps the latest messages. Finished files and problems also
 show up as notes in the corner, and *Live* at the top right says that the page is connected to the server.
 
+With more than one episode, every row also has its own buttons: **Retry**, **Pause** or **Resume**, **Cancel** and
+**Remove**, as far as they apply to its state. They act on that one episode, and the rest of the download carries on.
+**Cancel** and **Remove** ask first. **Resume** on the card also carries on an episode that was paused on its own.
+Removing the last episode removes the whole download. Finished files stay on disk.
+
 ### Starting a download
 **New download** takes:
 
@@ -359,21 +364,23 @@ Compose; to get rid of a download, delete its folder.
 The web page talks to a JSON API that you can use for scripts as well. It has no authentication either, so the warning
 in the [Disclaimer](#disclaimer) applies.
 
-| Request                             | Purpose                                                           |
-| ----------------------------------- | ----------------------------------------------------------------- |
-| `GET /api/config`                   | Limits, the number of default passwords and the downloads folder. |
-| `POST /api/downloads/analyze`       | Checks a list of links, as the form does while you type.          |
-| `POST /api/downloads`               | Starts a download.                                                |
-| `GET /api/downloads`                | Lists all downloads.                                              |
-| `GET /api/downloads/{id}`           | One download with all its episodes and parts.                     |
-| `POST /api/downloads/{id}/pause`    | Pauses it (`/resume` resumes it).                                 |
-| `POST /api/downloads/{id}/cancel`   | Cancels it (`/retry` starts failed or canceled episodes again).   |
-| `POST /api/downloads/{id}/password` | Sends a password for the waiting episodes.                        |
-| `DELETE /api/downloads/{id}`        | Removes it from the list. Files on disk stay.                     |
-| `GET /api/downloads/stream`         | Server-Sent Events: `job`, `notice` and `removed` messages.       |
-| `GET /health/live`                  | The process answers.                                              |
-| `GET /health/ready`                 | The downloads folder is writable and 7-Zip works.                 |
-| `GET /health`                       | All checks.                                                       |
+| Request                                    | Purpose                                                           |
+| ------------------------------------------ | ----------------------------------------------------------------- |
+| `GET /api/config`                          | Limits, the number of default passwords and the downloads folder. |
+| `POST /api/downloads/analyze`              | Checks a list of links, as the form does while you type.          |
+| `POST /api/downloads`                      | Starts a download.                                                |
+| `GET /api/downloads`                       | Lists all downloads.                                              |
+| `GET /api/downloads/{id}`                  | One download with all its episodes and parts.                     |
+| `POST /api/downloads/{id}/pause`           | Pauses it (`/resume` resumes it).                                 |
+| `POST /api/downloads/{id}/cancel`          | Cancels it (`/retry` starts failed or canceled episodes again).   |
+| `POST /api/downloads/{id}/password`        | Sends a password for the waiting episodes.                        |
+| `POST /api/downloads/{id}/items/{n}/pause` | Pauses episode `n` (`/resume`, `/cancel` and `/retry` too).       |
+| `DELETE /api/downloads/{id}/items/{n}`     | Removes episode `n` from the download. Files on disk stay.        |
+| `DELETE /api/downloads/{id}`               | Removes it from the list. Files on disk stay.                     |
+| `GET /api/downloads/stream`                | Server-Sent Events: `job`, `notice` and `removed` messages.       |
+| `GET /health/live`                         | The process answers.                                              |
+| `GET /health/ready`                        | The downloads folder is writable and 7-Zip works.                 |
+| `GET /health`                              | All checks.                                                       |
 
 A download is started like this:
 ```bash

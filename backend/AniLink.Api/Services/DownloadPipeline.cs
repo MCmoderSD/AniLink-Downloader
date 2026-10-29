@@ -26,6 +26,10 @@ public sealed class DownloadPipeline(
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runs = new();
 
+    // Stops one item without touching the others of its job. It is never disposed: without a timer it holds nothing
+    // that needs releasing, and a late Cancel on a disposed source would throw.
+    private readonly ConcurrentDictionary<MediaItem, CancellationTokenSource> _itemRuns = new();
+
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
     {
         var items = (only ?? job.Items).Where(item => item is { IsTerminal: false, Stage: not ItemStage.Paused }).OrderBy(item => item.Number).ToList();
@@ -95,9 +99,76 @@ public sealed class DownloadPipeline(
         return true;
     }
 
-    private async Task ProcessAsync(DownloadJob job, MediaItem item, CancellationToken cancellationToken)
+    public bool CancelItem(MediaItem item)
     {
-        using var run = new ItemRun(cancellationToken);
+        if (!item.Cancel()) return false;
+
+        Interrupt(item);
+        Notify(item.Job, NoticeLevel.Warning, $"{item.Label}: canceled");
+
+        return true;
+    }
+
+    public bool PauseItem(MediaItem item)
+    {
+        if (!item.Pause()) return false;
+
+        Interrupt(item);
+        Notify(item.Job, NoticeLevel.Info, $"{item.Label}: paused");
+
+        return true;
+    }
+
+    public bool ResumeItem(MediaItem item)
+    {
+        if (!item.Resume()) return false;
+
+        Notify(item.Job, NoticeLevel.Info, $"{item.Label}: resumed");
+        Start(item.Job, [item]);
+
+        return true;
+    }
+
+    public bool RetryItem(MediaItem item)
+    {
+        if (!item.ResetForRetry()) return false;
+
+        Notify(item.Job, NoticeLevel.Info, $"Retrying {item.Label}");
+        Start(item.Job, [item]);
+
+        return true;
+    }
+
+    public void RemoveItem(MediaItem item)
+    {
+        var job = item.Job;
+
+        item.Cancel();
+
+        var running = _itemRuns.TryRemove(item, out var source);
+        source?.Cancel();
+
+        job.RemoveItem(item);
+        job.Log(NoticeLevel.Info, $"{item.Label}: removed from the list");
+
+        // A running item hands over to the batch it belongs to, which finishes the job once it has unwound. One that was
+        // idle leaves nothing to do that, so the job is finished here when this was the last thing it waited for.
+        if (!running && job.Status is JobStatus.Completed) _ = FinalizeAsync(job);
+        else _ = jobs.SaveAsync(job);
+    }
+
+    private void Interrupt(MediaItem item)
+    {
+        if (_itemRuns.TryRemove(item, out var source)) source.Cancel();
+        else _ = jobs.SaveAsync(item.Job);
+    }
+
+    private async Task ProcessAsync(DownloadJob job, MediaItem item, CancellationToken jobToken)
+    {
+        var own = new CancellationTokenSource();
+        _itemRuns[item] = own;
+
+        using var run = new ItemRun(jobToken, own.Token);
 
         var pending = item.Parts.Where(part => !part.HasLink).ToList();
         var resolutions = pending.Select(part => resolver.ResolveAsync(part, false, run.Token)).ToList();
@@ -112,10 +183,12 @@ public sealed class DownloadPipeline(
         catch (Exception exception)
         {
             run.Abort(exception);
-            HandleFailure(job, item, run.Failure ?? exception, cancellationToken);
+            HandleFailure(job, item, run.Failure ?? exception, run.Interrupted);
         }
         finally
         {
+            _itemRuns.TryRemove(new KeyValuePair<MediaItem, CancellationTokenSource>(item, own));
+
             await jobs.SaveAsync(job);
         }
     }
@@ -229,9 +302,9 @@ public sealed class DownloadPipeline(
         }, cancellationToken);
     }
 
-    private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, CancellationToken jobToken)
+    private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, bool interrupted)
     {
-        if (jobToken.IsCancellationRequested) return;
+        if (interrupted) return;
 
         if (cause is OperationCanceledException)
         {
@@ -320,15 +393,18 @@ public sealed class DownloadPipeline(
         return exception is HttpRequestException or IOException or TimeoutException;
     }
 
-    private sealed class ItemRun(CancellationToken parent) : IDisposable
+    private sealed class ItemRun(CancellationToken job, CancellationToken own) : IDisposable
     {
-        private readonly CancellationTokenSource _source = CancellationTokenSource.CreateLinkedTokenSource(parent);
+        private readonly CancellationTokenSource _source = CancellationTokenSource.CreateLinkedTokenSource(job, own);
 
         private Exception? _failure;
 
         public CancellationToken Token => _source.Token;
 
         public Exception? Failure => _failure;
+
+        // Stopped from outside, by the user or by the job, as opposed to ended by an error of its own.
+        public bool Interrupted => job.IsCancellationRequested || own.IsCancellationRequested;
 
         public void Abort(Exception exception)
         {
