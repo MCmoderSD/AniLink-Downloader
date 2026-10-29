@@ -307,6 +307,7 @@ downloads/
     ├── Some Film.nfo
     └── Downloads.txt
 ```
+Inside `archives/` and `output/`, a season has a folder per episode (`1`, `2`, …), a film has its files right there.
 Characters that file systems do not allow (`\ / : * ? " < > |`) become `-` in the folder name. Each archive must hold
 exactly one `.mkv` or `.mp4`; its `.nfo` is taken along when there is one, and files ending in `.md5` or `.download`
 are deleted without a notice. If anything else is left in `output/`, or an episode failed, `archives/` and `output/`

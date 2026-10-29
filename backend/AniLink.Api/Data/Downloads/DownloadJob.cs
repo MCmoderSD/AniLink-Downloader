@@ -89,7 +89,8 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         var item = new MediaItem(
             this,
             number,
-            movie ? "movie" : number.ToString("D3"),
+            // A film is the only item of its download, so archives/ and output/ hold its files directly
+            movie ? "" : number.ToString(),
             movie ? FileNames.Sanitize(name) : number.ToString(),
             links);
 
