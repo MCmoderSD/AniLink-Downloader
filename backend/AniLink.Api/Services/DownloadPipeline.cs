@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using AniLink.Api.Archives;
 using AniLink.Api.Data.Downloads;
 using AniLink.Api.Exceptions.Archives;
@@ -275,30 +276,60 @@ public sealed class DownloadPipeline(
         var workspace = job.Workspace;
         var volumes = item.Parts.Select(part => Path.Combine(workspace.ArchiveDirectory(item), part.StorageName)).ToList();
 
+        var label = job.Release.Kind is ReleaseKind.Movie ? LogSafe.OneLine(job.Name) : $"{item.Label} of {LogSafe.OneLine(job.Name)}";
+        var queued = Stopwatch.StartNew();
+
+        if (scheduler.ExtractionsRunning >= DownloadScheduler.ExtractionLimit)
+        {
+            logger.LogInformation("{Label} waits to be unpacked: all {Limit} unpacking slots are in use", label, DownloadScheduler.ExtractionLimit);
+        }
+
         await scheduler.RunExtractionAsync(async token =>
         {
             if (!item.BeginExtracting()) return;
 
-            var password = await passwords.ResolveAsync(volumes, job, token);
+            var unpacking = Stopwatch.StartNew();
 
-            if (password.Outcome is PasswordOutcome.Missing)
+            logger.LogInformation(
+                "Unpacking {Label} starts: {Volumes} volumes, {Size}, waited {Waited} for a slot, {Running} of {Limit} slots in use",
+                label,
+                volumes.Count,
+                ByteSize.Format(item.Parts.Sum(part => part.BytesTotal)),
+                DurationText.Format(queued.Elapsed),
+                scheduler.ExtractionsRunning,
+                DownloadScheduler.ExtractionLimit);
+
+            try
             {
-                if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+                var password = await passwords.ResolveAsync(volumes, job, label, token);
 
-                return;
+                if (password.Outcome is PasswordOutcome.Missing)
+                {
+                    if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+
+                    return;
+                }
+
+                var output = workspace.OutputDirectory(item);
+                if (Directory.Exists(output)) Directory.Delete(output, true);
+
+                await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
+
+                if (!item.BeginOrganizing()) return;
+
+                var files = organizer.Organize(workspace, item);
+
+                item.Complete(files);
+
+                logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
+                Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
             }
+            catch (OperationCanceledException)
+            {
+                logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
 
-            var output = workspace.OutputDirectory(item);
-            if (Directory.Exists(output)) Directory.Delete(output, true);
-
-            await extractor.ExtractAsync(volumes, output, password.Password, item.ReportExtraction, token);
-
-            if (!item.BeginOrganizing()) return;
-
-            var files = organizer.Organize(workspace, item);
-
-            item.Complete(files);
-            Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
+                throw;
+            }
         }, cancellationToken);
     }
 

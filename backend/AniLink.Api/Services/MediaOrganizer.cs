@@ -7,7 +7,7 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 {
     private static readonly string[] VideoExtensions = [".mkv", ".mp4"];
 
-    private static readonly string[] IgnoredExtensions = [".md5", ".download"];
+    private static readonly string[] IgnoredExtensions = [".md5", ".download", ".url", ".uri"];
 
     public IReadOnlyList<string> Organize(Workspace workspace, MediaItem item)
     {

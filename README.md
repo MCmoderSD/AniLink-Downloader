@@ -36,7 +36,9 @@ A few rules follow from that:
 - Links are created one after the other, with the pause `Debrid_Request_Delay` between two requests. An episode starts
   downloading as soon as all of *its* links exist, while the other episodes keep getting theirs.
 - At most `Concurrent_Downloads` archive parts are downloaded at the same time, counted over all downloads together.
-- Archives are unpacked one at a time, so a season does not overload the disk or the CPU.
+- As many archives are unpacked at the same time as the server has CPU threads, because 7-Zip unpacks one archive on one
+  thread. An episode that finds every place taken waits for one. This is not a setting, and a Docker CPU limit lowers
+  it.
 - When every episode is done, `archives/` and `output/` are removed (see [What ends up on disk](#what-ends-up-on-disk)).
 
 <br>
@@ -309,9 +311,9 @@ downloads/
 ```
 Inside `archives/` and `output/`, a season has a folder per episode (`1`, `2`, …), a film has its files right there.
 Characters that file systems do not allow (`\ / : * ? " < > |`) become `-` in the folder name. Each archive must hold
-exactly one `.mkv` or `.mp4`; its `.nfo` is taken along when there is one, and files ending in `.md5` or `.download`
-are deleted without a notice. If anything else is left in `output/`, or an episode failed, `archives/` and `output/`
-are kept, so nothing is lost with them.
+exactly one `.mkv` or `.mp4`; its `.nfo` is taken along when there is one, and files ending in `.md5`, `.download`,
+`.url` or `.uri` are deleted without a notice. If anything else is left in `output/`, or an episode failed, `archives/`
+and `output/` are kept, so nothing is lost with them.
 
 ### Passwords
 For every archive, the passwords are tried in this order: the one that already worked for the download, the ones you
@@ -354,6 +356,7 @@ Compose; to get rid of a download, delete its folder.
 | *Reconnecting* at the top right                  | The server is unreachable or restarting. It reconnects by itself.            |
 | *Password needed* on an episode                  | No default password fits. **Enter password**, or add it to `.env`.           |
 | *N of M links could not be assigned*             | The season format is not in every file name. Type it, or split the list.     |
+| Unpacking stays at 0%                            | The log shows every 20 s how much 7-Zip has written and what it printed.     |
 | *The archive contains no .mkv or .mp4 file*      | The release holds something else, or several videos. Unpack it by hand.      |
 | *… already exists in …* when sorting             | That episode's file is in the folder already. Move it away, then **Retry**.  |
 | *… is already being downloaded into …*           | The same name and season is still active. Finish, cancel or remove it first. |

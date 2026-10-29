@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using AniLink.Api.Exceptions.Archives;
+using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Archives;
 
@@ -9,9 +11,12 @@ public sealed record ArchiveListing(bool Locked, IReadOnlyList<ArchiveEntry> Ent
     public bool IsEncrypted => Locked || Entries.Any(entry => entry is { IsFolder: false, Encrypted: true });
 }
 
-public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
+public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveExtractor> logger)
 {
     private const int SniffLength = 16;
+
+    private static readonly TimeSpan FirstLook = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan Heartbeat = TimeSpan.FromSeconds(20);
 
     public async Task<ArchiveListing> ListAsync(IReadOnlyList<string> volumes, string? password, CancellationToken cancellationToken)
     {
@@ -61,24 +66,107 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip)
     }
 
     public async Task ExtractAsync(
-        IReadOnlyList<string> volumes, string outputDirectory, string? password, Action<double> onProgress, CancellationToken cancellationToken)
+        IReadOnlyList<string> volumes, string outputDirectory, string? password, string label, Action<double> onProgress, CancellationToken cancellationToken)
     {
         var first = RequireVolumes(volumes);
 
         Directory.CreateDirectory(outputDirectory);
 
-        var result = await sevenZip.RunAsync(
-            ["x", "-y", "-aoa", "-bsp1", "-bb0", $"-o{outputDirectory}", .. PasswordArguments(password), first],
-            onProgress,
-            cancellationToken);
+        string[] arguments = ["x", "-y", "-aoa", "-bsp1", "-bb0", $"-o{outputDirectory}", .. PasswordArguments(password), first];
+
+        var activity = new ToolActivity();
+        var clock = Stopwatch.StartNew();
+
+        logger.LogInformation("Starting 7-Zip for {Label}: {Command}", label, Describe(arguments));
+
+        using var stopBeat = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var beat = BeatAsync(label, outputDirectory, activity, clock, stopBeat.Token);
+
+        ToolResult result;
+
+        try
+        {
+            result = await sevenZip.RunAsync(arguments, onProgress, cancellationToken, activity);
+        }
+        finally
+        {
+            await stopBeat.CancelAsync();
+            await beat;
+        }
+
+        logger.LogInformation(
+            "7-Zip ended for {Label} with exit code {Code} after {Elapsed}: {Written} written, last progress {Percent:0}%, {Chunks} progress messages",
+            label, result.ExitCode, DurationText.Format(clock.Elapsed), ByteSize.Format(DirectorySize(outputDirectory)), activity.Percent, activity.Chunks);
 
         if (result.ExitCode is 0 or 1)
         {
+            if (result.ExitCode is 1) logger.LogWarning("7-Zip reported warnings for {Label}: {Output}", label, LogSafe.Excerpt(result.Combined, 800, true));
+
             onProgress(100);
             return;
         }
 
+        logger.LogWarning("7-Zip failed for {Label}: {Output}", label, LogSafe.Excerpt(result.Combined, 800, true));
+
         throw new ExtractionException($"Unpacking failed: {Summarize(result, first)}") { PasswordProblem = IsPasswordProblem(result.Combined) };
+    }
+
+    // Says what 7-Zip has done while it unpacks, because its own percentage can stand still for a long time on a big
+    // archive. What it printed, how much has reached the disk and for how long: those three tell apart a tool that is
+    // busy, one that says nothing, and one whose output is not understood.
+    private async Task BeatAsync(string label, string outputDirectory, ToolActivity activity, Stopwatch clock, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Delay(FirstLook, cancellationToken);
+
+            logger.LogInformation("7-Zip output for {Label} begins with: {Output}", label, activity.Chunks == 0 ? "nothing yet" : LogSafe.Excerpt(activity.First, 600));
+
+            var seen = DirectorySize(outputDirectory);
+            var since = clock.Elapsed;
+
+            using var timer = new PeriodicTimer(Heartbeat);
+
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                var written = DirectorySize(outputDirectory);
+                var seconds = (clock.Elapsed - since).TotalSeconds;
+
+                logger.LogInformation(
+                    "7-Zip is unpacking {Label}: {Percent:0}% reported, {Written} written ({Rate}/s), running for {Elapsed}, {Chunks} progress messages, last: {Last}",
+                    label,
+                    activity.Percent,
+                    ByteSize.Format(written),
+                    ByteSize.Format(seconds > 0 ? (long)((written - seen) / seconds) : 0),
+                    DurationText.Format(clock.Elapsed),
+                    activity.Chunks,
+                    LogSafe.Excerpt(activity.Tail, 80, true));
+
+                seen = written;
+                since = clock.Elapsed;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The unpacking ended or was stopped.
+        }
+    }
+
+    private string Describe(IEnumerable<string> arguments)
+    {
+        return sevenZip.Executable + " " + string.Join(' ', arguments.Select(argument => argument.StartsWith("-p", StringComparison.Ordinal) ? "-p***" : LogSafe.OneLine(argument)));
+    }
+
+    private static long DirectorySize(string directory)
+    {
+        try
+        {
+            return Directory.Exists(directory) ? new DirectoryInfo(directory).EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length) : 0;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return 0;
+        }
     }
 
     private static string RequireVolumes(IReadOnlyList<string> volumes)

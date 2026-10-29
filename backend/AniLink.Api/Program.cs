@@ -30,6 +30,10 @@ if (downloads.RequestedConcurrency > downloads.MaxConcurrency)
         downloads.RequestedConcurrency, DownloadOptions.MaxAllowedConcurrency, downloads.MaxConcurrency);
 }
 
+app.Logger.LogInformation(
+    "{Downloads} archive parts are downloaded and up to {Unpacking} archives are unpacked at the same time, one per CPU thread.",
+    downloads.MaxConcurrency, DownloadScheduler.ExtractionLimit);
+
 app.UseAniLinkRequestLogging();
 
 app.UseDefaultFiles();
