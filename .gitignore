@@ -1,12 +1,36 @@
-### IntelliJ IDEA ###
+# ── IDEs ──
 .idea/
+.vs/
+*.user
 
-### Output ###
-out/artifacts/
+# ── .NET ──
+**/bin/
+**/obj/
 
-### Resources ###
-src/main/resources/config.json
-src/main/resources/META-INF/MANIFEST.MF
+# ── Angular / Node ──
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
 
-### Target ###
-target/
+# ── Local configuration and secrets ──
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+*.local.json
+
+# ── Downloaded media and test data ──
+/downloads/
+/data/
+/testing/
+
+# ── System files ──
+.DS_Store
+Thumbs.db
+
+# ── Claude Code ──
+.claude/
+
+# ── Frontend build copied next to the backend for local runs (the Docker image does this itself) ──
+backend/**/wwwroot/

@@ -1,0 +1,21 @@
+<div class="progress-head">
+  <span class="progress-label">{{ label() }}</span>
+  <span class="progress-detail">
+    @if (detail()) {
+      <span>{{ detail() }}</span>
+    }
+    <span class="progress-percent">{{ percent() }}%</span>
+  </span>
+</div>
+
+<div
+  class="progress-track"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-label]="label()"
+  [attr.aria-valuenow]="percent()"
+  [attr.aria-valuetext]="valueText()"
+>
+  <div class="progress-fill" [class.progress-fill-active]="active()" [style.width.%]="percent()"></div>
+</div>

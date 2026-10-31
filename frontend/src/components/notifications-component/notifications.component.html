@@ -1,0 +1,26 @@
+<div class="notifications-stack" aria-live="polite">
+  @for (notification of notifications(); track notification.id) {
+    <div
+      class="notification"
+      [attr.data-kind]="notification.kind"
+      [attr.role]="notification.kind === 'failure' || notification.kind === 'warning' ? 'alert' : null"
+      animate.enter="notification-enter"
+      animate.leave="notification-leave"
+      (mouseenter)="hold(notification.id)"
+      (mouseleave)="release(notification.id, $event)"
+      (focusin)="hold(notification.id)"
+      (focusout)="release(notification.id, $event)"
+    >
+      <span class="notification-message">{{ notification.message }}</span>
+
+      <button
+        type="button"
+        class="notification-dismiss"
+        [attr.aria-label]="'Dismiss: ' + notification.message"
+        (click)="dismiss(notification.id)"
+      >
+        Dismiss
+      </button>
+    </div>
+  }
+</div>

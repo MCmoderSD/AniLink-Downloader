@@ -1,0 +1,108 @@
+<article class="job app-panel" [attr.aria-labelledby]="titleId" [attr.data-status]="job().status">
+  <header class="job-header">
+    <div class="job-heading">
+      <h2 class="job-title" [id]="titleId">{{ job().name }}</h2>
+      <p class="job-subtitle">{{ subtitle() }}</p>
+    </div>
+
+    <span class="app-chip" [attr.data-tone]="statusTone()">{{ statusLabel() }}</span>
+  </header>
+
+  <div class="job-bars">
+    <app-progress-bar
+      label="Debrid links"
+      [detail]="linksDetail()"
+      [fraction]="job().links.fraction"
+      [tone]="linksTone()"
+      [active]="running() && job().links.fraction < 1"
+    />
+
+    <app-progress-bar
+      label="Download"
+      [detail]="downloadDetail()"
+      [fraction]="job().download.fraction"
+      [tone]="downloadTone()"
+      [active]="running() && job().speedBytesPerSecond > 0"
+    />
+  </div>
+
+  <p class="job-meta">
+    <span>{{ summary() }}</span>
+    <span class="job-directory app-mono" title="Saved to this folder">{{ job().directory }}</span>
+  </p>
+
+  <div class="job-actions">
+    @if (waiting().length > 0) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="enterPassword()">
+        <mat-icon aria-hidden="true">key</mat-icon>
+        Enter password
+      </button>
+    }
+
+    @if (canRetry()) {
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="retry()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        Retry
+      </button>
+    }
+
+    @if (canPause()) {
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="pause()">
+        <mat-icon aria-hidden="true">pause</mat-icon>
+        Pause
+      </button>
+    }
+
+    @if (canResume()) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="resume()">
+        <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        Resume
+      </button>
+    }
+
+    @if (canCancel()) {
+      <button mat-button type="button" [disabled]="busy()" (click)="cancel()">
+        <mat-icon aria-hidden="true">stop_circle</mat-icon>
+        Cancel
+      </button>
+    }
+
+    <button mat-button type="button" [disabled]="busy()" (click)="remove()">
+      <mat-icon aria-hidden="true">delete_outline</mat-icon>
+      Remove
+    </button>
+
+    <button
+      mat-button
+      type="button"
+      class="job-details-toggle"
+      [attr.aria-expanded]="detailsOpen()"
+      [attr.aria-controls]="detailsOpen() ? titleId + '-details' : null"
+      (click)="toggleDetails()"
+    >
+      {{ detailsOpen() ? 'Hide details' : 'Show details' }}
+      <mat-icon iconPositionEnd class="job-chevron" [class.job-chevron-open]="detailsOpen()" aria-hidden="true">expand_more</mat-icon>
+    </button>
+  </div>
+
+  @if (detailsOpen()) {
+    <div class="app-fold job-fold" animate.enter="app-fold-enter" animate.leave="app-fold-leave">
+      <div class="app-fold-inner">
+        <div class="job-details" [id]="titleId + '-details'">
+          <ul class="job-items">
+            @for (item of job().items; track item.number) {
+              <li>
+                <app-item-row [item]="item" [jobId]="job().id" [manageable]="job().items.length > 1"/>
+              </li>
+            }
+          </ul>
+
+          <section class="job-activity" aria-label="Activity">
+            <h3 class="job-activity-title">Activity</h3>
+            <app-activity-log [entries]="job().activity"/>
+          </section>
+        </div>
+      </div>
+    </div>
+  }
+</article>

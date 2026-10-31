@@ -1,0 +1,98 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+// The tonal palettes of the theme, all derived from the brand colour #0db7ed (hue 231 in HCT) the way Material
+// derives its own: the primary at a high chroma, the secondary at 16, the tertiary 60 degrees around the hue at 24, the
+// neutrals at 4 and 8. Tone 70 of the primary palette is the brand colour itself.
+$tertiary: (
+  0: #000000,
+  10: #1b1736,
+  20: #302c4c,
+  25: #3b3858,
+  30: #464364,
+  35: #524e70,
+  40: #5e5a7d,
+  50: #777397,
+  60: #918cb2,
+  70: #aca7ce,
+  80: #c8c2ea,
+  90: #e4dfff,
+  95: #f3eeff,
+  98: #fcf8ff,
+  99: #fffbfa,
+  100: #ffffff
+);
+
+$primary: (
+  0: #000000,
+  10: #001e2b,
+  20: #003547,
+  25: #014156,
+  30: #014d66,
+  35: #015976,
+  40: #036686,
+  50: #0181a8,
+  60: #059ccb,
+  70: #13b8ee,
+  80: #70d2ff,
+  90: #c0e8ff,
+  95: #e1f3ff,
+  98: #f4faff,
+  99: #fbfcff,
+  100: #ffffff,
+  secondary: (
+    0: #000000,
+    10: #091e27,
+    20: #1f333d,
+    25: #2a3e48,
+    30: #364954,
+    35: #415560,
+    40: #4d616c,
+    50: #667a85,
+    60: #7f94a0,
+    70: #99aebb,
+    80: #b4cad6,
+    90: #d0e6f3,
+    95: #e1f3ff,
+    98: #f4faff,
+    99: #fbfcff,
+    100: #ffffff
+  ),
+  neutral: (
+    0: #000000,
+    10: #191c1e,
+    20: #2e3133,
+    25: #393c3e,
+    30: #444749,
+    35: #505355,
+    40: #5c5f61,
+    50: #757779,
+    60: #8f9193,
+    70: #aaabad,
+    80: #c5c6c9,
+    90: #e1e2e5,
+    95: #f0f1f3,
+    98: #f8f9fb,
+    99: #fbfcfe,
+    100: #ffffff
+  ),
+  neutral-variant: (
+    0: #000000,
+    10: #151d21,
+    20: #2a3136,
+    25: #353c41,
+    30: #40484c,
+    35: #4c5358,
+    40: #585f64,
+    50: #71787d,
+    60: #8a9297,
+    70: #a5acb2,
+    80: #c0c7cd,
+    90: #dce3e9,
+    95: #eaf2f7,
+    98: #f4faff,
+    99: #fbfcff,
+    100: #ffffff
+  ),
+  error: map.get(mat.$azure-palette, error)
+);

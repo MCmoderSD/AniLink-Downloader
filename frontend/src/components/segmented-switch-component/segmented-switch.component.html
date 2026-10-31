@@ -1,0 +1,23 @@
+<span
+  class="segmented-pill"
+  aria-hidden="true"
+  [style.left.px]="pill()?.left"
+  [style.right.px]="pill()?.right"
+></span>
+
+@for (entry of options(); track entry.value; let position = $index) {
+  <button
+    #choice
+    type="button"
+    role="radio"
+    class="segmented-option"
+    [class.segmented-selected]="position === index()"
+    [attr.aria-checked]="position === index()"
+    [attr.tabindex]="position === index() ? 0 : -1"
+    [attr.data-label]="entry.label"
+    (click)="select(entry)"
+    (keydown)="step($event, position)"
+  >
+    {{ entry.label }}
+  </button>
+}

@@ -1,0 +1,48 @@
+.activity-log {
+  // The containing block for the scroll bar drawn over the list.
+  position: relative;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 14rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.activity-entry {
+  --activity-accent: var(--mat-sys-outline);
+
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-inline-start: 0.1875rem solid var(--activity-accent);
+  font: var(--mat-sys-body-small);
+
+  &[data-tone='success'] {
+    --activity-accent: var(--app-success);
+  }
+
+  &[data-tone='warning'] {
+    --activity-accent: var(--app-warning);
+  }
+
+  &[data-tone='danger'] {
+    --activity-accent: var(--app-danger);
+  }
+}
+
+.activity-time {
+  flex: none;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// The level is written out so the colour of the bar is never the only thing that tells a failure from a success.
+.activity-level {
+  color: var(--mat-sys-on-surface-variant);
+  font-weight: 500;
+}

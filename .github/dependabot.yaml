@@ -1,12 +1,60 @@
 version: 2
 updates:
 
+  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
 
-  - package-ecosystem: "maven"
+  # Docker images
+  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
+
+  # Backend: .NET / NuGet
+  - package-ecosystem: "nuget"
+    directory: "/backend"
+    schedule:
+      interval: "daily"
+
+  # Frontend: npm / Angular
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "daily"
+    ignore:
+      # A new Angular major comes with migrations that only `ng update` runs. Applied as a plain version bump
+      # it leaves the code on APIs that moved, so majors are taken by hand.
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      # Angular's compiler peer-pins the TypeScript minor it supports, so even a minor bump ahead of Angular
+      # breaks the build. Patch releases only; it moves when Angular moves.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # @angular/build supports one vitest major.
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      # Angular's peer range for rxjs.
+      - dependency-name: "rxjs"
+        update-types: ["version-update:semver-major"]
+      # Must match the node tag in the Dockerfile, not run ahead of it.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    groups:
+      # Minor and patch releases only. A major update arrives as a PR of its own, so it can be closed on its own.
+      angular-dependencies:
+        patterns:
+          - "@angular/*"
+        update-types:
+          - "minor"
+          - "patch"
+      other-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@angular/*"
+        update-types:
+          - "minor"
+          - "patch"

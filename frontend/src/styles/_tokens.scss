@@ -1,0 +1,71 @@
+// The semantic layer on top of Material's --mat-sys-* tokens: the status colours the M3 palette has no names
+// for, and the shape, depth and motion vocabulary every component reuses. Plain sRGB throughout; the ratios in
+// the comments are measured against the page surface (#0d0e10).
+@mixin app-tokens {
+  // --- Status ---------------------------------------------------------------------------------
+  // Four states that differ in hue and not only in brightness, so they survive a monochrome display and the
+  // common forms of colour blindness. Each clears 7:1 as text on the page and on the raised surfaces.
+  --app-success: #4ade80; // 11.1:1
+  --app-on-success: #00210f;
+  --app-success-container: #0f3d24;
+
+  --app-warning: #fbbf24; // 11.6:1
+  --app-on-warning: #241a00;
+  --app-warning-container: #453000;
+
+  --app-danger: #ff8a88; // 8.5:1
+  --app-on-danger: #3f0710;
+  --app-danger-container: #5e121c;
+
+  // Information takes the brand cyan instead of a second blue that would sit next to it and read as the same thing.
+  --app-info: var(--mat-sys-primary); // 8.3:1
+  --app-on-info: var(--mat-sys-on-primary);
+  --app-info-container: #013041; // 6.0:1 for the text on it
+
+  // --- Depth ----------------------------------------------------------------------------------
+  // On a near-black surface a drop shadow is close to invisible, so depth is a lifted background plus a
+  // hairline border. The shadows only add the softness underneath.
+  --app-elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --app-elevation-2: 0 2px 8px rgb(0 0 0 / 0.45);
+  --app-elevation-3: 0 8px 24px rgb(0 0 0 / 0.5);
+
+  --app-border: 1px solid var(--mat-sys-outline-variant);
+  --app-border-strong: 1px solid var(--mat-sys-outline);
+
+  --app-tint-hover: rgb(255 255 255 / 0.06);
+  --app-tint-pressed: rgb(255 255 255 / 0.1);
+
+  // --- Shape ----------------------------------------------------------------------------------
+  --app-radius-sm: 0.5rem;
+  --app-radius-md: 0.75rem;
+  --app-radius-lg: 1.125rem;
+  --app-radius-xl: 1.5rem;
+  --app-radius-pill: 999px;
+
+  // --- Motion ---------------------------------------------------------------------------------
+  // Two durations: -fast for what tracks the pointer, -base for what the eye follows across the screen.
+  --app-motion-fast: 120ms;
+  --app-motion-base: 220ms;
+  --app-ease: cubic-bezier(0.2, 0, 0, 1);
+  --app-timing-fast: var(--app-motion-fast) var(--app-ease);
+  --app-timing-base: var(--app-motion-base) var(--app-ease);
+
+  // --- Type ----------------------------------------------------------------------------------
+  --app-font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+
+  // --- Layout ---------------------------------------------------------------------------------
+  --app-content-max: 64rem;
+  --app-navbar-height: 4rem;
+  // The navbar and the hairline under it: where the page's own scroll bar starts.
+  --app-navbar-block: calc(var(--app-navbar-height) + 1px);
+  // The strip under the navbar that says the server cannot be reached
+  --app-offline-height: 2.5rem;
+}
+
+// Honoured by every transition in the app, and written down here once instead of per component.
+@mixin app-reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    --app-motion-fast: 1ms;
+    --app-motion-base: 1ms;
+  }
+}

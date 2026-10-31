@@ -1,0 +1,39 @@
+.downloads-subtitle {
+  margin-block-start: 0.25rem;
+
+  // Holds its line while the text is not there yet, so the page does not jump when the first answer arrives
+  min-height: 1rem;
+}
+
+.downloads-list {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.downloads-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  p {
+    max-width: 30rem;
+  }
+}
+
+.downloads-empty-icon {
+  width: 3rem;
+  height: 3rem;
+  font-size: 3rem;
+  color: var(--mat-sys-primary);
+}
+
+.downloads-empty-title {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}

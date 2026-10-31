@@ -1,0 +1,116 @@
+// Anchored by its bottom edge, so a new message grows the stack upwards and pushes the older ones up
+// instead of replacing them. The container itself ignores the pointer; only the messages take it.
+.notifications-stack {
+  position: fixed;
+  inset-inline-end: 1rem;
+  inset-block-end: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(30rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.notification {
+  --notice-accent: var(--app-info);
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  border: var(--app-border);
+  border-inline-start: 0.25rem solid var(--notice-accent);
+  border-radius: var(--app-radius-md);
+  background: var(--mat-sys-surface-container-highest);
+  box-shadow: var(--app-elevation-3);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  pointer-events: auto;
+
+  &[data-kind='success'] {
+    --notice-accent: var(--app-success);
+  }
+
+  &[data-kind='warning'] {
+    --notice-accent: var(--app-warning);
+  }
+
+  &[data-kind='failure'] {
+    --notice-accent: var(--app-danger);
+  }
+}
+
+.notification-message {
+  flex: 1;
+}
+
+.notification-dismiss {
+  flex: none;
+  padding: 0.25rem 0.625rem;
+  border: 0;
+  border-radius: var(--app-radius-pill);
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+  cursor: pointer;
+  transition: background-color var(--app-timing-fast);
+
+  &:hover {
+    background: var(--app-tint-hover);
+  }
+}
+
+@keyframes notification-enter {
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + 1rem));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes notification-leave {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(calc(100% + 1rem));
+  }
+}
+
+@keyframes notification-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes notification-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+// Decelerate on the way in so it settles, accelerate on the way out so it leaves without drawing attention.
+.notification-enter {
+  animation: notification-enter 260ms cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.notification-leave {
+  animation: notification-leave 200ms cubic-bezier(0.3, 0, 0.8, 0.15) forwards;
+}
+
+// Travel is what troubles motion-sensitive users, so the reduced-motion variant keeps the fade and drops the slide.
+@media (prefers-reduced-motion: reduce) {
+  .notification-enter {
+    animation: notification-fade-in 120ms linear;
+  }
+
+  .notification-leave {
+    animation: notification-fade-out 120ms linear forwards;
+  }
+}

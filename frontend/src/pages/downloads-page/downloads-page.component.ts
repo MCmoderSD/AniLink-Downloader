@@ -1,0 +1,40 @@
+import { Component, computed, inject, Signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { JobCardComponent } from '../../components/job-card-component/job-card.component';
+import { Job } from '../../data/download';
+import { DownloadSyncService } from '../../services/download-sync.service';
+
+@Component({
+  selector: 'app-downloads-page',
+  templateUrl: './downloads-page.component.html',
+  styleUrls: ['./downloads-page.component.scss'],
+  imports: [MatButtonModule, MatIconModule, RouterLink, JobCardComponent]
+})
+export class DownloadsPageComponent {
+
+  private readonly sync: DownloadSyncService = inject(DownloadSyncService);
+
+  protected readonly jobs: Signal<Job[]> = this.sync.jobs;
+  protected readonly loaded: Signal<boolean> = this.sync.loaded;
+  protected readonly unreachable: Signal<boolean> = this.sync.unreachable;
+
+  protected readonly running: Signal<number> = computed((): number =>
+    this.jobs().filter((job: Job): boolean => job.status === 'Active').length);
+
+  protected readonly paused: Signal<number> = computed((): number =>
+    this.jobs().filter((job: Job): boolean => job.status === 'Paused').length);
+
+  protected readonly subtitle: Signal<string> = computed((): string => {
+    // Nothing is known before the first answer, and "Nothing queued" would be a claim about a server that has not spoken
+    if (!this.loaded()) return '';
+
+    const total: number = this.jobs().length;
+    if (total === 0) return 'Nothing queued.';
+
+    const paused: number = this.paused();
+
+    return `${this.running()} running of ${total} ${total === 1 ? 'download' : 'downloads'}${paused > 0 ? ` · ${paused} paused` : ''}`;
+  });
+}

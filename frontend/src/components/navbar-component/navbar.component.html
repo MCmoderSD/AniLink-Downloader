@@ -1,0 +1,28 @@
+<header class="navbar">
+  <nav class="navbar-inner" aria-label="Main">
+    <a class="navbar-brand" routerLink="/downloads" aria-label="AniLink, back to the downloads">
+      <img class="navbar-logo" ngSrc="favicon.svg" width="32" height="32" alt="" />
+      <span>AniLink</span>
+    </a>
+
+    <div class="navbar-links">
+      <a mat-button routerLink="/downloads" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        Downloads
+      </a>
+
+      <a mat-flat-button routerLink="/add-download" routerLinkActive="navbar-link-active" ariaCurrentWhenActive="page">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        New download
+      </a>
+    </div>
+
+  </nav>
+
+  @if (unreachable()) {
+    <p class="navbar-offline" role="alert">
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+      The server is not reachable.
+    </p>
+  }
+</header>

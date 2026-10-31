@@ -1,0 +1,120 @@
+<div class="item-head">
+  <h3 class="item-title">{{ item().label }}</h3>
+  <span class="app-chip" [attr.data-tone]="stageTone()">{{ stageLabel() }}</span>
+
+  <button
+    type="button"
+    class="item-toggle"
+    [attr.aria-expanded]="partsOpen()"
+    [attr.aria-label]="(partsOpen() ? 'Hide the ' : 'Show the ') + partCount() + ' parts of ' + item().label"
+    (click)="togglePartsShown()"
+  >
+    {{ partCount() }} {{ partCount() === 1 ? 'part' : 'parts' }}
+    <mat-icon class="item-chevron" [class.item-chevron-open]="partsOpen()" aria-hidden="true">expand_more</mat-icon>
+  </button>
+
+  @if (manageable()) {
+    <div class="item-actions" role="group" [attr.aria-label]="'Actions for ' + item().label">
+      @if (canRetry()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Retry ' + item().label"
+          title="Retry"
+          (click)="retry()"
+        >
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+        </button>
+      }
+
+      @if (canPause()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Pause ' + item().label"
+          title="Pause"
+          (click)="pause()"
+        >
+          <mat-icon aria-hidden="true">pause</mat-icon>
+        </button>
+      }
+
+      @if (canResume()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Resume ' + item().label"
+          title="Resume"
+          (click)="resume()"
+        >
+          <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        </button>
+      }
+
+      @if (canCancel()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Cancel ' + item().label"
+          title="Cancel"
+          (click)="cancel()"
+        >
+          <mat-icon aria-hidden="true">stop_circle</mat-icon>
+        </button>
+      }
+
+      <button
+        mat-icon-button
+        type="button"
+        class="item-action"
+        [disabled]="busy()"
+        [attr.aria-label]="'Remove ' + item().label"
+        title="Remove"
+        (click)="remove()"
+      >
+        <mat-icon aria-hidden="true">delete_outline</mat-icon>
+      </button>
+    </div>
+  }
+</div>
+
+<app-progress-bar
+  [label]="bar().label"
+  [detail]="bar().detail"
+  [fraction]="bar().fraction"
+  [tone]="bar().tone"
+  [active]="bar().active"
+  [compact]="true"
+/>
+
+@if (item().error) {
+  <p class="item-error" role="alert">{{ item().error }}</p>
+}
+
+@if (partsOpen()) {
+  <div class="app-fold" animate.enter="app-fold-enter" animate.leave="app-fold-leave">
+    <div class="app-fold-inner">
+      <ul class="item-parts">
+        @for (part of item().parts; track part.index) {
+          <li class="item-part">
+            <span class="item-part-name app-mono">{{ part.fileName }}</span>
+            <span class="app-chip" [attr.data-tone]="partTone(part)">{{ partLabel(part) }}</span>
+            <span class="item-part-bytes">{{ partBytes(part) }}</span>
+
+            @if (part.error) {
+              <span class="item-part-error">{{ part.error }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+}

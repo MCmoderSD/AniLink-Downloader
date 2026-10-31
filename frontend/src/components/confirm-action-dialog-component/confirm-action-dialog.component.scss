@@ -1,0 +1,11 @@
+.confirm-action {
+  // The containing block for the scroll bar drawn over this content.
+  position: relative;
+}
+
+.confirm-action-message {
+  margin: 0;
+
+  // A confirmation spells out what is about to happen, so a long path has to stay readable.
+  overflow-wrap: anywhere;
+}

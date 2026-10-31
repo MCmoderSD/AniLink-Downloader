@@ -1,0 +1,324 @@
+@use '@angular/material' as mat;
+@use './styles/palette' as palette;
+@use './styles/tokens' as tokens;
+
+html {
+  height: 100%;
+  //noinspection SassScssUnresolvedMixin
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: palette.$primary,
+        tertiary: palette.$tertiary
+      ),
+      typography: Roboto,
+      density: 0
+    )
+  );
+
+  @include tokens.app-tokens;
+  @include tokens.app-reduced-motion;
+
+  // Material's dark scheme puts the primary role at tone 80, a pastel; the brand colour is tone 70 of the palette.
+  // The roles that carry it are pinned to the brand colour itself, with dark text on top, because white would only
+  // reach 2.3:1 on it.
+  --mat-sys-primary: #0db7ed;
+  --mat-sys-on-primary: #00131a;
+  --mat-sys-primary-container: #014d66;
+  --mat-sys-on-primary-container: #cae7f8;
+  --mat-sys-inverse-primary: #026686;
+  --mat-sys-surface-tint: var(--mat-sys-primary);
+
+  // Material lifts the surface tones from the palette's neutral, which is lighter than the near-black this design is
+  // built on. These are the same ramp with the hue of the brand colour at a low chroma, so the tokens Material
+  // computes instead of reading are pinned to it.
+  --mat-sys-surface: #0d0e10;
+  --mat-sys-background: #0d0e10;
+  --mat-sys-surface-dim: #0d0e10;
+  --mat-sys-surface-bright: #31363a;
+  --mat-sys-surface-container-lowest: #06090a;
+  --mat-sys-surface-container-low: #101417;
+  --mat-sys-surface-container: #14181b;
+  --mat-sys-surface-container-high: #1d2225;
+  --mat-sys-surface-container-highest: #272c2f;
+  --mat-sys-on-surface: #e5e6e9;
+  --mat-sys-on-surface-variant: #b6bec3;
+  --mat-sys-outline: #82898e;
+  --mat-sys-outline-variant: #3d464b;
+
+  // Neutral state layers: a hover tint in the brand colour would read as "selected".
+  --mat-button-text-state-layer-color: var(--mat-sys-on-surface);
+  --mat-button-outlined-state-layer-color: var(--mat-sys-on-surface);
+  --mat-button-filled-ripple-color: var(--app-tint-pressed);
+  --mat-button-text-ripple-color: var(--app-tint-pressed);
+  --mat-button-outlined-ripple-color: var(--app-tint-pressed);
+  --mat-icon-button-ripple-color: var(--app-tint-pressed);
+  --mat-menu-item-hover-state-layer-color: var(--app-tint-hover);
+  --mat-menu-item-focus-state-layer-color: var(--app-tint-hover);
+
+  // Material's corner scale reads as square next to the rounded surfaces the rest of the app is built from.
+  --mat-sys-corner-extra-small: var(--app-radius-sm);
+  --mat-sys-corner-small: var(--app-radius-md);
+  --mat-sys-corner-medium: var(--app-radius-lg);
+  --mat-sys-corner-large: var(--app-radius-xl);
+  --mat-menu-container-shape: var(--app-radius-lg);
+  --mat-form-field-outlined-container-shape: var(--app-radius-md);
+}
+
+body {
+  // Dark only, like the Twitch chrome this palette is pinned to: no light variant.
+  color-scheme: dark;
+
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  min-height: 100%;
+
+  // File names and error messages from the hosters have no spaces to break at.
+  overflow-wrap: anywhere;
+}
+
+// The icon font is self-hosted through its npm package, which ships the face but not the ligature class
+// that Google's stylesheet defines, so it is written out here.
+//noinspection CssUnusedSymbol
+.material-icons {
+  font-family: 'Material Icons', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+// A 2px ring in the brand colour, offset far enough off the element to stay visible on a container of nearly
+// the same tone. Global because keyboard focus has to be obvious on every control, including unstyled ones.
+:where(a, button, [tabindex]):focus-visible,
+:where(input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+  border-radius: var(--app-radius-sm);
+}
+
+// --- Shared building blocks --------------------------------------------------------------------
+
+.app-page {
+  box-sizing: border-box;
+  max-width: var(--app-content-max);
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.app-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-block-end: 1.5rem;
+}
+
+.app-page-title {
+  margin: 0;
+  font: var(--mat-sys-headline-medium);
+}
+
+.app-panel {
+  background: var(--mat-sys-surface-container-low);
+  border: var(--app-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-elevation-1);
+}
+
+.app-hint {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.app-mono {
+  font-family: var(--app-font-mono), monospace;
+}
+
+// A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.
+.app-chip {
+  --chip-fg: var(--mat-sys-on-surface-variant);
+  --chip-bg: var(--mat-sys-surface-container-high);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--app-radius-pill);
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  font: var(--mat-sys-label-medium);
+  white-space: nowrap;
+
+  &[data-tone='info'] {
+    --chip-fg: var(--app-info);
+    --chip-bg: var(--app-info-container);
+  }
+
+  &[data-tone='success'] {
+    --chip-fg: var(--app-success);
+    --chip-bg: var(--app-success-container);
+  }
+
+  &[data-tone='warning'] {
+    --chip-fg: var(--app-warning);
+    --chip-bg: var(--app-warning-container);
+  }
+
+  &[data-tone='danger'] {
+    --chip-fg: var(--app-danger);
+    --chip-bg: var(--app-danger-container);
+  }
+}
+
+// The page scrolls under PageScrollBarComponent, which draws the app's bar over the right edge; the platform's
+// own would be a second one next to it. Scoped to the document element, so elements that scroll inside the page
+// keep theirs until ScrollBarComponent is attached to them.
+html {
+  // The navbar sticks to the top edge, so an element scrolled into view by the keyboard must stop below it
+  scroll-padding-block-start: var(--app-navbar-block);
+
+  // The warning under the navbar stands in the way as well while it is shown
+  &:has(.navbar-offline) {
+    scroll-padding-block-start: calc(var(--app-navbar-block) + var(--app-offline-height));
+  }
+
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Takes the platform's own scroll bar out of the picture, leaving the element scrollable. Added and removed by
+// ScrollBarComponent, which draws the app's bar over the element instead; global because the element it applies
+// to lives outside that component.
+//
+// Both styling models are covered on purpose: `scrollbar-width` is the standard property and the only one Firefox
+// has, `::-webkit-scrollbar` the older Blink/WebKit one. Declaring only one would leave the other engine showing
+// its native bar underneath ours.
+//noinspection CssUnusedSymbol
+.app-native-scrollbar-hidden {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// The app draws its own arrows (components/number-stepper-component), so the browser's built-in pair would only be
+// a second, blunter copy of the same control. Global because it is a normalisation rather than one field's styling.
+//
+// Both spellings are needed: `appearance` is what Firefox reads, the pseudo-elements are what Chromium and Safari
+// read, and neither engine honours the other's.
+input[type='number'] {
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
+// Opens and closes a block by its height, for content that an @if puts into the page and takes out again: the
+// block sits in .app-fold-inner inside .app-fold, and .app-fold carries animate.enter="app-fold-enter" and
+// animate.leave="app-fold-leave". The row of the grid runs between nothing and the height of the content, which is
+// the way to animate `auto` without measuring it.
+.app-fold {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.app-fold-inner {
+  min-height: 0;
+
+  // Cuts off what is below the fold line and nothing else: a focus ring or a hover tint is allowed to reach past the
+  // box on the other three sides, which `overflow: hidden` would not let it.
+  clip-path: inset(-0.5rem -0.5rem 0);
+}
+
+@keyframes app-fold-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes app-fold-out {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+//noinspection CssUnusedSymbol
+.app-fold-enter {
+  animation: app-fold-in var(--app-timing-base);
+}
+
+//noinspection CssUnusedSymbol
+.app-fold-leave {
+  animation: app-fold-out var(--app-timing-base) forwards;
+}
+
+// Between two pages (the router starts a view transition for every navigation, see app.config.ts): the page that is
+// leaving fades out and drifts up a little, the next one fades in from a little below. Only the page moves. The
+// navbar around it stays where it is, because only .app-main carries the name.
+@keyframes app-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes app-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+//noinspection CssUnusedSymbol
+::view-transition-old(page) {
+  mix-blend-mode: normal;
+  animation: app-page-out 160ms var(--app-ease) both;
+}
+
+//noinspection CssUnusedSymbol
+::view-transition-new(page) {
+  mix-blend-mode: normal;
+  animation: app-page-in 280ms var(--app-ease) 60ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  //noinspection CssUnusedSymbol
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

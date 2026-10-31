@@ -1,0 +1,175 @@
+<div class="app-page">
+  <div class="app-page-header">
+    <div>
+      <h1 class="app-page-title">New download</h1>
+      <p class="app-hint new-subtitle">Everything is saved to {{ config()?.downloadsRoot ?? 'the downloads folder' }}.</p>
+    </div>
+  </div>
+
+  <form class="new-form" (submit)="submit($event)" novalidate>
+    <section class="new-section app-panel" aria-labelledby="new-what">
+      <div class="new-section-head">
+        <h2 class="new-section-title" id="new-what">What is it</h2>
+        <app-segmented-switch label="Type" [options]="kinds" [value]="kind()" (valueChange)="setKind($event)"/>
+      </div>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" autocomplete="off" required [attr.aria-invalid]="nameTooLong()" (input)="setName($event)"/>
+        <mat-hint [class.new-hint-error]="nameTooLong()">{{ nameHint() }}</mat-hint>
+      </mat-form-field>
+
+      <div class="new-season" [class.new-season-folded]="!isSeason()" [attr.inert]="isSeason() ? null : ''">
+        <div class="new-season-inner">
+          <div class="new-row">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-wide">
+              <mat-label>Season format</mat-label>
+              <input
+                matInput
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                [placeholder]="analysis()?.format ?? 'S01E'"
+                [attr.maxlength]="limits()?.formatLength ?? null"
+                [attr.aria-invalid]="formatMissing()"
+                (input)="setFormat($event)"
+              />
+              <mat-hint [class.new-hint-error]="formatMissing()">{{ formatHint() }}</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-narrow">
+              <mat-label>Season</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                max="999"
+                inputmode="numeric"
+                [placeholder]="'' + (analysis()?.season ?? 1)"
+                [attr.aria-invalid]="seasonInvalid()"
+                [value]="seasonText()"
+                (input)="setSeason($event)"
+              />
+              <app-number-stepper
+                matSuffix
+                [value]="seasonNumber() ?? 0"
+                [min]="0"
+                [max]="999"
+                (valueChange)="stepSeason($event)"
+              />
+              <mat-hint>Folder {{ seasonNumber() === null ? '?' : (seasonNumber()! < 10 ? '0' + seasonNumber() : seasonNumber()) }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="new-section app-panel" aria-labelledby="new-links">
+      <h2 class="new-section-title" id="new-links">Links</h2>
+
+      <div class="new-links-box">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
+          <mat-label>One link per line</mat-label>
+          <textarea
+            matInput
+            #links
+            class="app-mono new-links"
+            rows="9"
+            spellcheck="false"
+            autocomplete="off"
+            [attr.aria-describedby]="'new-preview'"
+            (input)="setLinks($event)"
+          ></textarea>
+          <mat-hint>The order does not matter. Duplicates and empty lines are dropped.</mat-hint>
+        </mat-form-field>
+
+        <app-scroll-bar [target]="links" [endInset]="gripSize"/>
+        <app-resize-grip [target]="links"/>
+      </div>
+
+      <div class="new-preview" id="new-preview" aria-live="polite">
+        @if (linksProblem(); as tooLong) {
+          <p class="new-callout new-callout-error" role="alert">{{ tooLong }}</p>
+        } @else if (analysisError(); as problem) {
+          <p class="new-callout new-callout-error" role="alert">{{ problem }}</p>
+        } @else if (analysis(); as result) {
+          <p class="new-summary">
+            <span class="app-chip" data-tone="info">{{ result.linkCount }} {{ result.linkCount === 1 ? 'link' : 'links' }}</span>
+            @if (episodes().length > 0) {
+              <span class="app-chip" data-tone="success">
+                {{ episodes().length }} {{ isSeason() ? (episodes().length === 1 ? 'episode' : 'episodes') : 'file' }} · {{ partCount() }} {{ partCount() === 1 ? 'part' : 'parts' }}
+              </span>
+            }
+            @if (unmatched().length > 0) {
+              <span class="app-chip" data-tone="danger">{{ unmatched().length }} not assigned</span>
+            }
+          </p>
+
+          @if (unmatched().length > 0) {
+            <div class="new-callout new-callout-error" role="alert">
+              <p>These lines could not be assigned to an episode{{ formatMissing() ? ', because no season format was found' : '' }}:</p>
+              <ul class="new-unmatched app-mono">
+                @for (line of unmatched().slice(0, 5); track line) {
+                  <li>{{ line }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (episodes().length > 0) {
+            <ol class="new-episodes" appScrollBar [attr.aria-label]="isSeason() ? 'Episodes found in the links' : 'Files found in the links'">
+              @for (episode of episodes(); track episode.number) {
+                <li class="new-episode">
+                  <span class="new-episode-title">{{ isSeason() ? 'Episode ' + episode.number : 'Files' }}</span>
+                  <span class="new-episode-parts">{{ episode.parts.length }} {{ episode.parts.length === 1 ? 'part' : 'parts' }}</span>
+                  <span class="new-episode-files app-mono">{{ episode.parts[0].fileName }}@if (episode.parts.length > 1) { … {{ episode.parts[episode.parts.length - 1].fileName }} }</span>
+                </li>
+              }
+            </ol>
+          }
+        } @else if (analyzing()) {
+          <p class="app-hint" role="status">Checking the links…</p>
+        }
+      </div>
+    </section>
+
+    <section class="new-section app-panel" aria-labelledby="new-password">
+      <h2 class="new-section-title" id="new-password">Archive password</h2>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="passwordVisible() ? 'text' : 'password'"
+          autocomplete="off"
+          spellcheck="false"
+          [attr.maxlength]="limits()?.passwordLength ?? null"
+          (input)="setPassword($event)"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="passwordVisible()"
+          (click)="togglePassword()"
+        >
+          <mat-icon aria-hidden="true">{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-hint>{{ passwordHint() }}</mat-hint>
+      </mat-form-field>
+    </section>
+
+    @if (submitError(); as problem) {
+      <p class="new-callout new-callout-error" role="alert">{{ problem }}</p>
+    }
+
+    <div class="new-actions">
+      <a mat-button routerLink="/downloads">Cancel</a>
+      <button mat-flat-button type="submit" [disabled]="!valid()">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        {{ submitting() ? 'Starting…' : 'Download' }}
+      </button>
+    </div>
+  </form>
+</div>

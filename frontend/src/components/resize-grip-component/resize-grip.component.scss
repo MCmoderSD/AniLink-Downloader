@@ -1,0 +1,52 @@
+:host {
+  position: absolute;
+
+  // One above ScrollBarComponent, which is on 2: the two overlap in exactly this corner, and
+  // the bar taking the pointer here is what made the native resizer unreachable.
+  z-index: 3;
+
+  display: flex;
+
+  // Vertical only. The width belongs to the form field the box sits in, and a text box dragged
+  // narrower than its own label reads as broken rather than as resized.
+  cursor: ns-resize;
+
+  // The drag is this element's own: without this the browser takes a touch for a scroll and cancels it.
+  touch-action: none;
+
+  color: var(--mat-sys-outline);
+
+  transition: color var(--app-motion-fast) var(--app-ease);
+}
+
+// The drawn grip is 14px, too small a target for a fingertip. The area is widened to 24px towards the corner's outer
+// sides only: upwards and to the left it would cover the ends of the two scroll bars, which stop where the grip starts.
+:host::before {
+  content: '';
+  position: absolute;
+  inset: 0 -10px -10px 0;
+}
+
+// Takes the brand colour under the pointer and keeps it for the whole drag, which is mostly
+// spent away from the corner where :hover no longer holds. The same rule and the same colour
+// as both scroll bars, since the grip sits right beside one of them.
+:host(:hover),
+:host(.resize-grip-dragging) {
+  color: var(--mat-sys-primary);
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    transition: none;
+  }
+}

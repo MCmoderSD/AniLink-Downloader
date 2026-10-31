@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T12:10:56.257Z",
+  "title": "Design System: AniLink-Downloader",
+  "extensions": {
+    "colorMeta": {
+      "tidewater-cyan": {
+        "role": "primary",
+        "displayName": "Tidewater Cyan",
+        "canonical": "#0db7ed",
+        "tonalRamp": [
+          "#012939",
+          "#014156",
+          "#015976",
+          "#007397",
+          "#059ccb",
+          "#34c6fd",
+          "#9bddff",
+          "#e1f3ff"
+        ]
+      },
+      "tidewater-ink": {
+        "role": "primary",
+        "displayName": "Tidewater Ink",
+        "canonical": "#00131a",
+        "tonalRamp": [
+          "#1f272a",
+          "#2a3e46",
+          "#41555e",
+          "#596e76",
+          "#7f949d",
+          "#a7bcc6",
+          "#c2d8e2",
+          "#eaf2f6"
+        ]
+      },
+      "tidewater-deep": {
+        "role": "primary",
+        "displayName": "Tidewater Deep",
+        "canonical": "#014d66",
+        "tonalRamp": [
+          "#142832",
+          "#004156",
+          "#185972",
+          "#37718c",
+          "#5f98b4",
+          "#88c0dd",
+          "#a3dcfa",
+          "#e1f3ff"
+        ]
+      },
+      "tidewater-mist": {
+        "role": "primary",
+        "displayName": "Tidewater Mist",
+        "canonical": "#cae7f8",
+        "tonalRamp": [
+          "#1d272d",
+          "#233f4c",
+          "#3b5664",
+          "#536e7d",
+          "#7995a4",
+          "#a0bdcd",
+          "#bcd9e9",
+          "#e8f2fa"
+        ]
+      },
+      "tidewater-shade": {
+        "role": "primary",
+        "displayName": "Tidewater Shade",
+        "canonical": "#013041",
+        "tonalRamp": [
+          "#1a282f",
+          "#174051",
+          "#315769",
+          "#4a6f83",
+          "#7096aa",
+          "#98bed3",
+          "#b3daf0",
+          "#e4f3fd"
+        ]
+      },
+      "night-base": {
+        "role": "neutral",
+        "displayName": "Night Base",
+        "canonical": "#0d0e10",
+        "tonalRamp": [
+          "#262626",
+          "#3b3b3e",
+          "#525255",
+          "#6a6a6d",
+          "#919093",
+          "#b9b8bb",
+          "#d5d4d6",
+          "#f3f0f1"
+        ]
+      },
+      "night-lowest": {
+        "role": "neutral",
+        "displayName": "Night Lowest",
+        "canonical": "#06090a",
+        "tonalRamp": [
+          "#252626",
+          "#383c3d",
+          "#4f5354",
+          "#686b6c",
+          "#8e9192",
+          "#b6b9ba",
+          "#d2d5d6",
+          "#f2f0f0"
+        ]
+      },
+      "night-low": {
+        "role": "neutral",
+        "displayName": "Night Low",
+        "canonical": "#101417",
+        "tonalRamp": [
+          "#252627",
+          "#383c3f",
+          "#4f5356",
+          "#676b6f",
+          "#8d9195",
+          "#b6b9bd",
+          "#d2d5d9",
+          "#f1f0f2"
+        ]
+      },
+      "night-raised": {
+        "role": "neutral",
+        "displayName": "Night Raised",
+        "canonical": "#14181b",
+        "tonalRamp": [
+          "#252627",
+          "#383c3f",
+          "#4f5356",
+          "#676b6f",
+          "#8d9195",
+          "#b6b9bd",
+          "#d2d5d9",
+          "#f1f0f2"
+        ]
+      },
+      "night-high": {
+        "role": "neutral",
+        "displayName": "Night High",
+        "canonical": "#1d2225",
+        "tonalRamp": [
+          "#242627",
+          "#373c3f",
+          "#4e5356",
+          "#666b6f",
+          "#8c9195",
+          "#b5b9bd",
+          "#d0d5d9",
+          "#f1f0f2"
+        ]
+      },
+      "night-highest": {
+        "role": "neutral",
+        "displayName": "Night Highest",
+        "canonical": "#272c2f",
+        "tonalRamp": [
+          "#242627",
+          "#373c3f",
+          "#4e5356",
+          "#666b6f",
+          "#8d9195",
+          "#b5b9bd",
+          "#d0d5d9",
+          "#f1f0f2"
+        ]
+      },
+      "night-bright": {
+        "role": "neutral",
+        "displayName": "Night Bright",
+        "canonical": "#31363a",
+        "tonalRamp": [
+          "#242628",
+          "#373c40",
+          "#4e5357",
+          "#666b70",
+          "#8c9196",
+          "#b5b9be",
+          "#d0d5da",
+          "#f1f0f2"
+        ]
+      },
+      "paper-text": {
+        "role": "neutral",
+        "displayName": "Paper Text",
+        "canonical": "#e5e6e9",
+        "tonalRamp": [
+          "#252627",
+          "#393c3e",
+          "#505355",
+          "#696b6d",
+          "#8f9194",
+          "#b7b9bc",
+          "#d3d4d7",
+          "#f2f0f1"
+        ]
+      },
+      "paper-dim": {
+        "role": "neutral",
+        "displayName": "Paper Dim",
+        "canonical": "#b6bec3",
+        "tonalRamp": [
+          "#232628",
+          "#353d41",
+          "#4c5458",
+          "#646c70",
+          "#8a9297",
+          "#b2babf",
+          "#ced6db",
+          "#eff1f3"
+        ]
+      },
+      "steel-outline": {
+        "role": "neutral",
+        "displayName": "Steel Outline",
+        "canonical": "#82898e",
+        "tonalRamp": [
+          "#242628",
+          "#353c41",
+          "#4c5358",
+          "#656c70",
+          "#8b9297",
+          "#b3babf",
+          "#ced5db",
+          "#f0f1f3"
+        ]
+      },
+      "steel-hairline": {
+        "role": "neutral",
+        "displayName": "Steel Hairline",
+        "canonical": "#3d464b",
+        "tonalRamp": [
+          "#232628",
+          "#343d42",
+          "#4b5459",
+          "#636c71",
+          "#899298",
+          "#b1bac0",
+          "#ccd6dc",
+          "#eff1f3"
+        ]
+      },
+      "go-green": {
+        "role": "secondary",
+        "displayName": "Go Green",
+        "canonical": "#4ade80",
+        "tonalRamp": [
+          "#002d12",
+          "#004520",
+          "#00602e",
+          "#017b3d",
+          "#01a755",
+          "#3bd276",
+          "#5def8f",
+          "#c6fece"
+        ]
+      },
+      "go-green-deep": {
+        "role": "secondary",
+        "displayName": "Go Green Deep",
+        "canonical": "#0f3d24",
+        "tonalRamp": [
+          "#19291e",
+          "#17432a",
+          "#2f5b40",
+          "#487457",
+          "#6d9b7b",
+          "#94c4a1",
+          "#afe0bc",
+          "#e2f6e4"
+        ]
+      },
+      "caution-amber": {
+        "role": "secondary",
+        "displayName": "Caution Amber",
+        "canonical": "#fbbf24",
+        "tonalRamp": [
+          "#322300",
+          "#4d3800",
+          "#6a4e01",
+          "#886501",
+          "#b88900",
+          "#e9af0a",
+          "#ffcd61",
+          "#ffefd5"
+        ]
+      },
+      "caution-amber-deep": {
+        "role": "secondary",
+        "displayName": "Caution Amber Deep",
+        "canonical": "#453000",
+        "tonalRamp": [
+          "#2f2410",
+          "#4e3806",
+          "#674f1c",
+          "#826731",
+          "#ab8c53",
+          "#d6b477",
+          "#f3d090",
+          "#ffefd7"
+        ]
+      },
+      "fault-coral": {
+        "role": "secondary",
+        "displayName": "Fault Coral",
+        "canonical": "#ff8a88",
+        "tonalRamp": [
+          "#401a1a",
+          "#701d20",
+          "#8f3435",
+          "#ae4b4b",
+          "#de706e",
+          "#ff9f9c",
+          "#ffc7c4",
+          "#ffedeb"
+        ]
+      },
+      "fault-coral-deep": {
+        "role": "secondary",
+        "displayName": "Fault Coral Deep",
+        "canonical": "#5e121c",
+        "tonalRamp": [
+          "#3f1b1d",
+          "#6e1e27",
+          "#8c353c",
+          "#ab4d53",
+          "#da7177",
+          "#ff9ea1",
+          "#ffc7c7",
+          "#ffedec"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The page title."
+      },
+      "title-large": {
+        "displayName": "Title Large",
+        "purpose": "A job's name, the brand name and the empty state's title."
+      },
+      "title-medium": {
+        "displayName": "Title Medium",
+        "purpose": "Section titles inside forms."
+      },
+      "title-small": {
+        "displayName": "Title Small",
+        "purpose": "An episode's name and small block titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text and subtitles."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Metadata, hints, part rows and the activity log."
+      },
+      "label-large": {
+        "displayName": "Label Large",
+        "purpose": "Buttons, bar labels and percentages."
+      },
+      "label-medium": {
+        "displayName": "Label Medium",
+        "purpose": "Chips and small toggles."
+      },
+      "links-mono": {
+        "displayName": "Links Mono",
+        "purpose": "The pasted link list."
+      },
+      "icons": {
+        "displayName": "Icons",
+        "purpose": "Material Icons glyphs, 1.5rem by default and 1.25rem in dense rows."
+      }
+    },
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 1px 2px rgb(0 0 0 / 0.4)",
+        "purpose": "Panels, together with the 1px hairline."
+      },
+      {
+        "name": "lifted",
+        "value": "0 2px 8px rgb(0 0 0 / 0.45)",
+        "purpose": "Defined for small floating pieces; no component uses it yet."
+      },
+      {
+        "name": "floating",
+        "value": "0 8px 24px rgb(0 0 0 / 0.5)",
+        "purpose": "Notifications."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "The one curve for every transition."
+      },
+      {
+        "name": "fast",
+        "value": "120ms",
+        "purpose": "What follows the pointer: hover tints, colour changes."
+      },
+      {
+        "name": "base",
+        "value": "220ms",
+        "purpose": "What the eye follows: bars, folds, chevrons."
+      },
+      {
+        "name": "segmented-spring",
+        "value": "cubic-bezier(0.34, 1.2, 0.64, 1)",
+        "purpose": "The lit pill of the segmented switch (360 ms)."
+      },
+      {
+        "name": "progress-sweep",
+        "value": "1.6s linear infinite",
+        "purpose": "The light sweep across an active progress bar."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "40rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled action of a view, such as New download.",
+      "html": "<button class=\"ds-btn-primary\">New download</button>",
+      "css": ".ds-btn-primary { height: 40px; padding: 0 24px; border: 0; border-radius: 999px; background: var(--mat-sys-primary, #0db7ed); color: var(--mat-sys-on-primary, #00131a); font: 500 0.875rem/1.25rem Roboto, sans-serif; letter-spacing: 0.1px; cursor: pointer; transition: filter 120ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-primary:hover { filter: brightness(1.08); } .ds-btn-primary:focus-visible { outline: 2px solid var(--mat-sys-primary, #0db7ed); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "A quiet navigation or secondary action; its hover is a neutral white tint.",
+      "html": "<button class=\"ds-btn-text\">Downloads</button>",
+      "css": ".ds-btn-text { height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--mat-sys-primary, #0db7ed); font: 500 0.875rem/1.25rem Roboto, sans-serif; letter-spacing: 0.1px; cursor: pointer; transition: background 120ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-text:hover { background: rgb(255 255 255 / 0.06); } .ds-btn-text:active { background: rgb(255 255 255 / 0.1); } .ds-btn-text:focus-visible { outline: 2px solid var(--mat-sys-primary, #0db7ed); outline-offset: 2px; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "A job card or form section: one tonal step above the page with a 1px hairline.",
+      "html": "<section class=\"ds-panel\"><h3 class=\"ds-panel-title\">Links</h3><p class=\"ds-panel-hint\">One link per line.</p></section>",
+      "css": ".ds-panel { padding: 20px 24px; border: 1px solid var(--mat-sys-outline-variant, #3d464b); border-radius: 18px; background: var(--mat-sys-surface-container-low, #101417); box-shadow: 0 1px 2px rgb(0 0 0 / 0.4); color: var(--mat-sys-on-surface, #e5e6e9); font: 400 0.875rem/1.25rem Roboto, sans-serif; } .ds-panel-title { margin: 0 0 4px; font: 500 1rem/1.5rem Roboto, sans-serif; } .ds-panel-hint { margin: 0; color: var(--mat-sys-on-surface-variant, #b6bec3); font: 400 0.75rem/1rem Roboto, sans-serif; }"
+    },
+    {
+      "name": "Status Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Read-only state labels: the deep status colour behind the bright one, always with a word.",
+      "html": "<span class=\"ds-chip\">Queued</span> <span class=\"ds-chip ds-chip-info\">Unpacking</span> <span class=\"ds-chip ds-chip-success\">Done</span> <span class=\"ds-chip ds-chip-warning\">Paused</span> <span class=\"ds-chip ds-chip-danger\">Failed</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; background: var(--mat-sys-surface-container-high, #1d2225); color: var(--mat-sys-on-surface-variant, #b6bec3); font: 500 0.75rem/1rem Roboto, sans-serif; white-space: nowrap; } .ds-chip-info { background: var(--app-info-container, #013041); color: var(--app-info, #0db7ed); } .ds-chip-success { background: var(--app-success-container, #0f3d24); color: var(--app-success, #4ade80); } .ds-chip-warning { background: var(--app-warning-container, #453000); color: var(--app-warning, #fbbf24); } .ds-chip-danger { background: var(--app-danger-container, #5e121c); color: var(--app-danger, #ff8a88); }"
+    },
+    {
+      "name": "Progress Bar",
+      "kind": "custom",
+      "refersTo": "progress-fill",
+      "description": "A pill track with a pill fill; the light sweep says \"still working\" before the number moves.",
+      "html": "<div class=\"ds-progress\"><div class=\"ds-progress-head\"><span>Downloading</span><span class=\"ds-progress-percent\">42%</span></div><div class=\"ds-progress-track\"><div class=\"ds-progress-fill\"></div></div></div>",
+      "css": ".ds-progress { font: 500 0.875rem/1.25rem Roboto, sans-serif; color: var(--mat-sys-on-surface, #e5e6e9); } .ds-progress-head { display: flex; justify-content: space-between; margin-bottom: 6px; } .ds-progress-percent { font-variant-numeric: tabular-nums; } .ds-progress-track { height: 10px; overflow: hidden; border-radius: 999px; background: var(--mat-sys-surface-container-highest, #272c2f); } .ds-progress-fill { width: 42%; height: 100%; min-width: 10px; border-radius: 999px; background-color: var(--mat-sys-primary, #0db7ed); background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.28) 50%, transparent 70%); background-size: 200% 100%; animation: ds-sweep 1.6s linear infinite; } @keyframes ds-sweep { from { background-position: 100% 0; } to { background-position: -100% 0; } } @media (prefers-reduced-motion: reduce) { .ds-progress-fill { animation: none; background-image: none; } }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "An outlined field, 56px high, with a floating label; the outline turns cyan on focus.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Name</span><input class=\"ds-field-input\" value=\"Locked\"></label>",
+      "css": ".ds-field { position: relative; display: block; } .ds-field-label { position: absolute; top: -9px; left: 12px; padding: 0 4px; background: var(--mat-sys-surface-container-low, #101417); color: var(--mat-sys-on-surface-variant, #b6bec3); font: 400 0.75rem/1rem Roboto, sans-serif; } .ds-field-input { box-sizing: border-box; width: 100%; height: 56px; padding: 0 16px; border: 1px solid var(--mat-sys-outline, #82898e); border-radius: 12px; background: transparent; color: var(--mat-sys-on-surface, #e5e6e9); font: 400 1rem/1.5rem Roboto, sans-serif; } .ds-field-input:hover { border-color: var(--mat-sys-on-surface, #e5e6e9); } .ds-field-input:focus { outline: none; border-color: var(--mat-sys-primary, #0db7ed); box-shadow: 0 0 0 1px var(--mat-sys-primary, #0db7ed); } .ds-field:focus-within .ds-field-label { color: var(--mat-sys-primary, #0db7ed); }"
+    },
+    {
+      "name": "Segmented Switch",
+      "kind": "custom",
+      "refersTo": "segmented-switch",
+      "description": "Two or three options in a pill; a 22% cyan pill marks the selection and its label turns cyan and bold.",
+      "html": "<div class=\"ds-switch\"><span class=\"ds-switch-pill\"></span><button class=\"ds-switch-option ds-switch-selected\">Season</button><button class=\"ds-switch-option\">Movie</button></div>",
+      "css": ".ds-switch { position: relative; display: inline-flex; padding: 4px; border: 1px solid var(--mat-sys-outline, #82898e); border-radius: 999px; } .ds-switch-pill { position: absolute; inset-block: 4px; left: 4px; width: 92px; border-radius: 999px; background: color-mix(in srgb, var(--mat-sys-primary, #0db7ed) 22%, transparent); } .ds-switch-option { position: relative; z-index: 1; min-width: 92px; height: 36px; padding: 0 20px; border: 0; border-radius: 999px; background: none; color: var(--mat-sys-on-surface-variant, #b6bec3); font: 500 0.875rem/1.25rem Roboto, sans-serif; cursor: pointer; } .ds-switch-option:hover { color: var(--mat-sys-on-surface, #e5e6e9); } .ds-switch-selected, .ds-switch-selected:hover { color: var(--mat-sys-primary, #0db7ed); font-weight: 700; }"
+    },
+    {
+      "name": "Episode Row",
+      "kind": "custom",
+      "refersTo": "episode-row",
+      "description": "One episode inside a job card: name, state chip, a compact bar and the part detail.",
+      "html": "<div class=\"ds-row\"><div class=\"ds-row-head\"><h4 class=\"ds-row-title\">Episode 3</h4><span class=\"ds-row-chip\">Unpacking</span></div><div class=\"ds-row-track\"><div class=\"ds-row-fill\"></div></div><p class=\"ds-row-meta\">3 of 5 parts · 1.8 GB</p></div>",
+      "css": ".ds-row { padding: 14px 16px; border-radius: 12px; background: var(--mat-sys-surface-container, #14181b); color: var(--mat-sys-on-surface, #e5e6e9); font: 400 0.875rem/1.25rem Roboto, sans-serif; } .ds-row-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; } .ds-row-title { margin: 0; font: 500 0.875rem/1.25rem Roboto, sans-serif; } .ds-row-chip { padding: 2px 10px; border-radius: 999px; background: var(--app-info-container, #013041); color: var(--app-info, #0db7ed); font: 500 0.75rem/1rem Roboto, sans-serif; } .ds-row-track { height: 6px; overflow: hidden; border-radius: 999px; background: var(--mat-sys-surface-container-highest, #272c2f); } .ds-row-fill { width: 60%; height: 100%; border-radius: 999px; background: var(--mat-sys-primary, #0db7ed); } .ds-row-meta { margin: 8px 0 0; color: var(--mat-sys-on-surface-variant, #b6bec3); font: 400 0.75rem/1rem Roboto, sans-serif; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Notification",
+      "kind": "custom",
+      "refersTo": "notification",
+      "description": "A floating message with a 4px status bar on its left edge and a Dismiss button.",
+      "html": "<div class=\"ds-note\"><span class=\"ds-note-message\">Episode 3 is done.</span><button class=\"ds-note-dismiss\">Dismiss</button></div>",
+      "css": ".ds-note { display: flex; align-items: center; gap: 16px; padding: 12px 12px 12px 16px; border: 1px solid var(--mat-sys-outline-variant, #3d464b); border-inline-start: 4px solid var(--app-success, #4ade80); border-radius: 12px; background: var(--mat-sys-surface-container-highest, #272c2f); box-shadow: 0 8px 24px rgb(0 0 0 / 0.5); color: var(--mat-sys-on-surface, #e5e6e9); font: 400 0.875rem/1.25rem Roboto, sans-serif; } .ds-note-message { flex: 1; } .ds-note-dismiss { padding: 4px 10px; border: 0; border-radius: 999px; background: transparent; color: var(--mat-sys-on-surface-variant, #b6bec3); font: 500 0.75rem/1rem Roboto, sans-serif; cursor: pointer; } .ds-note-dismiss:hover { background: rgb(255 255 255 / 0.06); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Shift Console",
+    "overview": "AniLink is a dark control panel for work that carries on by itself. A person pastes a season, sets it going and looks away; the page is what they glance at later. So it behaves like an instrument rather than a storefront: calm, precise and quiet, with one clear signal colour and a handful of status colours that each mean one thing. Nothing animates to be noticed. Motion confirms a change (a bar that fills, a switch that slides, a page that fades to the next) and stops.\n\nSurfaces are near-black with a faint cool tint taken from the brand cyan, stepped in small, even tonal increments, and separated by 1px hairlines instead of shadows. Content sits in rounded panels that hold rows of episodes. Controls are pills and big, solid, high-contrast buttons, so a state is never in doubt: the filled cyan button is the action, a tinted pill is the selection, a coloured chip with a word in it is the state.\n\nThe system is dark only. Light theme is not planned and the system does not define one.",
+    "keyCharacteristics": [
+      "Dark only, near-black ground with a cool tint from the brand hue.",
+      "Depth through tonal steps plus a 1px hairline; shadows only for what floats.",
+      "One signal colour (Tidewater Cyan) for \"active or actionable\", four status colours for meaning.",
+      "Pills for every interactive control, 18px panels, 12px rows.",
+      "Tabular figures on every number that changes; chips and labels always carry the state in words.",
+      "Short, decelerating motion (120 and 220 ms) that is reduced to nothing under `prefers-reduced-motion`."
+    ],
+    "rules": [
+      {
+        "name": "The Status Light Rule",
+        "body": "Colour means state. Cyan marks what is active, can be acted on or informs; green, amber and coral mean done, attention and failure. A colour is never added for decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Say It Too Rule",
+        "body": "A state is never told by colour alone. Every chip, every activity entry and every bar carries the state in a word (Unpacking, Failed, Paused), so the colour only confirms it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink On Cyan Rule",
+        "body": "Anything laid on Tidewater Cyan uses Tidewater Ink. White text on the cyan is not allowed.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark Only Rule",
+        "body": "There is no light theme and no light surface. This is confirmed by the owner.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every number that changes (percent, bytes, speed, time) uses tabular figures, so a value updating never shifts its neighbours.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "Roboto carries everything except link lists and paths. Do not add a display or accent typeface.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lift, Not Shadow Rule",
+        "body": "Separate surfaces by tone and a hairline first. A shadow is a finishing touch for things that float above the page, never the thing that makes a card look like a card.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** take colours from the tokens (`--mat-sys-*`, `--app-*`) and pick the nearest tonal step for a new surface; never introduce a free-standing hex.",
+      "**Do** put Tidewater Ink on Tidewater Cyan, and keep the cyan for what is active or can be acted on.",
+      "**Do** pair every status colour with a word in the same element.",
+      "**Do** use tabular figures for any number that updates while the page is open.",
+      "**Do** keep controls at pill shape, 40px for buttons and 36px for icon buttons in dense rows.",
+      "**Do** draw edges with 1px Steel Hairline and tone, and keep shadows for floating things.",
+      "**Do** keep keyboard focus visible with the 2px cyan ring and keep every icon-only button labelled.",
+      "**Do** honour `prefers-reduced-motion` for anything that moves.",
+      "**Do** give every list that scrolls a tab stop and a name, so it can be read with the keyboard."
+    ],
+    "donts": [
+      "**Don't** add a light theme or any light surface; the system is dark only.",
+      "**Don't** put white text on Tidewater Cyan.",
+      "**Don't** use colour as the only signal of a state.",
+      "**Don't** make a card out of a shadow; a panel is a lighter tone plus a hairline.",
+      "**Don't** add a second typeface or a display size; the page has no hero.",
+      "**Don't** let a hover tint use the brand colour; it would read as \"selected\"."
+    ]
+  }
+}

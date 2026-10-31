@@ -1,0 +1,16 @@
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 5rem;
+  text-align: center;
+}
+
+.error-code {
+  margin: 0;
+  color: var(--mat-sys-primary);
+  font-size: 4rem;
+  font-weight: 500;
+  line-height: 1;
+}

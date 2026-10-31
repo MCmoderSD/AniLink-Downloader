@@ -1,0 +1,24 @@
+name: AniLink
+
+services:
+  anilink:
+    image: mcmodersd/anilink-downloader:latest
+    container_name: AniLink-Downloader
+    restart: unless-stopped
+    pull_policy: always
+    user: 1000:1000
+    build: .
+    environment:
+      Concurrent_Downloads: 3
+      Debrid_Request_Delay: 500
+      Debrid_ApiKey: ${DEBRID_API_KEY}
+      Archive_Password_0: ${ARCHIVE_PASSWORD_0:-}
+      Archive_Password_1: ${ARCHIVE_PASSWORD_1:-}
+    ports:
+      - 8080:8080/tcp
+    volumes:
+      - ./downloads:/downloads
+
+networks:
+  default:
+    name: AniLink-Network

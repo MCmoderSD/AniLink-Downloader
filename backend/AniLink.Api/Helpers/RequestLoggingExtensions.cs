@@ -1,0 +1,50 @@
+using System.Diagnostics;
+
+namespace AniLink.Api.Helpers;
+
+public static class RequestLoggingExtensions
+{
+    private const string Category = "AniLink.Api.Requests";
+
+    public static WebApplication UseAniLinkRequestLogging(this WebApplication app)
+    {
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(Category);
+
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments("/health") || context.Request.Path.StartsWithSegments("/api/downloads/stream"))
+            {
+                await next(context);
+                return;
+            }
+
+            var started = Stopwatch.GetTimestamp();
+
+            try
+            {
+                await next(context);
+            }
+            finally
+            {
+                var status = context.Response.StatusCode;
+
+                var level = status switch
+                {
+                    >= StatusCodes.Status500InternalServerError => LogLevel.Error,
+                    StatusCodes.Status404NotFound when context.GetEndpoint() is null => LogLevel.Debug,
+                    _ => LogLevel.Information
+                };
+
+                logger.Log(
+                    level,
+                    "{Method} {Path} -> {StatusCode} in {Elapsed:0.0}ms",
+                    LogSafe.OneLine(context.Request.Method),
+                    LogSafe.OneLine(context.Request.Path.Value),
+                    status,
+                    Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            }
+        });
+
+        return app;
+    }
+}

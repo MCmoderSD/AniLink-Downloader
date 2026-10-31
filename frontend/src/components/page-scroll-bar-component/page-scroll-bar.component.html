@@ -1,0 +1,13 @@
+@if (scrollable()) {
+  <div
+    class="page-scroll-bar-thumb"
+    [style.height.px]="axis().thumbSize"
+    [style.transform]="'translateY(' + axis().thumbOffset + 'px)'"
+    (pointerenter)="onBar(true)"
+    (pointerleave)="onBar(false)"
+    (pointerdown)="grab($event)"
+    (pointermove)="drag($event)"
+    (pointerup)="release()"
+    (pointercancel)="release()"
+  ></div>
+}

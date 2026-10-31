@@ -1,0 +1,23 @@
+# Version control and CI
+.git/
+.github/
+.idea/
+.vs/
+
+# Build output and installed packages are produced inside the image
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Local state and secrets must never end up in an image layer
+downloads/
+data/
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+
+*.md
+!README.md
