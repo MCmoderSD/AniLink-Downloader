@@ -51,7 +51,7 @@ The name is AniLink-Downloader, and it is what the browser tab always says on ev
 
 ## Evidence on Hand
 
-- `README.md`: stages, rules, configuration, HTTP API, what ends up on disk.
+- The wiki (https://github.com/MCmoderSD/AniLink-Downloader/wiki): stages, rules, configuration, HTTP API, what ends up on disk. `README.md` holds the short description, the quick start and the disclaimer.
 - `frontend/CLAUDE.md`: the owner's accessibility and component standards.
 - There is no user research, analytics, testimonials or screenshots of real use. Future work must not invent any.
 
