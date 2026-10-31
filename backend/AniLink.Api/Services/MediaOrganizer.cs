@@ -5,6 +5,8 @@ namespace AniLink.Api.Services;
 
 public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 {
+    private const string InfoName = "info.txt";
+
     private static readonly string[] VideoExtensions = [".mkv", ".mp4"];
 
     private static readonly string[] IgnoredExtensions = [".md5", ".download", ".url", ".uri"];
@@ -28,8 +30,12 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
         var note = notes.FirstOrDefault(file => string.Equals(Path.GetFileNameWithoutExtension(file), Path.GetFileNameWithoutExtension(video), StringComparison.OrdinalIgnoreCase))
                    ?? (notes.Count == 1 ? notes[0] : null);
 
+        var infos = files.Where(file => string.Equals(Path.GetFileName(file), InfoName, StringComparison.OrdinalIgnoreCase)).ToList();
+        var info = infos.Count == 1 ? infos[0] : null;
+
         var moves = new List<(string From, string To)> { (video, workspace.TargetPath(item, Path.GetExtension(video).ToLowerInvariant())) };
         if (note is not null) moves.Add((note, workspace.TargetPath(item, ".nfo")));
+        if (info is not null && !File.Exists(workspace.TargetPath(item, ".txt"))) moves.Add((info, workspace.TargetPath(item, ".txt")));
 
         foreach (var (_, target) in moves)
         {
