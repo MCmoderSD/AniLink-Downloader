@@ -1,4 +1,4 @@
-# [AniLink-Downloader](https://www.GitHub.com/MCmoderSD/AniLink-Downloader/)
+# AniLink-Downloader
 
 AniLink-Downloader downloads and unpacks media from single or multipart archives (mostly `.rar`, which may be password
 protected), and runs as one Docker container with a web page. Paste the hoster links of a season, an episode or a
