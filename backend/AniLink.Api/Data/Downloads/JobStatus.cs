@@ -10,5 +10,6 @@ public enum JobStatus
     PasswordRequired,
     Failed,
     Cancelled,
+    Downloaded,
     Completed
 }

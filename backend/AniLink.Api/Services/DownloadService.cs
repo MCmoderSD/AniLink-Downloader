@@ -70,7 +70,7 @@ public sealed class DownloadService(
             workspace,
             passwords);
 
-        foreach (var group in analysis.Episodes) job.AddItem(group.Number, group.Parts);
+        foreach (var group in analysis.Episodes) job.AddItem(group.Number, group.Parts, request.Unpack);
 
         try
         {
@@ -84,7 +84,7 @@ public sealed class DownloadService(
         jobs.Add(job);
 
         var parts = job.Parts.Count();
-        job.Log(NoticeLevel.Info, $"{name}: {job.Items.Count} {(request.Kind is ReleaseKind.Movie ? "file" : job.Items.Count == 1 ? "episode" : "episodes")}, {parts} {(parts == 1 ? "part" : "parts")}, saving to {workspace.Root}");
+        job.Log(NoticeLevel.Info, $"{name}: {job.Items.Count} {(request.Kind is ReleaseKind.Movie ? "file" : job.Items.Count == 1 ? "episode" : "episodes")}, {parts} {(parts == 1 ? "part" : "parts")}, saving to {workspace.Root}{(request.Unpack ? "" : ", unpacking on request")}");
 
         await jobs.SaveAsync(job);
         hub.Publish(DownloadEvents.Job(job));
@@ -118,6 +118,36 @@ public sealed class DownloadService(
     public bool? Retry(Guid id)
     {
         return jobs.Get(id) is { } job ? pipeline.Retry(job) : null;
+    }
+
+    public bool? SetUnpack(Guid id, bool wanted)
+    {
+        return jobs.Get(id) is { } job ? pipeline.SetUnpack(job, wanted) : null;
+    }
+
+    public bool? SetItemUnpack(Guid id, int number, bool wanted)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.SetItemUnpack(item, wanted) : null;
+    }
+
+    public bool? Unpack(Guid id)
+    {
+        return jobs.Get(id) is { } job ? pipeline.Unpack(job) : null;
+    }
+
+    public bool? CancelUnpack(Guid id)
+    {
+        return jobs.Get(id) is { } job ? pipeline.CancelUnpack(job) : null;
+    }
+
+    public bool? CancelUnpackItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.CancelUnpackItem(item) : null;
+    }
+
+    public bool? UnpackItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.UnpackItem(item) : null;
     }
 
     public bool? CancelItem(Guid id, int number)

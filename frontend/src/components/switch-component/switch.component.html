@@ -1,0 +1,12 @@
+<mat-slide-toggle
+  class="app-switch"
+  [class.app-switch-ready]="flipped()"
+  hideIcon
+  disableRipple
+  [checked]="checked()"
+  [disabled]="disabled()"
+  [aria-describedby]="describedBy()"
+  (change)="flip($event)"
+>
+  <ng-content/>
+</mat-slide-toggle>

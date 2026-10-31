@@ -1,10 +1,11 @@
 export type ReleaseKind = 'Season' | 'Movie';
 
-export type JobStatus = 'Active' | 'Paused' | 'PasswordRequired' | 'Failed' | 'Cancelled' | 'Completed';
+export type JobStatus = 'Active' | 'Paused' | 'PasswordRequired' | 'Failed' | 'Cancelled' | 'Downloaded' | 'Completed';
 
 export type ItemStage =
   | 'ResolvingLinks'
   | 'Downloading'
+  | 'Downloaded'
   | 'Extracting'
   | 'PasswordRequired'
   | 'Organizing'
@@ -46,6 +47,8 @@ export interface Item {
   extractPercent: number;
   files: string[];
   parts: Part[];
+  unpack: boolean;
+  canChangeUnpack: boolean;
 }
 
 export interface Notice {
@@ -101,6 +104,7 @@ export interface CreateDownloadRequest extends AnalyzeRequest {
   name: string;
   season: number | null;
   password: string | null;
+  unpack: boolean;
 }
 
 export interface Limits {
@@ -144,6 +148,7 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
   PasswordRequired: 'Password needed',
   Failed: 'Failed',
   Cancelled: 'Canceled',
+  Downloaded: 'Downloaded',
   Completed: 'Done'
 };
 
@@ -153,12 +158,14 @@ export const STATUS_TONES: Record<JobStatus, Tone> = {
   PasswordRequired: 'warning',
   Failed: 'danger',
   Cancelled: 'neutral',
+  Downloaded: 'success',
   Completed: 'success'
 };
 
 export const STAGE_LABELS: Record<ItemStage, string> = {
   ResolvingLinks: 'Creating links',
   Downloading: 'Downloading',
+  Downloaded: 'Downloaded',
   Extracting: 'Unpacking',
   PasswordRequired: 'Password needed',
   Organizing: 'Sorting files',
@@ -171,6 +178,7 @@ export const STAGE_LABELS: Record<ItemStage, string> = {
 export const STAGE_TONES: Record<ItemStage, Tone> = {
   ResolvingLinks: 'info',
   Downloading: 'info',
+  Downloaded: 'success',
   Extracting: 'info',
   PasswordRequired: 'warning',
   Organizing: 'info',

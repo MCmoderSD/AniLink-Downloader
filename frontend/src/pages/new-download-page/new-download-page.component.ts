@@ -12,6 +12,7 @@ import {
   SegmentedOption,
   SegmentedSwitchComponent
 } from '../../components/segmented-switch-component/segmented-switch.component';
+import { SwitchComponent } from '../../components/switch-component/switch.component';
 import {
   Analysis,
   AnalyzedEpisode,
@@ -40,7 +41,7 @@ const KINDS: SegmentedOption[] = [
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrls: ['./new-download-page.component.scss'],
-  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent]
+  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent, SwitchComponent]
 })
 export class NewDownloadPageComponent {
 
@@ -56,6 +57,7 @@ export class NewDownloadPageComponent {
   private readonly seasonValue: WritableSignal<string> = signal('');
   private readonly passwordValue: WritableSignal<string> = signal('');
   private readonly passwordShown: WritableSignal<boolean> = signal(false);
+  private readonly unpackValue: WritableSignal<boolean> = signal(true);
 
   private readonly analysisValue: WritableSignal<Analysis | null> = signal<Analysis | null>(null);
   private readonly analysisProblem: WritableSignal<string | null> = signal<string | null>(null);
@@ -71,6 +73,7 @@ export class NewDownloadPageComponent {
   protected readonly gripSize: number = RESIZE_GRIP_SIZE;
   protected readonly kinds: SegmentedOption[] = KINDS;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
+  protected readonly unpack: Signal<boolean> = this.unpackValue.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
   protected readonly analyzing: Signal<boolean> = this.analysisRunning.asReadonly();
@@ -217,6 +220,10 @@ export class NewDownloadPageComponent {
     this.passwordValue.set((event.target as HTMLInputElement).value);
   }
 
+  protected setUnpack(checked: boolean): void {
+    this.unpackValue.set(checked);
+  }
+
   protected togglePassword(): void {
     this.passwordShown.update((value: boolean): boolean => !value);
   }
@@ -235,7 +242,8 @@ export class NewDownloadPageComponent {
         links: this.linksValue(),
         format: this.formatValue().trim() || null,
         season: this.seasonNumber(),
-        password: this.passwordValue() || null
+        password: this.passwordValue() || null,
+        unpack: this.unpackValue()
       });
 
       this.sync.apply(job);

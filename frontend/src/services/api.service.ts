@@ -18,6 +18,10 @@ export abstract class ApiService {
     return firstValueFrom(this.http.post<T>(this.url(path), body));
   }
 
+  protected put<T = void>(path: string, body: unknown = null): Promise<T> {
+    return firstValueFrom(this.http.put<T>(this.url(path), body));
+  }
+
   protected delete<T = void>(path: string = ''): Promise<T> {
     return firstValueFrom(this.http.delete<T>(this.url(path)));
   }

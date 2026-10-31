@@ -24,13 +24,16 @@ public sealed class DownloadPipeline(
     ILogger<DownloadPipeline> logger)
 {
     private const int MaxAttempts = 3;
+    private const int MaxDiscardAttempts = 5;
+
+    private static readonly TimeSpan DiscardDelay = TimeSpan.FromMilliseconds(200);
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runs = new();
     private readonly ConcurrentDictionary<MediaItem, CancellationTokenSource> _itemRuns = new();
 
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
     {
-        var items = (only ?? job.Items).Where(item => item is { IsTerminal: false, Stage: not ItemStage.Paused }).OrderBy(item => item.Number).ToList();
+        var items = (only ?? job.Items).Where(item => item.NeedsWork).OrderBy(item => item.Number).ToList();
         var source = _runs.GetOrAdd(job.Id, _ => new CancellationTokenSource());
 
         var tasks = items.Select(item => ProcessAsync(job, item, source.Token)).ToList();
@@ -45,6 +48,28 @@ public sealed class DownloadPipeline(
 
         Notify(job, NoticeLevel.Info, $"Retrying {items.Count} {(items.Count == 1 ? "item" : "items")}");
         Start(job, items);
+
+        return true;
+    }
+
+    public bool Unpack(DownloadJob job)
+    {
+        var items = job.Items.Where(item => item.RequestUnpack()).ToList();
+        if (items.Count == 0) return false;
+
+        Notify(job, NoticeLevel.Info, $"Unpacking {items.Count} {(items.Count == 1 ? "item" : "items")}");
+        Start(job, items);
+
+        return true;
+    }
+
+    public bool SetUnpack(DownloadJob job, bool wanted)
+    {
+        var items = job.Items.Where(item => item.SetUnpack(wanted)).ToList();
+        if (items.Count == 0) return false;
+
+        job.Log(NoticeLevel.Info, $"{job.Name}: unpacking after the download is {(wanted ? "on" : "off")} for {items.Count} {(items.Count == 1 ? "item" : "items")}");
+        _ = jobs.SaveAsync(job);
 
         return true;
     }
@@ -75,11 +100,10 @@ public sealed class DownloadPipeline(
 
     public bool Pause(DownloadJob job)
     {
-        var paused = job.Items.Count(item => item.Pause());
-        if (paused == 0) return false;
+        var paused = job.Items.Where(item => item.Pause()).ToList();
+        if (paused.Count == 0) return false;
 
-        if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
-        else _ = jobs.SaveAsync(job);
+        foreach (var item in paused) Interrupt(item);
 
         Notify(job, NoticeLevel.Info, $"{job.Name}: paused");
 
@@ -137,6 +161,48 @@ public sealed class DownloadPipeline(
         return true;
     }
 
+    public bool SetItemUnpack(MediaItem item, bool wanted)
+    {
+        if (!item.SetUnpack(wanted)) return false;
+
+        item.Job.Log(NoticeLevel.Info, $"{item.Label}: unpacking after the download is {(wanted ? "on" : "off")}");
+        _ = jobs.SaveAsync(item.Job);
+
+        return true;
+    }
+
+    public bool CancelUnpack(DownloadJob job)
+    {
+        var items = job.Items.Where(item => item.StopUnpacking()).ToList();
+        if (items.Count == 0) return false;
+
+        foreach (var item in items) Interrupt(item);
+
+        Notify(job, NoticeLevel.Info, $"{job.Name}: unpacking canceled for {items.Count} {(items.Count == 1 ? "item" : "items")}, the archives stay and can be unpacked again");
+
+        return true;
+    }
+
+    public bool CancelUnpackItem(MediaItem item)
+    {
+        if (!item.StopUnpacking()) return false;
+
+        Interrupt(item);
+        Notify(item.Job, NoticeLevel.Info, $"{item.Label}: unpacking canceled, the archive stays and can be unpacked again");
+
+        return true;
+    }
+
+    public bool UnpackItem(MediaItem item)
+    {
+        if (!item.RequestUnpack()) return false;
+
+        Notify(item.Job, NoticeLevel.Info, $"Unpacking {item.Label}");
+        Start(item.Job, [item]);
+
+        return true;
+    }
+
     public void RemoveItem(MediaItem item)
     {
         var job = item.Job;
@@ -174,7 +240,9 @@ public sealed class DownloadPipeline(
             if (pending.Count > 0) await AwaitLinksAsync(job, item, pending, resolutions);
 
             await DownloadAsync(job, item, run);
-            await UnpackAsync(job, item, run.Token);
+
+            if (item.MarkDownloaded()) Notify(job, NoticeLevel.Success, $"Downloaded: {item.Label}, ready to unpack");
+            else if (item.UnpackWanted) await UnpackAsync(job, item, run.Token);
         }
         catch (Exception exception)
         {
@@ -281,56 +349,115 @@ public sealed class DownloadPipeline(
 
         await scheduler.RunExtractionAsync(async token =>
         {
-            if (!item.BeginExtracting()) return;
-
-            var unpacking = Stopwatch.StartNew();
-
-            logger.LogInformation(
-                "Unpacking {Label} starts: {Volumes} volumes, {Size}, waited {Waited} for a slot, {Running} of {Limit} slots in use",
-                label,
-                volumes.Count,
-                ByteSize.Format(item.Parts.Sum(part => part.BytesTotal)),
-                DurationText.Format(queued.Elapsed),
-                scheduler.ExtractionsRunning,
-                DownloadScheduler.ExtractionLimit);
+            await item.OutputLock.WaitAsync(token);
 
             try
             {
-                var password = await passwords.ResolveAsync(volumes, job, label, token);
+                if (!item.BeginExtracting()) return;
 
-                if (password.Outcome is PasswordOutcome.Missing)
+                var unpacking = Stopwatch.StartNew();
+
+                logger.LogInformation(
+                    "Unpacking {Label} starts: {Volumes} volumes, {Size}, waited {Waited} for a slot, {Running} of {Limit} slots in use",
+                    label,
+                    volumes.Count,
+                    ByteSize.Format(item.Parts.Sum(part => part.BytesTotal)),
+                    DurationText.Format(queued.Elapsed),
+                    scheduler.ExtractionsRunning,
+                    DownloadScheduler.ExtractionLimit);
+
+                try
                 {
-                    if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+                    var password = await passwords.ResolveAsync(volumes, job, label, token);
+
+                    if (password.Outcome is PasswordOutcome.Missing)
+                    {
+                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+
+                        return;
+                    }
+
+                    var output = workspace.OutputDirectory(item);
+                    if (Directory.Exists(output)) Directory.Delete(output, true);
+
+                    if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
+                    {
+                        throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
+                    }
+
+                    await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
+
+                    if (!item.BeginOrganizing())
+                    {
+                        if (!item.IsActive) await DiscardOutputAsync(workspace, item);
+
+                        return;
+                    }
+
+                    var files = organizer.Organize(workspace, item);
+
+                    item.Complete(files);
+                    RemoveFinished(workspace, item);
+
+                    logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
+                    Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
+                }
+                catch (OperationCanceledException)
+                {
+                    logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
+
+                    if (!item.IsActive) await DiscardOutputAsync(workspace, item);
+
+                    throw;
+                }
+                catch (ExtractionException)
+                {
+                    await DiscardOutputAsync(workspace, item);
+
+                    throw;
+                }
+            }
+            finally
+            {
+                item.OutputLock.Release();
+            }
+        }, cancellationToken);
+    }
+
+    private void RemoveFinished(Workspace workspace, MediaItem item)
+    {
+        try
+        {
+            if (!workspace.RemoveFinished(item)) logger.LogInformation("Files that were not expected are left in the output of {Label}, so it is kept together with its archive", item.LogLabel);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(exception, "The archive of {Label} could not be removed", item.LogLabel);
+        }
+    }
+
+    private async Task DiscardOutputAsync(Workspace workspace, MediaItem item)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                workspace.DiscardOutput(item);
+
+                return;
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == MaxDiscardAttempts)
+                {
+                    logger.LogWarning(exception, "What 7-Zip had written for {Label} could not be removed", item.LogLabel);
 
                     return;
                 }
 
-                var output = workspace.OutputDirectory(item);
-                if (Directory.Exists(output)) Directory.Delete(output, true);
-
-                if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
-                {
-                    throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
-                }
-
-                await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
-
-                if (!item.BeginOrganizing()) return;
-
-                var files = organizer.Organize(workspace, item);
-
-                item.Complete(files);
-
-                logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
-                Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
+                await Task.Delay(DiscardDelay);
             }
-            catch (OperationCanceledException)
-            {
-                logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
-
-                throw;
-            }
-        }, cancellationToken);
+        }
     }
 
     private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, bool interrupted)
@@ -380,7 +507,7 @@ public sealed class DownloadPipeline(
         switch (job.Status)
         {
             case JobStatus.Completed:
-                var kept = false;
+                bool kept;
 
                 try
                 {
@@ -405,6 +532,11 @@ public sealed class DownloadPipeline(
             case JobStatus.Failed:
                 var failed = job.Items.Count(item => item.Stage is ItemStage.Failed);
                 Notify(job, NoticeLevel.Error, $"{job.Name}: {failed} of {job.Items.Count} failed, the rest is done");
+                break;
+
+            case JobStatus.Downloaded:
+                var ready = job.Items.Count(item => item.Stage is ItemStage.Downloaded);
+                Notify(job, NoticeLevel.Info, $"{job.Name}: {ready} of {job.Items.Count} {(job.Release.Kind is ReleaseKind.Movie ? "files" : "episodes")} downloaded, ready to unpack");
                 break;
         }
 

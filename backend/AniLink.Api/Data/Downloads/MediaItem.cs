@@ -6,12 +6,13 @@ public sealed class MediaItem
 {
     private readonly List<ArchivePart> _parts = [];
 
-    public MediaItem(DownloadJob job, int number, string key, string targetName, IEnumerable<ArchiveLink> links)
+    public MediaItem(DownloadJob job, int number, string key, string targetName, IEnumerable<ArchiveLink> links, bool unpack)
     {
         Job = job;
         Number = number;
         Key = key;
         TargetName = targetName;
+        UnpackWanted = unpack;
 
         var index = 0;
         foreach (var link in links) _parts.Add(new ArchivePart(this, index++, link));
@@ -28,6 +29,8 @@ public sealed class MediaItem
     public string TargetName { get; }
 
     public IReadOnlyList<ArchivePart> Parts => _parts;
+
+    public SemaphoreSlim OutputLock { get; } = new(1, 1);
 
     public string Label => Job.Release.Kind is ReleaseKind.Movie ? Job.Name : $"Episode {Number}";
 
@@ -57,9 +60,19 @@ public sealed class MediaItem
         private set;
     } = [];
 
+    public bool UnpackWanted
+    {
+        get { lock (Gate) return field; }
+        private set;
+    }
+
     public bool IsActive => Stage is ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting or ItemStage.Organizing;
 
-    public bool IsTerminal => Stage is ItemStage.Completed or ItemStage.Failed or ItemStage.Cancelled;
+    private bool IsTerminal => Stage is ItemStage.Completed or ItemStage.Failed or ItemStage.Cancelled;
+
+    public bool NeedsWork => !IsTerminal && Stage is not (ItemStage.Paused or ItemStage.Downloaded);
+
+    public bool CanChangeUnpack => Stage is ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Paused or ItemStage.Failed or ItemStage.Cancelled;
 
     public int LinksResolved => _parts.Count(part => part.HasLink);
 
@@ -77,11 +90,58 @@ public sealed class MediaItem
         Move(ItemStage.Downloading);
     }
 
+    public bool MarkDownloaded()
+    {
+        lock (Gate)
+        {
+            return !UnpackWanted && Move(ItemStage.Downloaded);
+        }
+    }
+
+    public bool SetUnpack(bool wanted)
+    {
+        lock (Gate)
+        {
+            if (!CanChangeUnpack) return false;
+
+            UnpackWanted = wanted;
+            Job.Touch();
+
+            return true;
+        }
+    }
+
+    public bool RequestUnpack()
+    {
+        lock (Gate)
+        {
+            if (Stage is not ItemStage.Downloaded) return false;
+
+            UnpackWanted = true;
+            Stage = AllLinksResolved ? ItemStage.Downloading : ItemStage.ResolvingLinks;
+            ExtractPercent = 0;
+            Error = null;
+            Job.Touch();
+
+            return true;
+        }
+    }
+
     public bool BeginExtracting()
     {
         lock (Gate)
         {
             if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
+
+            if (!UnpackWanted)
+            {
+                Stage = ItemStage.Downloaded;
+                ExtractPercent = 0;
+                Error = null;
+                Job.Touch();
+
+                return false;
+            }
 
             Stage = ItemStage.Extracting;
             ExtractPercent = 0;
@@ -150,16 +210,31 @@ public sealed class MediaItem
         }
     }
 
+    public bool StopUnpacking()
+    {
+        lock (Gate)
+        {
+            if (Stage is not ItemStage.Extracting) return false;
+
+            UnpackWanted = false;
+            Stage = ItemStage.Downloaded;
+            ExtractPercent = 0;
+            Error = null;
+            Job.Touch();
+
+            return true;
+        }
+    }
+
     public bool Pause()
     {
         lock (Gate)
         {
-            if (Stage is not (ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting)) return false;
+            if (Stage is not (ItemStage.ResolvingLinks or ItemStage.Downloading)) return false;
 
             foreach (var part in _parts) part.Pause();
 
             Stage = ItemStage.Paused;
-            ExtractPercent = 0;
             Job.Touch();
 
             return true;
@@ -208,6 +283,7 @@ public sealed class MediaItem
 
             Error = manifest.Error;
             Files = manifest.Files;
+            UnpackWanted = manifest.Unpack;
 
             Stage = manifest.Stage switch
             {
@@ -225,6 +301,7 @@ public sealed class MediaItem
         lock (Gate)
         {
             if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
+            if (Stage is ItemStage.Downloaded && stage is not ItemStage.Downloaded) return false;
 
             Stage = stage;
             Error = null;

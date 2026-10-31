@@ -2,6 +2,10 @@
   <h3 class="item-title">{{ item().label }}</h3>
   <span class="app-chip" [attr.data-tone]="stageTone()">{{ stageLabel() }}</span>
 
+  @if (manageable() && canSetUnpack()) {
+    <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
+  }
+
   <button
     type="button"
     class="item-toggle"
@@ -15,6 +19,20 @@
 
   @if (manageable()) {
     <div class="item-actions" role="group" [attr.aria-label]="'Actions for ' + item().label">
+      @if (canUnpack()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Unpack ' + item().label"
+          title="Unpack"
+          (click)="unpack()"
+        >
+          <mat-icon aria-hidden="true">unarchive</mat-icon>
+        </button>
+      }
+
       @if (canRetry()) {
         <button
           mat-icon-button
@@ -54,6 +72,20 @@
           (click)="resume()"
         >
           <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        </button>
+      }
+
+      @if (canCancelUnpack()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action"
+          [disabled]="busy()"
+          [attr.aria-label]="'Cancel the unpacking of ' + item().label"
+          title="Cancel unpacking"
+          (click)="cancelUnpack()"
+        >
+          <mat-icon aria-hidden="true">stop_circle</mat-icon>
         </button>
       }
 

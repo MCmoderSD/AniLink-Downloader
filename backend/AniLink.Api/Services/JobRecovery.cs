@@ -37,7 +37,7 @@ public sealed class JobRecovery(
             var job = DownloadJob.Restore(manifest, Path.GetDirectoryName(path)!, archive.Passwords);
             jobs.Add(job);
 
-            if (job.Items.Any(item => !item.IsTerminal && item.Stage is not ItemStage.Paused))
+            if (job.Items.Any(item => item.NeedsWork))
             {
                 pipeline.Start(job);
                 resumed++;

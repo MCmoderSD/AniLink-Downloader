@@ -10,6 +10,7 @@ import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
 import { ConfirmActionDialogComponent } from '../confirm-action-dialog-component/confirm-action-dialog.component';
 import { ProgressBarComponent } from '../progress-bar-component/progress-bar.component';
+import { SwitchComponent } from '../switch-component/switch.component';
 
 interface Bar {
   label: string;
@@ -23,7 +24,7 @@ interface Bar {
   selector: 'app-item-row',
   templateUrl: './item-row.component.html',
   styleUrls: ['./item-row.component.scss'],
-  imports: [MatButtonModule, MatIconModule, ProgressBarComponent]
+  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, SwitchComponent]
 })
 export class ItemRowComponent {
 
@@ -40,14 +41,17 @@ export class ItemRowComponent {
 
   private readonly partsShown: WritableSignal<boolean> = signal(false);
   private readonly working: WritableSignal<boolean> = signal(false);
+  private readonly unpackChoice: WritableSignal<boolean | null> = signal<boolean | null>(null);
 
   protected readonly partsOpen: Signal<boolean> = this.partsShown.asReadonly();
   protected readonly busy: Signal<boolean> = this.working.asReadonly();
 
   protected readonly canPause: Signal<boolean> = computed((): boolean => {
     const stage: Item['stage'] = this.item().stage;
-    return stage === 'ResolvingLinks' || stage === 'Downloading' || stage === 'Extracting';
+    return stage === 'ResolvingLinks' || stage === 'Downloading';
   });
+
+  protected readonly canCancelUnpack: Signal<boolean> = computed((): boolean => this.item().stage === 'Extracting');
 
   protected readonly canResume: Signal<boolean> = computed((): boolean => this.item().stage === 'Paused');
 
@@ -56,9 +60,15 @@ export class ItemRowComponent {
     return stage === 'Failed' || stage === 'Cancelled';
   });
 
+  protected readonly canUnpack: Signal<boolean> = computed((): boolean => this.item().stage === 'Downloaded');
+
+  protected readonly canSetUnpack: Signal<boolean> = computed((): boolean => this.item().canChangeUnpack);
+
+  protected readonly unpackOn: Signal<boolean> = computed((): boolean => this.unpackChoice() ?? this.item().unpack);
+
   protected readonly canCancel: Signal<boolean> = computed((): boolean => {
     const stage: Item['stage'] = this.item().stage;
-    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled';
+    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled' && stage !== 'Downloaded' && stage !== 'Extracting';
   });
 
   protected readonly stageLabel: Signal<string> = computed((): string => STAGE_LABELS[this.item().stage]);
@@ -73,6 +83,9 @@ export class ItemRowComponent {
 
       case 'Downloading':
         return { label: 'Download', detail: this.bytes(item), fraction: item.download.fraction, tone: 'info', active: item.download.done > 0 };
+
+      case 'Downloaded':
+        return { label: 'Downloaded, ready to unpack', detail: this.bytes(item), fraction: 1, tone: 'success', active: false };
 
       case 'Extracting':
         return { label: 'Unpacking', detail: '', fraction: item.extractPercent / 100, tone: 'info', active: true };
@@ -115,6 +128,22 @@ export class ItemRowComponent {
 
   protected async retry(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.retryItem(this.jobId(), this.item().number), `${this.item().label} could not be retried.`);
+  }
+
+  protected async unpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.unpackItem(this.jobId(), this.item().number), `${this.item().label} could not be unpacked.`);
+  }
+
+  protected async cancelUnpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.cancelUnpackItem(this.jobId(), this.item().number), `The unpacking of ${this.item().label} could not be canceled.`);
+  }
+
+  protected async setUnpack(on: boolean): Promise<void> {
+    this.unpackChoice.set(on);
+
+    await this.act((): Promise<Job> => this.downloads.setItemUnpack(this.jobId(), this.item().number, on), `The setting of ${this.item().label} could not be changed.`);
+
+    this.unpackChoice.set(null);
   }
 
   protected async cancel(): Promise<void> {

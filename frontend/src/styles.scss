@@ -193,6 +193,114 @@ body {
   }
 }
 
+// Material's switch is a 52 by 32 pixel control with a handle that moves in 75 milliseconds, which is more than a
+// setting in a form needs and quicker than the eye follows. Every length of it is scaled down by one factor, so the
+// shape stays what Material drew. The handle then moves the way the pill of the type switch does: it glides over with
+// the same spring, and it stretches on the way, the edge it is heading for running ahead of the one it leaves. The
+// tokens are Material's; their values are its defaults, in rem, times the scale.
+//
+// The stretch only starts once the switch has been flipped by hand (.app-switch-ready), so the page does not open
+// with a handle that is in the middle of one. The hover and focus halo of Material is switched off, because the ring
+// of the keyboard focus (below) is the one that stays.
+// The stretch peaks early, while the handle is still on its way, and is gone again before it arrives. By a third of
+// the time the handle has covered about four fifths of its path, and a stretch that peaked there would push the edge
+// that leads past the end of the track: 33 pixels in a track of 32.5. At 15 percent the handle is under halfway, and
+// the edge stays about 5 pixels inside.
+@keyframes app-switch-stretch-forward {
+  15% {
+    scale: 1.4 1;
+  }
+}
+
+@keyframes app-switch-stretch-backward {
+  15% {
+    scale: 1.4 1;
+  }
+}
+
+.app-switch {
+  --app-switch-scale: 0.625;
+
+  --mat-slide-toggle-track-height: calc(2rem * var(--app-switch-scale));
+  --mat-slide-toggle-track-width: calc(3.25rem * var(--app-switch-scale));
+  --mat-slide-toggle-track-outline-width: calc(0.125rem * var(--app-switch-scale));
+  --mat-slide-toggle-selected-track-outline-width: calc(0.125rem * var(--app-switch-scale));
+  --mat-slide-toggle-unselected-handle-size: calc(1rem * var(--app-switch-scale));
+  --mat-slide-toggle-selected-handle-size: calc(1.5rem * var(--app-switch-scale));
+  --mat-slide-toggle-pressed-handle-size: calc(1.75rem * var(--app-switch-scale));
+  --mat-slide-toggle-with-icon-handle-size: calc(1.5rem * var(--app-switch-scale));
+  --mat-slide-toggle-unselected-handle-horizontal-margin: 0 calc(0.5rem * var(--app-switch-scale));
+  --mat-slide-toggle-unselected-pressed-handle-horizontal-margin: 0 calc(0.125rem * var(--app-switch-scale));
+  --mat-slide-toggle-unselected-with-icon-handle-horizontal-margin: 0 calc(0.25rem * var(--app-switch-scale));
+  --mat-slide-toggle-selected-handle-horizontal-margin: 0 calc(1.5rem * var(--app-switch-scale));
+  --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0 calc(1.375rem * var(--app-switch-scale));
+  --mat-slide-toggle-selected-with-icon-handle-horizontal-margin: 0 calc(1.5rem * var(--app-switch-scale));
+  --mat-slide-toggle-state-layer-size: 1.75rem;
+  --mat-slide-toggle-visible-track-transition: opacity var(--app-motion-glide) var(--app-ease);
+  --mat-slide-toggle-hidden-track-transition: opacity var(--app-motion-glide) var(--app-ease);
+  --mat-slide-toggle-selected-hover-state-layer-opacity: 0;
+  --mat-slide-toggle-selected-focus-state-layer-opacity: 0;
+  --mat-slide-toggle-selected-pressed-state-layer-opacity: 0;
+  --mat-slide-toggle-unselected-hover-state-layer-opacity: 0;
+  --mat-slide-toggle-unselected-focus-state-layer-opacity: 0;
+  --mat-slide-toggle-unselected-pressed-state-layer-opacity: 0;
+
+  //noinspection CssUnusedSymbol
+  .mdc-label {
+    padding-inline-start: 0.625rem;
+  }
+
+  //noinspection CssUnusedSymbol
+  .mdc-switch:focus-visible {
+    border-radius: var(--app-radius-pill);
+  }
+
+  //noinspection CssUnusedSymbol
+  .mdc-switch__handle-track {
+    transition: transform var(--app-timing-glide);
+  }
+
+  //noinspection CssUnusedSymbol
+  &.app-switch-ready .mdc-switch--selected .mdc-switch__handle {
+    transform-origin: left center;
+    animation: app-switch-stretch-forward var(--app-motion-glide) var(--app-ease);
+  }
+
+  //noinspection CssUnusedSymbol
+  &.app-switch-ready .mdc-switch--unselected .mdc-switch__handle {
+    transform-origin: right center;
+    animation: app-switch-stretch-backward var(--app-motion-glide) var(--app-ease);
+  }
+
+  // The handle's size and its margins change with the state as well, and Material runs them in 75 milliseconds while
+  // the handle itself is carried over by the transform. Left like that, most of the distance is covered at once and
+  // the long glide only finishes the last bit. They take the same time, so the handle moves as one piece. Pressing
+  // the handle with the pointer stays quick, because it is the pointer that is being followed then.
+  //noinspection CssUnusedSymbol
+  .mdc-switch__handle {
+    transition:
+      width var(--app-motion-glide) var(--app-ease),
+      height var(--app-motion-glide) var(--app-ease),
+      margin var(--app-motion-glide) var(--app-ease);
+  }
+
+  //noinspection CssUnusedSymbol
+  .mdc-switch:active .mdc-switch__handle {
+    transition:
+      width var(--app-timing-fast),
+      height var(--app-timing-fast),
+      margin var(--app-timing-fast);
+  }
+
+  //noinspection CssUnusedSymbol
+  .mdc-switch__handle::before,
+  .mdc-switch__handle::after {
+    transition:
+      background-color var(--app-motion-glide) var(--app-ease),
+      border-color var(--app-motion-glide) var(--app-ease);
+  }
+}
+
 // The page scrolls under PageScrollBarComponent, which draws the app's bar over the right edge; the platform's
 // own would be a second one next to it. Scoped to the document element, so elements that scroll inside the page
 // keep theirs until ScrollBarComponent is attached to them.
