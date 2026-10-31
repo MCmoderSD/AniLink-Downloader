@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use './styles/palette' as palette;
 @use './styles/tokens' as tokens;
 
 html {
@@ -8,8 +9,8 @@ html {
     (
       color: (
         theme-type: dark,
-        primary: mat.$violet-palette,
-        tertiary: mat.$rose-palette
+        primary: palette.$primary,
+        tertiary: palette.$tertiary
       ),
       typography: Roboto,
       density: 0
@@ -19,21 +20,32 @@ html {
   @include tokens.app-tokens;
   @include tokens.app-reduced-motion;
 
-  // Material derives the surface tones from the hue of the palette, which tints every panel violet. These
-  // neutrals are the ramp the design wants, so the tokens Material computes instead of reading are pinned to it.
-  --mat-sys-surface: #0e0e10;
-  --mat-sys-background: #0e0e10;
-  --mat-sys-surface-dim: #0e0e10;
-  --mat-sys-surface-bright: #35353c;
-  --mat-sys-surface-container-lowest: #08080b;
-  --mat-sys-surface-container-low: #131318;
-  --mat-sys-surface-container: #17171c;
-  --mat-sys-surface-container-high: #212127;
-  --mat-sys-surface-container-highest: #2b2b31;
-  --mat-sys-on-surface: #e6e6ec;
-  --mat-sys-on-surface-variant: #bcbcc7;
-  --mat-sys-outline: #878790;
-  --mat-sys-outline-variant: #3b3b45;
+  // Material's dark scheme puts the primary role at tone 80, a pastel; the brand colour is tone 70 of the palette.
+  // The roles that carry it are pinned to the brand colour itself, with dark text on top, because white would only
+  // reach 2.3:1 on it.
+  --mat-sys-primary: #0db7ed;
+  --mat-sys-on-primary: #00131a;
+  --mat-sys-primary-container: #014d66;
+  --mat-sys-on-primary-container: #cae7f8;
+  --mat-sys-inverse-primary: #026686;
+  --mat-sys-surface-tint: var(--mat-sys-primary);
+
+  // Material lifts the surface tones from the palette's neutral, which is lighter than the near-black this design is
+  // built on. These are the same ramp with the hue of the brand colour at a low chroma, so the tokens Material
+  // computes instead of reading are pinned to it.
+  --mat-sys-surface: #0d0e10;
+  --mat-sys-background: #0d0e10;
+  --mat-sys-surface-dim: #0d0e10;
+  --mat-sys-surface-bright: #31363a;
+  --mat-sys-surface-container-lowest: #06090a;
+  --mat-sys-surface-container-low: #101417;
+  --mat-sys-surface-container: #14181b;
+  --mat-sys-surface-container-high: #1d2225;
+  --mat-sys-surface-container-highest: #272c2f;
+  --mat-sys-on-surface: #e5e6e9;
+  --mat-sys-on-surface-variant: #b6bec3;
+  --mat-sys-outline: #82898e;
+  --mat-sys-outline-variant: #3d464b;
 
   // Neutral state layers: a hover tint in the brand colour would read as "selected".
   --mat-button-text-state-layer-color: var(--mat-sys-on-surface);

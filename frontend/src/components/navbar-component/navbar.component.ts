@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, inject, Signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +9,7 @@ import { DownloadSyncService } from '../../services/download-sync.service';
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
-  imports: [MatButtonModule, MatIconModule, RouterLink, RouterLinkActive]
+  imports: [MatButtonModule, MatIconModule, NgOptimizedImage, RouterLink, RouterLinkActive]
 })
 export class NavbarComponent {
 

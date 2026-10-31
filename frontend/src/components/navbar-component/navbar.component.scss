@@ -32,18 +32,10 @@
   text-decoration: none;
 }
 
+// The same file the browser tab shows (public/favicon.svg), so the two never drift apart
 .navbar-logo {
-  width: 1.75rem;
-  height: 1.75rem;
-  fill: none;
-  stroke: var(--mat-sys-primary);
-  stroke-width: 6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.navbar-logo-base {
-  stroke: var(--mat-sys-tertiary);
+  width: 2rem;
+  height: 2rem;
 }
 
 .navbar-links {

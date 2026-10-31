@@ -1,6 +1,6 @@
 // The semantic layer on top of Material's --mat-sys-* tokens: the status colours the M3 palette has no names
 // for, and the shape, depth and motion vocabulary every component reuses. Plain sRGB throughout; the ratios in
-// the comments are measured against the page surface (#0e0e10).
+// the comments are measured against the page surface (#0d0e10).
 @mixin app-tokens {
   // --- Status ---------------------------------------------------------------------------------
   // Four states that differ in hue and not only in brightness, so they survive a monochrome display and the
@@ -17,9 +17,10 @@
   --app-on-danger: #3f0710;
   --app-danger-container: #5e121c;
 
-  --app-info: #60a5fa; // 7.6:1
-  --app-on-info: #001d38;
-  --app-info-container: #0d3a63;
+  // Information takes the brand cyan instead of a second blue that would sit next to it and read as the same thing.
+  --app-info: var(--mat-sys-primary); // 8.3:1
+  --app-on-info: var(--mat-sys-on-primary);
+  --app-info-container: #013041; // 6.0:1 for the text on it
 
   // --- Depth ----------------------------------------------------------------------------------
   // On a near-black surface a drop shadow is close to invisible, so depth is a lifted background plus a
