@@ -339,8 +339,6 @@ export class ScrollBarComponent {
     ));
   }
 
-  // A scrolling list that holds nothing to focus can only be read with a pointer. While it overflows it gets a tab
-  // stop, so the arrow keys scroll it; a field or a dialog that is focusable anyway is left alone.
   private reachByKeyboard(target: HTMLElement, scrolls: boolean): void {
     if (!scrolls) {
       if (this.tabStopAdded) target.removeAttribute('tabindex');

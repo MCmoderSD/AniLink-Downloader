@@ -27,7 +27,6 @@ export class DownloadsPageComponent {
     this.jobs().filter((job: Job): boolean => job.status === 'Paused').length);
 
   protected readonly subtitle: Signal<string> = computed((): string => {
-    // Nothing is known before the first answer, and "Nothing queued" would be a claim about a server that has not spoken
     if (!this.loaded()) return '';
 
     const total: number = this.jobs().length;

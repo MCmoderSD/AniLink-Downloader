@@ -61,7 +61,6 @@ export class DownloadService extends ApiService {
     return this.post<Job>(`${id}/items/${number}/retry`);
   }
 
-  // The job is gone with its last item, which the server answers with no content
   removeItem(id: string, number: number): Promise<Job | null> {
     return this.delete<Job | null>(`${id}/items/${number}`);
   }

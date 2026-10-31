@@ -8,7 +8,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(),
-    // Each navigation is a view transition: the page is animated into the next one instead of jumping (styles.scss).
     provideRouter(routes, withComponentInputBinding(), withViewTransitions({ skipInitialTransition: true }))
   ]
 };
