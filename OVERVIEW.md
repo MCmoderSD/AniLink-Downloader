@@ -27,8 +27,8 @@ only thing you have to install.
 | -------- | ------------------------------------------------------------------------------ |
 | `latest` | The newest release.                                                            |
 | `3`      | The newest 3.x release: updates that stay within version 3.                    |
-| `3.0`    | The newest 3.0.x release: bug fixes only.                                      |
-| `3.0.2`  | Exactly this release. It never changes.                                        |
+| `3.1`    | The newest 3.1.x release: bug fixes only.                                      |
+| `3.1.0`  | Exactly this release. It never changes.                                        |
 | `edge`   | The newest state of the `master` branch. It is not a release and may be rough. |
 
 ## Quick start
