@@ -5,9 +5,7 @@ name: Docker Build & Push
 # gets its own tag), and sets the git tag `3.0.0`. The version comes from the files that carry it.
 on:
   push:
-    # rewrite-dockered is only here to rehearse the first release and goes again afterwards. Anything but master and
-    # main publishes nothing without a release line in its message.
-    branches: [master, main, rewrite-dockered]
+    branches: [master, main]
   workflow_dispatch:
     inputs:
       release:
