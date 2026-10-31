@@ -20,7 +20,7 @@ public sealed class DownloadService(
         return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root, LimitsResponse.Current);
     }
 
-    public AnalysisResponse Analyze(AnalyzeRequest request)
+    public static AnalysisResponse Analyze(AnalyzeRequest request)
     {
         return AnalysisResponse.From(LinkAnalyzer.Analyze(request.Links, request.Kind, request.Format));
     }

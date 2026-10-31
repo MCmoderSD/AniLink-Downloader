@@ -14,7 +14,7 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     [HttpPost("analyze")]
     public IActionResult Analyze([FromBody] AnalyzeRequest request)
     {
-        return Ok(downloads.Analyze(request));
+        return Ok(DownloadService.Analyze(request));
     }
 
     [HttpPost]
