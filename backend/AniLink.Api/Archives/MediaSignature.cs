@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AniLink.Api.Archives;
 
 internal static class MediaSignature

@@ -70,7 +70,7 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
 
     public long BytesDone => Parts.Sum(part => part.BytesDone);
 
-    public long BytesTotal => EstimateTotal(Parts.ToList());
+    public long BytesTotal => EstimateTotal([.. Parts]);
 
     // Sizes only become known as links are resolved, so parts without one are assumed to be as large as
     // the average of those that have one. The bar then fills evenly instead of jumping on every new link.

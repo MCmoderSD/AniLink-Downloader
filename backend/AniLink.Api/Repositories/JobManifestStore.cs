@@ -43,7 +43,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 
     public Task FlushAsync()
     {
-        return Task.WhenAll(_slots.Values.Where(slot => slot.ProgressScheduled).Select(slot => WriteAsync(slot)));
+        return Task.WhenAll(_slots.Values.Where(slot => slot.ProgressScheduled).Select(WriteAsync));
     }
 
     public void Delete(DownloadJob job)
@@ -77,10 +77,10 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
             AttributesToSkip = 0
         };
 
-        return new FileSystemEnumerable<string>(root, (ref FileSystemEntry entry) => entry.ToFullPath(), options)
+        return new FileSystemEnumerable<string>(root, (ref entry) => entry.ToFullPath(), options)
         {
-            ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory && entry.FileName.Equals(Workspace.ManifestName, StringComparison.Ordinal),
-            ShouldRecursePredicate = (ref FileSystemEntry entry) => !HoldsArchiveContent(ref entry)
+            ShouldIncludePredicate = (ref entry) => !entry.IsDirectory && entry.FileName.Equals(Workspace.ManifestName, StringComparison.Ordinal),
+            ShouldRecursePredicate = (ref entry) => !HoldsArchiveContent(ref entry)
         };
     }
 
@@ -158,7 +158,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         {
             lock (slot.Sync) slot.Queued = null;
 
-            if (!slot.Deleted && !slot.Job.IsRemoved) await PersistAsync(slot.Job);
+            if (slot is { Deleted: false, Job.IsRemoved: false }) await PersistAsync(slot.Job);
 
             turn.SetResult();
         }
