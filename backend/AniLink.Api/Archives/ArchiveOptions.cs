@@ -2,9 +2,9 @@ namespace AniLink.Api.Archives;
 
 public sealed class ArchiveOptions
 {
-    public IReadOnlyList<string> Passwords { get; init; } = [];
+    public IReadOnlyList<string> Passwords { get; private init; } = [];
 
-    public string SevenZipPath { get; init; } = "";
+    public string SevenZipPath { get; private init; } = "";
 
     public static ArchiveOptions From(IConfiguration configuration)
     {
