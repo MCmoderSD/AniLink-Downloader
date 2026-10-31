@@ -30,7 +30,7 @@ public sealed class DownloadPipeline(
 
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
     {
-        var items = (only ?? job.Items).Where(item => item is { IsTerminal: false, Stage: not ItemStage.Paused }).OrderBy(item => item.Number).ToList();
+        var items = (only ?? job.Items).Where(item => item.NeedsWork).OrderBy(item => item.Number).ToList();
         var source = _runs.GetOrAdd(job.Id, _ => new CancellationTokenSource());
 
         var tasks = items.Select(item => ProcessAsync(job, item, source.Token)).ToList();
@@ -44,6 +44,17 @@ public sealed class DownloadPipeline(
         if (items.Count == 0) return false;
 
         Notify(job, NoticeLevel.Info, $"Retrying {items.Count} {(items.Count == 1 ? "item" : "items")}");
+        Start(job, items);
+
+        return true;
+    }
+
+    public bool Unpack(DownloadJob job)
+    {
+        var items = job.Items.Where(item => item.RequestUnpack()).ToList();
+        if (items.Count == 0) return false;
+
+        Notify(job, NoticeLevel.Info, $"Unpacking {items.Count} {(items.Count == 1 ? "item" : "items")}");
         Start(job, items);
 
         return true;
@@ -137,6 +148,16 @@ public sealed class DownloadPipeline(
         return true;
     }
 
+    public bool UnpackItem(MediaItem item)
+    {
+        if (!item.RequestUnpack()) return false;
+
+        Notify(item.Job, NoticeLevel.Info, $"Unpacking {item.Label}");
+        Start(item.Job, [item]);
+
+        return true;
+    }
+
     public void RemoveItem(MediaItem item)
     {
         var job = item.Job;
@@ -174,7 +195,9 @@ public sealed class DownloadPipeline(
             if (pending.Count > 0) await AwaitLinksAsync(job, item, pending, resolutions);
 
             await DownloadAsync(job, item, run);
-            await UnpackAsync(job, item, run.Token);
+
+            if (item.UnpackWanted) await UnpackAsync(job, item, run.Token);
+            else if (item.MarkDownloaded()) Notify(job, NoticeLevel.Success, $"Downloaded: {item.Label}, ready to unpack");
         }
         catch (Exception exception)
         {
@@ -405,6 +428,11 @@ public sealed class DownloadPipeline(
             case JobStatus.Failed:
                 var failed = job.Items.Count(item => item.Stage is ItemStage.Failed);
                 Notify(job, NoticeLevel.Error, $"{job.Name}: {failed} of {job.Items.Count} failed, the rest is done");
+                break;
+
+            case JobStatus.Downloaded:
+                var ready = job.Items.Count(item => item.Stage is ItemStage.Downloaded);
+                Notify(job, NoticeLevel.Info, $"{job.Name}: {ready} of {job.Items.Count} {(job.Release.Kind is ReleaseKind.Movie ? "files" : "episodes")} downloaded, ready to unpack");
                 break;
         }
 

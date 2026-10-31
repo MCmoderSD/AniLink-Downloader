@@ -36,6 +36,8 @@ public sealed record CreateDownloadRequest
 
     [MaxLength(DownloadLimits.MaxPasswordLength)]
     public string? Password { get; init; }
+
+    public bool Unpack { get; init; } = true;
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
