@@ -2,7 +2,9 @@
   <div class="app-page-header">
     <div>
       <h1 class="app-page-title">New download</h1>
-      <p class="app-hint new-subtitle">Everything is saved to {{ config()?.downloadsRoot ?? 'the downloads folder' }}.</p>
+      @if (development) {
+        <p class="app-hint new-subtitle">Everything is saved to {{ config()?.downloadsRoot ?? 'the downloads folder' }}.</p>
+      }
     </div>
   </div>
 
