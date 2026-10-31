@@ -4,25 +4,8 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 @Component({
   selector: 'app-switch',
   imports: [MatSlideToggleModule],
-  template: `
-    <mat-slide-toggle
-      class="app-switch"
-      [class.app-switch-ready]="flipped()"
-      hideIcon
-      disableRipple
-      [checked]="checked()"
-      [disabled]="disabled()"
-      [aria-describedby]="describedBy()"
-      (change)="flip($event)"
-    >
-      <ng-content/>
-    </mat-slide-toggle>
-  `,
-  styles: `
-    :host {
-      display: inline-flex;
-    }
-  `
+  templateUrl: './switch.component.html',
+  styleUrls: ['./switch.component.scss']
 })
 export class SwitchComponent {
 
