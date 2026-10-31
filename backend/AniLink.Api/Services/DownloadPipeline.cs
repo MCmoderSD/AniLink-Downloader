@@ -498,7 +498,7 @@ public sealed class DownloadPipeline(
         switch (job.Status)
         {
             case JobStatus.Completed:
-                var kept = false;
+                bool kept;
 
                 try
                 {
