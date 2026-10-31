@@ -2,8 +2,6 @@ namespace AniLink.Api.Helpers;
 
 public static class DiskSpace
 {
-    // The bytes still free on the volume that holds the path, or null when that cannot be told. The volume is the
-    // mounted drive whose root is the longest start of the path, which is what a bind mount at /downloads is.
     public static long? Available(string path)
     {
         try
@@ -24,8 +22,6 @@ public static class DiskSpace
         }
     }
 
-    // A path is inside a root when it starts with it and the next character starts a new name, so /downloads2 is
-    // not inside /downloads.
     private static bool IsInside(string path, string root, StringComparison comparison)
     {
         if (!path.StartsWith(root, comparison)) return false;

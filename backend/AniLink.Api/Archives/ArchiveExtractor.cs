@@ -60,8 +60,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
         if (entry is null) return false;
         if (!entry.Encrypted) return true;
 
-        // The "--" ends the switches: the name of an entry comes from the archive, and one that starts with "-" or "@" would
-        // otherwise be read as a switch or as a list of file names.
         var head = await sevenZip.ReadHeadAsync(["e", "-so", "-y", "-bd", .. PasswordArguments(password), first, "--", entry.Path], SniffLength, cancellationToken);
 
         return head is not null && MediaSignature.Matches(entry.Path, head);
@@ -114,9 +112,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
         throw new ExtractionException($"Unpacking failed: {Summarize(result, first)}") { PasswordProblem = IsPasswordProblem(result.Combined) };
     }
 
-    // Says what 7-Zip has done while it unpacks, because its own percentage can stand still for a long time on a big
-    // archive. What it printed, how much has reached the disk and for how long: those three tell apart a tool that is
-    // busy, one that says nothing, and one whose output is not understood.
     private async Task BeatAsync(string label, string outputDirectory, ToolActivity activity, Stopwatch clock, CancellationToken cancellationToken)
     {
         try
@@ -137,7 +132,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
                 var seconds = (clock.Elapsed - since).TotalSeconds;
                 var used = activity.CpuTime;
 
-                // Close to 100% means 7-Zip computes as fast as one thread can; far below, it waits for the disk
                 var load = cpu is { } before && used is { } after && seconds > 0 ? $"{(after - before).TotalSeconds / seconds * 100:0}%" : "unknown";
 
                 logger.LogInformation(
@@ -162,8 +156,6 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
         }
     }
 
-    // The command as it goes into the log. It is put together from the parts that are safe to show, and the password is
-    // only said to be there: it is not part of what this method is given.
     private string Describe(IEnumerable<string> options, bool withPassword, string archive)
     {
         var parts = new List<string> { sevenZip.Executable };

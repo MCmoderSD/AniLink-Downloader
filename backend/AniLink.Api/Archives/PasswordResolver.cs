@@ -11,7 +11,6 @@ public enum PasswordOutcome
     Missing
 }
 
-// UnpackedBytes is what the archive holds once it is unpacked, as its listing says
 public sealed record PasswordResult(PasswordOutcome Outcome, string? Password, long UnpackedBytes = 0);
 
 public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<PasswordResolver> logger)

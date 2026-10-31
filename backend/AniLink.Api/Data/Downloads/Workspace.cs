@@ -5,13 +5,9 @@ namespace AniLink.Api.Data.Downloads;
 public sealed class Workspace(string root)
 {
     public const string ManifestName = ".anilink.json";
-
-    // The two folders that hold what comes out of downloaded archives. Nothing in them belongs to the app itself.
     public const string ArchivesFolder = "archives";
     public const string OutputFolder = "output";
 
-    // Every file below a folder, except links. A link to a folder would show its files a second time, and a link to
-    // nothing would still be listed as a file. Hidden files are included, as they are with a plain search.
     public static readonly EnumerationOptions FilesWithoutLinks = new()
     {
         RecurseSubdirectories = true,

@@ -26,9 +26,6 @@ public sealed class DownloadPipeline(
     private const int MaxAttempts = 3;
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runs = new();
-
-    // Stops one item without touching the others of its job. It is never disposed: without a timer it holds nothing
-    // that needs releasing, and a late Cancel on a disposed source would throw.
     private readonly ConcurrentDictionary<MediaItem, CancellationTokenSource> _itemRuns = new();
 
     public void Start(DownloadJob job, IEnumerable<MediaItem>? only = null)
@@ -152,8 +149,6 @@ public sealed class DownloadPipeline(
         job.RemoveItem(item);
         job.Log(NoticeLevel.Info, $"{item.Label}: removed from the list");
 
-        // A running item hands over to the batch it belongs to, which finishes the job once it has unwound. One that was
-        // idle leaves nothing to do that, so the job is finished here when this was the last thing it waited for.
         if (!running && job.Status is JobStatus.Completed) _ = FinalizeAsync(job);
         else _ = jobs.SaveAsync(job);
     }
@@ -313,8 +308,6 @@ public sealed class DownloadPipeline(
                 var output = workspace.OutputDirectory(item);
                 if (Directory.Exists(output)) Directory.Delete(output, true);
 
-                // What the archive holds once unpacked has to fit on the disk. The listing knows that before a byte is
-                // written, so an archive that is far bigger than it looks is turned down here instead of filling the disk.
                 if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
                 {
                     throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
@@ -441,7 +434,6 @@ public sealed class DownloadPipeline(
 
         public Exception? Failure => _failure;
 
-        // Stopped from outside, by the user or by the job, as opposed to ended by an error of its own.
         public bool Interrupted => job.IsCancellationRequested || own.IsCancellationRequested;
 
         public void Abort(Exception exception)

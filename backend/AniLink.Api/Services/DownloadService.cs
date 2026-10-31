@@ -140,7 +140,6 @@ public sealed class DownloadService(
         return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.RetryItem(item) : null;
     }
 
-    // Removing the only item left removes the whole job, because a job without items has nothing to show.
     public bool RemoveItem(Guid id, int number)
     {
         if (jobs.Get(id)?.FindItem(number) is not { } item) return false;

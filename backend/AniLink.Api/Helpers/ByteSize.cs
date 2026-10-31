@@ -6,7 +6,6 @@ public static class ByteSize
 {
     private static readonly string[] Units = ["B", "KB", "MB", "GB", "TB"];
 
-    // Written like the web page writes sizes, so a number in the log and one on the page can be compared
     public static string Format(long bytes)
     {
         if (bytes <= 0) return "0 B";

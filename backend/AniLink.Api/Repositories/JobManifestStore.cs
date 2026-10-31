@@ -60,11 +60,6 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         }
     }
 
-    // The manifests of the downloads below root. Two things matter in how they are searched for:
-    // - The file name starts with a dot, and on Linux that makes it a hidden file. The default of a search is to skip
-    //   hidden files, so nothing would be found after a restart unless that is switched off.
-    // - archives/ and output/ are never entered. What lies there comes out of downloaded archives and is not the app's
-    //   own, so a file with this name in one of them must not be taken for a manifest.
     public static IEnumerable<string> Find(string root)
     {
         if (!Directory.Exists(root)) return [];
@@ -84,8 +79,6 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         };
     }
 
-    // archives/ and output/ hold what comes out of downloaded archives only inside the folder of a download. A download
-    // can itself be named "output", and the manifest in its folder, straight below the root, still has to be found.
     private static bool HoldsArchiveContent(ref FileSystemEntry entry)
     {
         var name = entry.FileName;
