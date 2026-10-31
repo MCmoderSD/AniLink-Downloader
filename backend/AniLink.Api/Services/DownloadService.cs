@@ -120,6 +120,16 @@ public sealed class DownloadService(
         return jobs.Get(id) is { } job ? pipeline.Retry(job) : null;
     }
 
+    public bool? SetUnpack(Guid id, bool wanted)
+    {
+        return jobs.Get(id) is { } job ? pipeline.SetUnpack(job, wanted) : null;
+    }
+
+    public bool? SetItemUnpack(Guid id, int number, bool wanted)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.SetItemUnpack(item, wanted) : null;
+    }
+
     public bool? Unpack(Guid id)
     {
         return jobs.Get(id) is { } job ? pipeline.Unpack(job) : null;

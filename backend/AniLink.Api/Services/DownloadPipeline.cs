@@ -60,6 +60,17 @@ public sealed class DownloadPipeline(
         return true;
     }
 
+    public bool SetUnpack(DownloadJob job, bool wanted)
+    {
+        var items = job.Items.Where(item => item.SetUnpack(wanted)).ToList();
+        if (items.Count == 0) return false;
+
+        job.Log(NoticeLevel.Info, $"{job.Name}: unpacking after the download is {(wanted ? "on" : "off")} for {items.Count} {(items.Count == 1 ? "item" : "items")}");
+        _ = jobs.SaveAsync(job);
+
+        return true;
+    }
+
     public bool SubmitPassword(DownloadJob job, string password)
     {
         var waiting = job.Items.Where(item => item.Stage is ItemStage.PasswordRequired).ToList();
@@ -144,6 +155,16 @@ public sealed class DownloadPipeline(
 
         Notify(item.Job, NoticeLevel.Info, $"Retrying {item.Label}");
         Start(item.Job, [item]);
+
+        return true;
+    }
+
+    public bool SetItemUnpack(MediaItem item, bool wanted)
+    {
+        if (!item.SetUnpack(wanted)) return false;
+
+        item.Job.Log(NoticeLevel.Info, $"{item.Label}: unpacking after the download is {(wanted ? "on" : "off")}");
+        _ = jobs.SaveAsync(item.Job);
 
         return true;
     }

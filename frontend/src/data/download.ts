@@ -47,6 +47,8 @@ export interface Item {
   extractPercent: number;
   files: string[];
   parts: Part[];
+  unpack: boolean;
+  canChangeUnpack: boolean;
 }
 
 export interface Notice {

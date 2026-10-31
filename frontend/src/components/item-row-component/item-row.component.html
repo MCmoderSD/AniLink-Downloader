@@ -2,6 +2,10 @@
   <h3 class="item-title">{{ item().label }}</h3>
   <span class="app-chip" [attr.data-tone]="stageTone()">{{ stageLabel() }}</span>
 
+  @if (manageable() && canSetUnpack()) {
+    <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
+  }
+
   <button
     type="button"
     class="item-toggle"

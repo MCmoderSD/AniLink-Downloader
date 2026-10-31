@@ -13,6 +13,7 @@ import { ConfirmActionDialogComponent } from '../confirm-action-dialog-component
 import { ItemRowComponent } from '../item-row-component/item-row.component';
 import { PasswordPromptDialogComponent } from '../password-prompt-dialog-component/password-prompt-dialog.component';
 import { ProgressBarComponent } from '../progress-bar-component/progress-bar.component';
+import { SwitchComponent } from '../switch-component/switch.component';
 
 let nextCardId: number = 0;
 
@@ -20,7 +21,7 @@ let nextCardId: number = 0;
   selector: 'app-job-card',
   templateUrl: './job-card.component.html',
   styleUrls: ['./job-card.component.scss'],
-  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, ItemRowComponent, ActivityLogComponent]
+  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, ItemRowComponent, ActivityLogComponent, SwitchComponent]
 })
 export class JobCardComponent {
 
@@ -31,6 +32,7 @@ export class JobCardComponent {
 
   private readonly detailsShown: WritableSignal<boolean> = signal(false);
   private readonly working: WritableSignal<boolean> = signal(false);
+  private readonly unpackChoice: WritableSignal<boolean | null> = signal<boolean | null>(null);
 
   readonly job: InputSignal<Job> = input.required<Job>();
 
@@ -62,6 +64,14 @@ export class JobCardComponent {
     this.job().items.filter((item: Item): boolean => item.stage === 'Downloaded').length);
 
   protected readonly canUnpack: Signal<boolean> = computed((): boolean => this.ready() > 0);
+
+  private readonly changeable: Signal<Item[]> = computed((): Item[] =>
+    this.job().items.filter((item: Item): boolean => item.canChangeUnpack));
+
+  protected readonly canSetUnpack: Signal<boolean> = computed((): boolean => this.changeable().length > 0);
+
+  protected readonly unpackOn: Signal<boolean> = computed((): boolean =>
+    this.unpackChoice() ?? this.changeable().every((item: Item): boolean => item.unpack));
 
   protected readonly unpackLabel: Signal<string> = computed((): string => this.ready() > 1 ? 'Unpack all' : 'Unpack');
 
@@ -128,6 +138,14 @@ export class JobCardComponent {
 
   protected async unpack(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.unpack(this.job().id), 'Nothing could be unpacked.');
+  }
+
+  protected async setUnpack(on: boolean): Promise<void> {
+    this.unpackChoice.set(on);
+
+    await this.act((): Promise<Job> => this.downloads.setUnpack(this.job().id, on), 'The setting could not be changed.');
+
+    this.unpackChoice.set(null);
   }
 
   protected async enterPassword(): Promise<void> {

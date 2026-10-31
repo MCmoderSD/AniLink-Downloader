@@ -98,6 +98,17 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         };
     }
 
+    [HttpPut("{id:guid}/auto-unpack")]
+    public IActionResult SetUnpack(Guid id, [FromBody] UnpackSettingRequest request)
+    {
+        return downloads.SetUnpack(id, request.Unpack!.Value) switch
+        {
+            null => NotFound(),
+            false => Conflict("Whether this download is unpacked can only be changed until its download is complete."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
     [HttpPost("{id:guid}/unpack")]
     public IActionResult Unpack(Guid id)
     {
@@ -149,6 +160,17 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         {
             null => NotFound(),
             false => Conflict("This item neither failed nor was canceled."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPut("{id:guid}/items/{number:int}/auto-unpack")]
+    public IActionResult SetItemUnpack(Guid id, int number, [FromBody] UnpackSettingRequest request)
+    {
+        return downloads.SetItemUnpack(id, number, request.Unpack!.Value) switch
+        {
+            null => NotFound(),
+            false => Conflict("Whether this item is unpacked can only be changed until its download is complete."),
             true => Ok(downloads.Get(id))
         };
     }

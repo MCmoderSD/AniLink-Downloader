@@ -55,7 +55,9 @@ public sealed record ItemResponse(
     ProgressResponse Download,
     double ExtractPercent,
     IReadOnlyList<string> Files,
-    IReadOnlyList<PartResponse> Parts
+    IReadOnlyList<PartResponse> Parts,
+    bool Unpack,
+    bool CanChangeUnpack
 ) {
     public static ItemResponse From(MediaItem item)
     {
@@ -68,7 +70,9 @@ public sealed record ItemResponse(
             ProgressResponse.Of(item.BytesDone, DownloadJob.EstimateTotal(item.Parts)),
             item.ExtractPercent,
             item.Files,
-            [.. item.Parts.Select(PartResponse.From)]);
+            [.. item.Parts.Select(PartResponse.From)],
+            item.UnpackWanted,
+            item.CanChangeUnpack);
     }
 }
 

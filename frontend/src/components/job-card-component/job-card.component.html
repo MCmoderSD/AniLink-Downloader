@@ -79,6 +79,10 @@
       Remove
     </button>
 
+    @if (canSetUnpack()) {
+      <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
+    }
+
     <button
       mat-button
       type="button"

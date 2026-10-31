@@ -41,6 +41,13 @@ public sealed record CreateDownloadRequest
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public sealed record UnpackSettingRequest
+{
+    [Required]
+    public bool? Unpack { get; init; }
+}
+
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record PasswordRequest
 {
     [Required(AllowEmptyStrings = false)]

@@ -70,6 +70,8 @@ public sealed class MediaItem
 
     public bool NeedsWork => !IsTerminal && Stage is not (ItemStage.Paused or ItemStage.Downloaded);
 
+    public bool CanChangeUnpack => Stage is ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Paused or ItemStage.Failed or ItemStage.Cancelled;
+
     public int LinksResolved => _parts.Count(part => part.HasLink);
 
     public bool AllLinksResolved => _parts.All(part => part.HasLink);
@@ -89,6 +91,19 @@ public sealed class MediaItem
     public bool MarkDownloaded()
     {
         return Move(ItemStage.Downloaded);
+    }
+
+    public bool SetUnpack(bool wanted)
+    {
+        lock (Gate)
+        {
+            if (!CanChangeUnpack) return false;
+
+            UnpackWanted = wanted;
+            Job.Touch();
+
+            return true;
+        }
     }
 
     public bool RequestUnpack()

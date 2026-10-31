@@ -41,6 +41,10 @@ export class DownloadService extends ApiService {
     return this.post<Job>(`${id}/unpack`);
   }
 
+  setUnpack(id: string, unpack: boolean): Promise<Job> {
+    return this.put<Job>(`${id}/auto-unpack`, { unpack });
+  }
+
   submitPassword(id: string, password: string): Promise<Job> {
     return this.post<Job>(`${id}/password`, { password });
   }
@@ -67,6 +71,10 @@ export class DownloadService extends ApiService {
 
   unpackItem(id: string, number: number): Promise<Job> {
     return this.post<Job>(`${id}/items/${number}/unpack`);
+  }
+
+  setItemUnpack(id: string, number: number, unpack: boolean): Promise<Job> {
+    return this.put<Job>(`${id}/items/${number}/auto-unpack`, { unpack });
   }
 
   removeItem(id: string, number: number): Promise<Job | null> {
