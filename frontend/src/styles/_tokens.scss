@@ -46,9 +46,14 @@
   // Two durations: -fast for what tracks the pointer, -base for what the eye follows across the screen.
   --app-motion-fast: 120ms;
   --app-motion-base: 220ms;
+  // For a shape that glides to its place and is watched all the way, like the pill of the type switch.
+  --app-motion-glide: 400ms;
   --app-ease: cubic-bezier(0.2, 0, 0, 1);
+  // A little past the target and back, for what slides into place and should settle instead of stopping dead.
+  --app-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
   --app-timing-fast: var(--app-motion-fast) var(--app-ease);
   --app-timing-base: var(--app-motion-base) var(--app-ease);
+  --app-timing-glide: var(--app-motion-glide) var(--app-spring);
 
   // --- Type ----------------------------------------------------------------------------------
   --app-font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
@@ -67,5 +72,6 @@
   @media (prefers-reduced-motion: reduce) {
     --app-motion-fast: 1ms;
     --app-motion-base: 1ms;
+    --app-motion-glide: 1ms;
   }
 }

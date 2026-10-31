@@ -136,12 +136,17 @@
     <section class="new-section app-panel" aria-labelledby="new-unpacking">
       <div class="new-section-head">
         <h2 class="new-section-title" id="new-unpacking">Unpacking</h2>
-        <mat-slide-toggle [checked]="unpack()" aria-describedby="new-unpack-hint" (change)="setUnpack($event.checked)">
-          Unpack when downloaded
-        </mat-slide-toggle>
+        <app-switch [checked]="unpack()" describedBy="new-unpack-hints" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
       </div>
 
-      <p class="app-hint new-unpack-hint" id="new-unpack-hint">{{ unpackHint() }}</p>
+      <div class="new-unpack-hints" id="new-unpack-hints">
+        <p class="app-hint new-unpack-hint" [class.new-unpack-hint-shown]="unpack()" [attr.aria-hidden]="!unpack()">
+          The archives are unpacked and sorted as soon as they are downloaded.
+        </p>
+        <p class="app-hint new-unpack-hint" [class.new-unpack-hint-shown]="!unpack()" [attr.aria-hidden]="unpack()">
+          The download is done once the archives are on disk. Unpack them later with the Unpack button.
+        </p>
+      </div>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Password</mat-label>

@@ -18,8 +18,26 @@
   font: var(--mat-sys-title-medium);
 }
 
-.new-unpack-hint {
+// Both explanations sit in the same cell of the grid, so the section keeps the height of the longer one and nothing
+// below it moves when the switch is flipped; the one that applies fades in from a little below while the other fades
+// out.
+.new-unpack-hints {
+  display: grid;
   margin-block: -0.75rem 0;
+}
+
+.new-unpack-hint {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(0.25rem);
+  transition:
+    opacity var(--app-timing-base),
+    transform var(--app-timing-base);
+}
+
+.new-unpack-hint-shown {
+  opacity: 1;
+  transform: none;
 }
 
 .new-row {

@@ -3,7 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { NumberStepperComponent } from '../../components/number-stepper-component/number-stepper.component';
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
@@ -13,6 +12,7 @@ import {
   SegmentedOption,
   SegmentedSwitchComponent
 } from '../../components/segmented-switch-component/segmented-switch.component';
+import { SwitchComponent } from '../../components/switch-component/switch.component';
 import {
   Analysis,
   AnalyzedEpisode,
@@ -41,7 +41,7 @@ const KINDS: SegmentedOption[] = [
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrls: ['./new-download-page.component.scss'],
-  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent]
+  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent, SwitchComponent]
 })
 export class NewDownloadPageComponent {
 
@@ -169,10 +169,6 @@ export class NewDownloadPageComponent {
       ? 'Optional. Leave it empty when the archives are not protected.'
       : `Optional. The ${count} default ${count === 1 ? 'password' : 'passwords'} from docker-compose ${count === 1 ? 'is' : 'are'} tried automatically; you are only asked if none of them opens an archive.`;
   });
-
-  protected readonly unpackHint: Signal<string> = computed((): string => this.unpackValue()
-    ? 'The archives are unpacked and sorted as soon as they are downloaded.'
-    : 'The download is done once the archives are on disk. Unpack them later with the Unpack button.');
 
   constructor() {
     void inject(ConfigService).load();
