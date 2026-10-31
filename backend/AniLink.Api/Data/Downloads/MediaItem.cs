@@ -90,7 +90,10 @@ public sealed class MediaItem
 
     public bool MarkDownloaded()
     {
-        return Move(ItemStage.Downloaded);
+        lock (Gate)
+        {
+            return !UnpackWanted && Move(ItemStage.Downloaded);
+        }
     }
 
     public bool SetUnpack(bool wanted)
@@ -127,6 +130,16 @@ public sealed class MediaItem
         lock (Gate)
         {
             if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
+
+            if (!UnpackWanted)
+            {
+                Stage = ItemStage.Downloaded;
+                ExtractPercent = 0;
+                Error = null;
+                Job.Touch();
+
+                return false;
+            }
 
             Stage = ItemStage.Extracting;
             ExtractPercent = 0;

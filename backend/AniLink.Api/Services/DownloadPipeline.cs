@@ -238,8 +238,8 @@ public sealed class DownloadPipeline(
 
             await DownloadAsync(job, item, run);
 
-            if (item.UnpackWanted) await UnpackAsync(job, item, run.Token);
-            else if (item.MarkDownloaded()) Notify(job, NoticeLevel.Success, $"Downloaded: {item.Label}, ready to unpack");
+            if (item.MarkDownloaded()) Notify(job, NoticeLevel.Success, $"Downloaded: {item.Label}, ready to unpack");
+            else if (item.UnpackWanted) await UnpackAsync(job, item, run.Token);
         }
         catch (Exception exception)
         {
