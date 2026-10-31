@@ -66,7 +66,7 @@ public sealed class MediaItem
 
     public bool IsActive => Stage is ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting or ItemStage.Organizing;
 
-    public bool IsTerminal => Stage is ItemStage.Completed or ItemStage.Failed or ItemStage.Cancelled;
+    private bool IsTerminal => Stage is ItemStage.Completed or ItemStage.Failed or ItemStage.Cancelled;
 
     public bool NeedsWork => !IsTerminal && Stage is not (ItemStage.Paused or ItemStage.Downloaded);
 
