@@ -349,68 +349,77 @@ public sealed class DownloadPipeline(
 
         await scheduler.RunExtractionAsync(async token =>
         {
-            if (!item.BeginExtracting()) return;
-
-            var unpacking = Stopwatch.StartNew();
-
-            logger.LogInformation(
-                "Unpacking {Label} starts: {Volumes} volumes, {Size}, waited {Waited} for a slot, {Running} of {Limit} slots in use",
-                label,
-                volumes.Count,
-                ByteSize.Format(item.Parts.Sum(part => part.BytesTotal)),
-                DurationText.Format(queued.Elapsed),
-                scheduler.ExtractionsRunning,
-                DownloadScheduler.ExtractionLimit);
+            await item.OutputLock.WaitAsync(token);
 
             try
             {
-                var password = await passwords.ResolveAsync(volumes, job, label, token);
+                if (!item.BeginExtracting()) return;
 
-                if (password.Outcome is PasswordOutcome.Missing)
+                var unpacking = Stopwatch.StartNew();
+
+                logger.LogInformation(
+                    "Unpacking {Label} starts: {Volumes} volumes, {Size}, waited {Waited} for a slot, {Running} of {Limit} slots in use",
+                    label,
+                    volumes.Count,
+                    ByteSize.Format(item.Parts.Sum(part => part.BytesTotal)),
+                    DurationText.Format(queued.Elapsed),
+                    scheduler.ExtractionsRunning,
+                    DownloadScheduler.ExtractionLimit);
+
+                try
                 {
-                    if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+                    var password = await passwords.ResolveAsync(volumes, job, label, token);
 
-                    return;
+                    if (password.Outcome is PasswordOutcome.Missing)
+                    {
+                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+
+                        return;
+                    }
+
+                    var output = workspace.OutputDirectory(item);
+                    if (Directory.Exists(output)) Directory.Delete(output, true);
+
+                    if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
+                    {
+                        throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
+                    }
+
+                    await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
+
+                    if (!item.BeginOrganizing())
+                    {
+                        if (!item.IsActive) await DiscardOutputAsync(workspace, item);
+
+                        return;
+                    }
+
+                    var files = organizer.Organize(workspace, item);
+
+                    item.Complete(files);
+                    RemoveFinished(workspace, item);
+
+                    logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
+                    Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
                 }
-
-                var output = workspace.OutputDirectory(item);
-                if (Directory.Exists(output)) Directory.Delete(output, true);
-
-                if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
+                catch (OperationCanceledException)
                 {
-                    throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
-                }
+                    logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
 
-                await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
-
-                if (!item.BeginOrganizing())
-                {
                     if (!item.IsActive) await DiscardOutputAsync(workspace, item);
 
-                    return;
+                    throw;
                 }
+                catch (ExtractionException)
+                {
+                    await DiscardOutputAsync(workspace, item);
 
-                var files = organizer.Organize(workspace, item);
-
-                item.Complete(files);
-                RemoveFinished(workspace, item);
-
-                logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
-                Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
+                    throw;
+                }
             }
-            catch (OperationCanceledException)
+            finally
             {
-                logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
-
-                if (!item.IsActive) await DiscardOutputAsync(workspace, item);
-
-                throw;
-            }
-            catch (ExtractionException)
-            {
-                await DiscardOutputAsync(workspace, item);
-
-                throw;
+                item.OutputLock.Release();
             }
         }, cancellationToken);
     }

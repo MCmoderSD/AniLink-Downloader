@@ -30,6 +30,8 @@ public sealed class MediaItem
 
     public IReadOnlyList<ArchivePart> Parts => _parts;
 
+    public SemaphoreSlim OutputLock { get; } = new(1, 1);
+
     public string Label => Job.Release.Kind is ReleaseKind.Movie ? Job.Name : $"Episode {Number}";
 
     public string LogLabel => Job.Release.Kind is ReleaseKind.Movie ? LogSafe.OneLine(Job.Name) : $"Episode {Number} of {LogSafe.OneLine(Job.Name)}";
