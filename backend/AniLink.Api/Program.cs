@@ -23,6 +23,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.Logger.LogInformation("AniLink-Downloader {Version} starts.", AppVersion.Current);
+
 if (downloads.RequestedConcurrency > downloads.MaxConcurrency)
 {
     app.Logger.LogWarning(

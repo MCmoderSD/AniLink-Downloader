@@ -1,13 +1,24 @@
 name: Docker Build & Push
 
+# A push to master publishes the image as `edge`. A push whose commit title (or merged pull request title) starts with
+# `Release 3.0.0` publishes it as a release: `3.0.0`, `3.0`, `3` and `latest` (a pre-release such as `3.0.0-rc.1` only
+# gets its own tag), and sets the git tag `3.0.0`. The version comes from the files that carry it.
 on:
   push:
-    branches: [master, main]
+    # rewrite-dockered is only here to rehearse the first release and goes again afterwards. Anything but master and
+    # main publishes nothing without a release line in its message.
+    branches: [master, main, rewrite-dockered]
   workflow_dispatch:
+    inputs:
+      release:
+        description: Publish the version in the project files as a release, not just as edge
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A release must not be cancelled by a push that comes right after it, such as a Dependabot merge
+  cancel-in-progress: ${{ !contains(github.event.head_commit.message, 'Release ') && !inputs.release }}
 
 permissions:
   contents: read
@@ -17,9 +28,140 @@ env:
   IMAGE_NAME: anilink-downloader
 
 jobs:
+  version:
+    name: Resolve version and tags
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      release: ${{ steps.plan.outputs.release }}
+      version: ${{ steps.plan.outputs.version }}
+      tags: ${{ steps.plan.outputs.tags }}
+
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - id: plan
+        name: Resolve the version, the release and the tags
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+          INPUT_RELEASE: ${{ inputs.release }}
+        run: |
+          set -euo pipefail
+
+          # The version has to be the same in every file that carries it, or the run stops before anything is built
+          version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' backend/AniLink.Api/AniLink.Api.csproj | head -n 1)"
+          if [ -z "$version" ]; then
+            echo "::error::backend/AniLink.Api/AniLink.Api.csproj has no <Version>."
+            exit 1
+          fi
+
+          mismatch=false
+          check() {
+            if [ "$2" != "$version" ]; then
+              echo "::error::$1 says '$2', but AniLink.Api.csproj says '$version'. They must be the same."
+              mismatch=true
+            fi
+          }
+          check "frontend/package.json" "$(jq -r '.version' frontend/package.json)"
+          check "frontend/package-lock.json" "$(jq -r '.version' frontend/package-lock.json)"
+          check "frontend/package-lock.json (packages)" "$(jq -r '.packages[""].version' frontend/package-lock.json)"
+          if [ "$mismatch" = true ]; then exit 1; fi
+
+          semver='^([0-9]+)\.([0-9]+)\.([0-9]+)(-[0-9A-Za-z.-]+)?$'
+          if ! [[ "$version" =~ $semver ]]; then
+            echo "::error::'$version' is not a version like 3.0.0 or 3.0.0-rc.1."
+            exit 1
+          fi
+          major="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}"
+          prerelease="${BASH_REMATCH[4]}"
+
+          # A release is asked for by a title that starts with "Release 3.0.0": the first line of the commit, or the
+          # title of the pull request that was merged (the first line after "Merge pull request ..."). Anything further
+          # down in the message is not looked at, so a changelog quoted there cannot start a release. The number has to
+          # be the version in the files.
+          release=false
+          if [ "$EVENT" = workflow_dispatch ]; then
+            if [ "$INPUT_RELEASE" = true ]; then release=true; fi
+          else
+            title="$(printf '%s\n' "$MESSAGE" | head -n 1)"
+            case "$title" in
+              "Merge pull request "*) title="$(printf '%s\n' "$MESSAGE" | tail -n +2 | grep -m1 -v '^[[:space:]]*$' || true)" ;;
+            esac
+            marker="$(printf '%s\n' "$title" | grep -Eom1 '^Release [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?' | cut -d' ' -f2 || true)"
+            if [ -n "$marker" ]; then
+              if [ "$marker" != "$version" ]; then
+                echo "::error::The message says Release $marker, but the files say $version."
+                exit 1
+              fi
+              release=true
+            fi
+          fi
+
+          # A version is released once: its git tag must not exist yet
+          if [ "$release" = true ]; then
+            set +e
+            git ls-remote --exit-code --tags origin "refs/tags/${version}" > /dev/null
+            status=$?
+            set -e
+            case "$status" in
+              0)
+                echo "::error::The tag ${version} exists already, so this version has been released. Raise the version first."
+                exit 1
+                ;;
+              2) ;;
+              *)
+                echo "::error::The tags of the repository could not be looked up (git exit code ${status})."
+                exit 1
+                ;;
+            esac
+          fi
+
+          on_default=false
+          if [ "$REF_NAME" = master ] || [ "$REF_NAME" = main ]; then on_default=true; fi
+
+          publish=false
+          tags=()
+          if [ "$release" = true ]; then
+            publish=true
+            tags+=("$version")
+            if [ -z "$prerelease" ]; then tags+=("${major}.${minor}" "$major" latest); fi
+          fi
+          if [ "$on_default" = true ]; then
+            publish=true
+            tags+=(edge)
+          fi
+
+          {
+            echo "publish=${publish}"
+            echo "release=${release}"
+            echo "version=${version}"
+            echo "tags<<TAGS_END"
+            for tag in "${tags[@]}"; do echo "type=raw,value=${tag}"; done
+            echo "TAGS_END"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Version ${version}"
+            echo
+            if [ "$publish" = true ]; then
+              echo "Publishes: ${tags[*]}"
+            else
+              echo "Nothing is published: this push is neither on master or main nor a release."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build:
     name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
+    needs: version
+    if: needs.version.outputs.publish == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -80,6 +222,8 @@ jobs:
           images: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
             ${{ steps.prepare.outputs.ghcr-image }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
 
       - id: build
         name: Build and push by digest
@@ -113,7 +257,7 @@ jobs:
   merge:
     name: Create manifest list
     runs-on: ubuntu-latest
-    needs: build
+    needs: [version, build]
 
     steps:
       - id: download-digests
@@ -154,8 +298,8 @@ jobs:
           images: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
             ${{ steps.prepare.outputs.ghcr-image }}
-          tags: |
-            type=raw,value=latest
+          flavor: latest=false
+          tags: ${{ needs.version.outputs.tags }}
 
       - id: create-manifest
         name: Create manifest list and push
@@ -173,3 +317,19 @@ jobs:
           SOURCE_IMAGE: ${{ steps.prepare.outputs.ghcr-image }}
           VERSION: ${{ steps.meta.outputs.version }}
         run: docker buildx imagetools inspect "${SOURCE_IMAGE}:${VERSION}"
+
+  tag:
+    name: Set the git tag
+    runs-on: ubuntu-latest
+    needs: [version, merge]
+    if: needs.version.outputs.release == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - id: create-tag
+        name: Create the tag on the built commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/tags/${VERSION}" -f sha="${GITHUB_SHA}"

@@ -72,9 +72,19 @@ There are two ways to get the image: run the one that is published (A), or build
 Configuration and usage are the same for both.
 
 ### A. Run the published image
-GitHub Actions builds the image for `amd64`, `arm64` and `arm/v7` on every push to the `master` branch and
-publishes it as `mcmodersd/anilink-downloader:latest` on Docker Hub and as
-`ghcr.io/mcmodersd/anilink-downloader:latest` on GitHub.
+GitHub Actions builds the image for `amd64`, `arm64` and `arm/v7` and publishes it as `mcmodersd/anilink-downloader`
+on Docker Hub and as `ghcr.io/mcmodersd/anilink-downloader` on GitHub. These tags exist:
+
+| Tag      | Meaning                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
+| `latest` | The newest release.                                                            |
+| `3`      | The newest 3.x release: updates that stay within version 3.                    |
+| `3.0`    | The newest 3.0.x release: bug fixes only.                                      |
+| `3.0.0`  | Exactly this release. It never changes.                                        |
+| `edge`   | The newest state of the `master` branch. It is not a release and may be rough. |
+
+The compose file uses `latest`. To stay on a version, change the `image:` line, for example to
+`mcmodersd/anilink-downloader:3`.
 
 #### 1. Get the compose file and create the downloads folder
 ```bash
@@ -435,6 +445,17 @@ What is where:
 | `Dockerfile`           | Builds both and bundles 7-Zip into one image.                        |
 | `docker-compose.yaml`  | How the container is started.                                        |
 | `.env.example`         | The template for `.env`.                                             |
+
+### Releasing
+The version lives in three files that have to agree: `<Version>` in `backend/AniLink.Api/AniLink.Api.csproj`, and
+`version` in `frontend/package.json` and `frontend/package-lock.json`. `npm version 3.0.1 --no-git-tag-version` in
+`frontend/` sets the last two. The workflow reads all three and stops if they differ.
+
+To release, raise the version in all three and start the title of the commit, or of the pull request, with `Release`
+and the version: `Release 3.0.1 - what changed`. When it reaches `master`, GitHub Actions publishes `3.0.1`, `3.0`, `3`
+and `latest`, and sets the git tag `3.0.1`. The number in the title has to be the version in the files, and a version
+can be released only once. Every other push to `master` publishes `edge` and nothing else. A pre-release such as
+`3.0.1-rc.1` gets only its own tag.
 
 <br>
 
