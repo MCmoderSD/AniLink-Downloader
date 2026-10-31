@@ -12,7 +12,7 @@ export class DownloadSyncService {
   private readonly notifications: NotificationService = inject(NotificationService);
 
   private readonly store: WritableSignal<ReadonlyMap<string, Job>> = signal<ReadonlyMap<string, Job>>(new Map<string, Job>());
-  private readonly open: WritableSignal<boolean> = signal(false);
+  private readonly lost: WritableSignal<boolean> = signal(false);
   private readonly ready: WritableSignal<boolean> = signal(false);
 
   private listener: StreamListener | null = null;
@@ -20,7 +20,8 @@ export class DownloadSyncService {
   readonly jobs: Signal<Job[]> = computed((): Job[] =>
     [...this.store().values()].sort((a: Job, b: Job): number => b.createdAt.localeCompare(a.createdAt)));
 
-  readonly connected: Signal<boolean> = this.open.asReadonly();
+  // True from the first failure until the server has answered again, never while the first connection is still being made
+  readonly unreachable: Signal<boolean> = this.lost.asReadonly();
   readonly loaded: Signal<boolean> = this.ready.asReadonly();
 
   connect(): void {
@@ -30,7 +31,7 @@ export class DownloadSyncService {
       'downloads/stream',
       (message: StreamMessage): void => this.receive(message),
       (): void => void this.reload(),
-      (): void => this.open.set(false)
+      (): void => this.lost.set(true)
     );
   }
 
@@ -43,9 +44,9 @@ export class DownloadSyncService {
       const list: Job[] = await this.downloads.list();
 
       this.store.set(new Map(list.map((job: Job): [string, Job] => [job.id, job])));
-      this.open.set(true);
+      this.lost.set(false);
     } catch {
-      this.open.set(false);
+      this.lost.set(true);
     } finally {
       this.ready.set(true);
     }

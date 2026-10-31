@@ -18,7 +18,7 @@ export class DownloadsPageComponent {
 
   protected readonly jobs: Signal<Job[]> = this.sync.jobs;
   protected readonly loaded: Signal<boolean> = this.sync.loaded;
-  protected readonly connected: Signal<boolean> = this.sync.connected;
+  protected readonly unreachable: Signal<boolean> = this.sync.unreachable;
 
   protected readonly running: Signal<number> = computed((): number =>
     this.jobs().filter((job: Job): boolean => job.status === 'Active').length);
@@ -27,6 +27,9 @@ export class DownloadsPageComponent {
     this.jobs().filter((job: Job): boolean => job.status === 'Paused').length);
 
   protected readonly subtitle: Signal<string> = computed((): string => {
+    // Nothing is known before the first answer, and "Nothing queued" would be a claim about a server that has not spoken
+    if (!this.loaded()) return '';
+
     const total: number = this.jobs().length;
     if (total === 0) return 'Nothing queued.';
 

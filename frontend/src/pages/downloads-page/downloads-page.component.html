@@ -11,15 +11,10 @@
     </a>
   </div>
 
-  @if (loaded() && !connected()) {
-    <p class="downloads-banner" role="status">
-      <mat-icon aria-hidden="true">sync_problem</mat-icon>
-      The connection to the server was lost. The list updates again as soon as it is back.
-    </p>
-  }
-
   @if (!loaded()) {
-    <p class="app-hint" role="status">Loading downloads…</p>
+    @if (!unreachable()) {
+      <p class="app-hint" role="status">Loading downloads…</p>
+    }
   } @else if (jobs().length === 0) {
     <section class="downloads-empty app-panel" aria-labelledby="downloads-empty-title">
       <mat-icon class="downloads-empty-icon" aria-hidden="true">cloud_download</mat-icon>

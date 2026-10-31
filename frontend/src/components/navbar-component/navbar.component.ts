@@ -15,6 +15,5 @@ export class NavbarComponent {
 
   private readonly sync: DownloadSyncService = inject(DownloadSyncService);
 
-  protected readonly connected: Signal<boolean> = this.sync.connected;
-  protected readonly loaded: Signal<boolean> = this.sync.loaded;
+  protected readonly unreachable: Signal<boolean> = this.sync.unreachable;
 }

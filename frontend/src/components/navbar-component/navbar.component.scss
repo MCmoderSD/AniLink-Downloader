@@ -51,35 +51,24 @@
   background: var(--app-tint-hover);
 }
 
-.navbar-status {
-  display: inline-flex;
+// Shown only while the server cannot be reached, and nothing while all is well. It is part of the header, so it stays
+// in sight on every page and however far the page is scrolled. Amber is the colour of attention, as for a paused download.
+.navbar-offline {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  color: var(--mat-sys-on-surface-variant);
-  font: var(--mat-sys-label-medium);
-}
-
-.navbar-status-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--app-success);
-}
-
-//noinspection CssUnusedSymbol
-.navbar-status-offline {
+  box-sizing: border-box;
+  min-height: var(--app-offline-height);
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: var(--app-warning-container);
   color: var(--app-warning);
-
-  .navbar-status-dot {
-    background: var(--app-warning);
-  }
+  font: var(--mat-sys-label-large);
+  text-align: center;
 }
 
 @media (max-width: 40rem) {
-  .navbar-status {
-    display: none;
-  }
-
   .navbar-brand span {
     display: none;
   }

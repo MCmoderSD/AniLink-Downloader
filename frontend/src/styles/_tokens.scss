@@ -58,6 +58,8 @@
   --app-navbar-height: 4rem;
   // The navbar and the hairline under it: where the page's own scroll bar starts.
   --app-navbar-block: calc(var(--app-navbar-height) + 1px);
+  // The strip under the navbar that says the server cannot be reached
+  --app-offline-height: 2.5rem;
 }
 
 // Honoured by every transition in the app, and written down here once instead of per component.

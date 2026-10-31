@@ -191,6 +191,11 @@ html {
   // The navbar sticks to the top edge, so an element scrolled into view by the keyboard must stop below it
   scroll-padding-block-start: var(--app-navbar-block);
 
+  // The warning under the navbar stands in the way as well while it is shown
+  &:has(.navbar-offline) {
+    scroll-padding-block-start: calc(var(--app-navbar-block) + var(--app-offline-height));
+  }
+
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

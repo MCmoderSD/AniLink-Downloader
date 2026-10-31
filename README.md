@@ -248,7 +248,7 @@ left). Below them are the folder it is saved to and the buttons:
 **Show details** lists every episode with its own bar and stage. A click on *N parts* shows the files of that episode
 with their state (*Waiting for link*, *Creating link*, *Link ready*, *Downloading*, *Downloaded* or *Failed*) and how
 much has arrived. Below the episodes, the activity log keeps the latest messages. Finished files and problems also
-show up as notes in the corner, and *Live* at the top right says that the page is connected to the server.
+show up as notes in the corner. If the server cannot be reached, an amber strip under the top bar says so on every page.
 
 With more than one episode, every row also has its own buttons: **Retry**, **Pause** or **Resume**, **Cancel** and
 **Remove**, as far as they apply to its state. They act on that one episode, and the rest of the download carries on.
@@ -353,7 +353,7 @@ Compose; to get rid of a download, delete its folder.
 | Log: `Missing configuration 'DebridLink:ApiKey'` | `DEBRID_API_KEY` is missing or empty in `.env`.                              |
 | `unhealthy`, or a folder "cannot be prepared"    | `./downloads` belongs to another user. Fix its owner or the `user:` setting. |
 | The page does not open                           | Port 8080 is taken. Use `9090:8080` in the compose file, open port 9090.     |
-| *Reconnecting* at the top right                  | The server is unreachable or restarting. It reconnects by itself.            |
+| *The server is not reachable* under the top bar  | The server is down or restarting. The page reconnects by itself.             |
 | *Password needed* on an episode                  | No default password fits. **Enter password**, or add it to `.env`.           |
 | *N of M links could not be assigned*             | The season format is not in every file name. Type it, or split the list.     |
 | Slow unpacking on Docker Desktop (Windows)       | Its shared folder `./downloads` is the limit, about 100–200 MB/s.            |

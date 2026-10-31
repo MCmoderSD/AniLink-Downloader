@@ -17,11 +17,12 @@
       </a>
     </div>
 
-    @if (loaded()) {
-      <span class="navbar-status" [class.navbar-status-offline]="!connected()" role="status">
-        <span class="navbar-status-dot" aria-hidden="true"></span>
-        {{ connected() ? 'Live' : 'Reconnecting' }}
-      </span>
-    }
   </nav>
+
+  @if (unreachable()) {
+    <p class="navbar-offline" role="alert">
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+      The server is not reachable.
+    </p>
+  }
 </header>

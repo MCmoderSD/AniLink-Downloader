@@ -204,8 +204,8 @@ A cool near-black ground, one bright cyan signal, and four status colours that n
 - **Steel Hairline** (#3d464b): the 1px border of panels, notifications and dividers, about 2.0:1 against the page.
 
 ### Status
-- **Go Green** (#4ade80) on **Go Green Deep** (#0f3d24): done, connected, success.
-- **Caution Amber** (#fbbf24) on **Caution Amber Deep** (#453000): paused, reconnecting, needs attention.
+- **Go Green** (#4ade80) on **Go Green Deep** (#0f3d24): done, success.
+- **Caution Amber** (#fbbf24) on **Caution Amber Deep** (#453000): paused, the server cannot be reached, needs attention.
 - **Fault Coral** (#ff8a88) on **Fault Coral Deep** (#5e121c): failed, error, not assigned.
 - **Tidewater Cyan** on **Tidewater Shade**: informational chips and the default notice. Information shares the brand cyan, so the system has a single blue.
 
@@ -296,7 +296,7 @@ Tactile and confident: solid fills, full pills, strong contrast between rest and
 - **Error / Disabled:** hints and errors use Fault Coral text; a disabled chevron dims to Steel Hairline instead of vanishing, so the field does not twitch at its limits.
 
 ### Navigation
-- A sticky bar on Night Base (88% over the page) with a 12px backdrop blur and a hairline underneath. The mark and the name "AniLink" sit on the left; "Downloads" is a text button, "New download" is the filled button, and a live-connection status (green dot "Live", amber "Reconnecting") closes the row. On small screens only the mark remains on the left.
+- A sticky bar on Night Base (88% over the page) with a 12px backdrop blur and a hairline underneath. The mark and the name "AniLink" sit on the left; "Downloads" is a text button, "New download" is the filled button. While the server cannot be reached, a full-width amber strip (2.5rem, a cloud-off icon and "The server is not reachable.") sits under the bar as part of the sticky header; nothing is shown while all is well. On small screens only the mark remains on the left.
 
 ### Progress Bar (signature)
 A 10px pill track on Night Highest with a pill fill. The fill is cyan while work is active and carries a slow light sweep (1.6 s, linear) that says "still working" when the number has not moved yet. Done is green, paused amber, failed coral, idle Steel Outline. Percentage and detail text use tabular figures; a compact variant is 6px high.
