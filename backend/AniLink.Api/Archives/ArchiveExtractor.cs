@@ -60,7 +60,9 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
         if (entry is null) return false;
         if (!entry.Encrypted) return true;
 
-        var head = await sevenZip.ReadHeadAsync(["e", "-so", "-y", "-bd", .. PasswordArguments(password), first, entry.Path], SniffLength, cancellationToken);
+        // The "--" ends the switches: the name of an entry comes from the archive, and one that starts with "-" or "@" would
+        // otherwise be read as a switch or as a list of file names.
+        var head = await sevenZip.ReadHeadAsync(["e", "-so", "-y", "-bd", .. PasswordArguments(password), first, "--", entry.Path], SniffLength, cancellationToken);
 
         return head is not null && MediaSignature.Matches(entry.Path, head);
     }
@@ -72,12 +74,13 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
 
         Directory.CreateDirectory(outputDirectory);
 
-        string[] arguments = ["x", "-y", "-aoa", "-bsp1", "-bb0", $"-o{outputDirectory}", .. PasswordArguments(password), first];
+        string[] options = ["x", "-y", "-aoa", "-bsp1", "-bb0", $"-o{outputDirectory}"];
+        string[] arguments = [.. options, .. PasswordArguments(password), first];
 
         var activity = new ToolActivity();
         var clock = Stopwatch.StartNew();
 
-        logger.LogInformation("Starting 7-Zip for {Label}: {Command}", label, Describe(arguments));
+        logger.LogInformation("Starting 7-Zip for {Label}: {Command}", label, Describe(options, password is not null, first));
 
         using var stopBeat = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var beat = BeatAsync(label, outputDirectory, activity, clock, stopBeat.Token);
@@ -159,9 +162,17 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
         }
     }
 
-    private string Describe(IEnumerable<string> arguments)
+    // The command as it goes into the log. It is put together from the parts that are safe to show, and the password is
+    // only said to be there: it is not part of what this method is given.
+    private string Describe(IEnumerable<string> options, bool withPassword, string archive)
     {
-        return sevenZip.Executable + " " + string.Join(' ', arguments.Select(argument => argument.StartsWith("-p", StringComparison.Ordinal) ? "-p***" : LogSafe.OneLine(argument)));
+        var parts = new List<string> { sevenZip.Executable };
+
+        parts.AddRange(options.Select(option => LogSafe.OneLine(option)));
+        if (withPassword) parts.Add("-p***");
+        parts.Add(LogSafe.OneLine(archive));
+
+        return string.Join(' ', parts);
     }
 
     private static long DirectorySize(string directory)

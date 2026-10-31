@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO.Enumeration;
 using System.Text.Json;
 using AniLink.Api.Data.Downloads;
 using AniLink.Api.Helpers;
@@ -59,16 +60,41 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         }
     }
 
+    // The manifests of the downloads below root. Two things matter in how they are searched for:
+    // - The file name starts with a dot, and on Linux that makes it a hidden file. The default of a search is to skip
+    //   hidden files, so nothing would be found after a restart unless that is switched off.
+    // - archives/ and output/ are never entered. What lies there comes out of downloaded archives and is not the app's
+    //   own, so a file with this name in one of them must not be taken for a manifest.
     public static IEnumerable<string> Find(string root)
     {
         if (!Directory.Exists(root)) return [];
 
-        return Directory.EnumerateFiles(root, Workspace.ManifestName, new EnumerationOptions
+        var options = new EnumerationOptions
         {
             RecurseSubdirectories = true,
             MaxRecursionDepth = 2,
-            IgnoreInaccessible = true
-        });
+            IgnoreInaccessible = true,
+            AttributesToSkip = 0
+        };
+
+        return new FileSystemEnumerable<string>(root, (ref FileSystemEntry entry) => entry.ToFullPath(), options)
+        {
+            ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory && entry.FileName.Equals(Workspace.ManifestName, StringComparison.Ordinal),
+            ShouldRecursePredicate = (ref FileSystemEntry entry) => !HoldsArchiveContent(ref entry)
+        };
+    }
+
+    // archives/ and output/ hold what comes out of downloaded archives only inside the folder of a download. A download
+    // can itself be named "output", and the manifest in its folder, straight below the root, still has to be found.
+    private static bool HoldsArchiveContent(ref FileSystemEntry entry)
+    {
+        var name = entry.FileName;
+
+        if (!name.Equals(Workspace.ArchivesFolder, StringComparison.Ordinal) && !name.Equals(Workspace.OutputFolder, StringComparison.Ordinal)) return false;
+
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        return !Path.TrimEndingDirectorySeparator(entry.Directory).Equals(Path.TrimEndingDirectorySeparator(entry.RootDirectory), comparison);
     }
 
     public async Task<JobManifest?> ReadAsync(string path)

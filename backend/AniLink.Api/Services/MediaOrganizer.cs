@@ -14,7 +14,7 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
         var output = workspace.OutputDirectory(item);
 
         var files = Directory.Exists(output)
-            ? Directory.EnumerateFiles(output, "*", SearchOption.AllDirectories).ToList()
+            ? Directory.EnumerateFiles(output, "*", Workspace.FilesWithoutLinks).ToList()
             : [];
 
         var videos = files.Where(file => VideoExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase)).ToList();
