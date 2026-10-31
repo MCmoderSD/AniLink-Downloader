@@ -1,5 +1,3 @@
-name: AniLink
-
 services:
   anilink:
     image: mcmodersd/anilink-downloader:latest
