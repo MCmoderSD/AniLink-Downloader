@@ -24,6 +24,9 @@ public sealed class DownloadPipeline(
     ILogger<DownloadPipeline> logger)
 {
     private const int MaxAttempts = 3;
+    private const int MaxDiscardAttempts = 5;
+
+    private static readonly TimeSpan DiscardDelay = TimeSpan.FromMilliseconds(200);
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runs = new();
     private readonly ConcurrentDictionary<MediaItem, CancellationTokenSource> _itemRuns = new();
@@ -380,11 +383,17 @@ public sealed class DownloadPipeline(
 
                 await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
 
-                if (!item.BeginOrganizing()) return;
+                if (!item.BeginOrganizing())
+                {
+                    if (!item.IsActive) await DiscardOutputAsync(workspace, item);
+
+                    return;
+                }
 
                 var files = organizer.Organize(workspace, item);
 
                 item.Complete(files);
+                RemoveFinished(workspace, item);
 
                 logger.LogInformation("Unpacking {Label} is done after {Elapsed}: {Files}", label, DurationText.Format(unpacking.Elapsed), string.Join(", ", files));
                 Notify(job, NoticeLevel.Success, $"Completed: {files[0]}");
@@ -393,9 +402,53 @@ public sealed class DownloadPipeline(
             {
                 logger.LogInformation("Unpacking {Label} was stopped after {Elapsed}", label, DurationText.Format(unpacking.Elapsed));
 
+                if (!item.IsActive) await DiscardOutputAsync(workspace, item);
+
+                throw;
+            }
+            catch (ExtractionException)
+            {
+                await DiscardOutputAsync(workspace, item);
+
                 throw;
             }
         }, cancellationToken);
+    }
+
+    private void RemoveFinished(Workspace workspace, MediaItem item)
+    {
+        try
+        {
+            if (!workspace.RemoveFinished(item)) logger.LogInformation("Files that were not expected are left in the output of {Label}, so it is kept together with its archive", item.LogLabel);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(exception, "The archive of {Label} could not be removed", item.LogLabel);
+        }
+    }
+
+    private async Task DiscardOutputAsync(Workspace workspace, MediaItem item)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                workspace.DiscardOutput(item);
+
+                return;
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == MaxDiscardAttempts)
+                {
+                    logger.LogWarning(exception, "What 7-Zip had written for {Label} could not be removed", item.LogLabel);
+
+                    return;
+                }
+
+                await Task.Delay(DiscardDelay);
+            }
+        }
     }
 
     private void HandleFailure(DownloadJob job, MediaItem item, Exception cause, bool interrupted)

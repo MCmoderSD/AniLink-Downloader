@@ -59,6 +59,28 @@ public sealed class Workspace(string root)
             .Select(part => part.Link.Url));
     }
 
+    public void DiscardOutput(MediaItem item)
+    {
+        var output = OutputDirectory(item);
+
+        if (Directory.Exists(output)) Directory.Delete(output, true);
+    }
+
+    public bool RemoveFinished(MediaItem item)
+    {
+        var output = OutputDirectory(item);
+
+        if (Directory.Exists(output) && Directory.EnumerateFiles(output, "*", FilesWithoutLinks).Any()) return false;
+
+        DiscardOutput(item);
+
+        var archives = ArchiveDirectory(item);
+
+        if (Directory.Exists(archives)) Directory.Delete(archives, true);
+
+        return true;
+    }
+
     public bool CleanUp()
     {
         if (Directory.Exists(OutputRoot) && Directory.EnumerateFiles(OutputRoot, "*", FilesWithoutLinks).Any()) return false;
