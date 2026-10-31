@@ -53,6 +53,7 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
             if (stages.Any(stage => stage is ItemStage.PasswordRequired)) return JobStatus.PasswordRequired;
             if (stages.Any(stage => stage is ItemStage.Failed)) return JobStatus.Failed;
             if (stages.Any(stage => stage is ItemStage.Cancelled)) return JobStatus.Cancelled;
+            if (stages.Any(stage => stage is ItemStage.Downloaded)) return JobStatus.Downloaded;
 
             return JobStatus.Completed;
         }
@@ -76,7 +77,7 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         return known.Sum() + known.Sum() / known.Count * (parts.Count - known.Count);
     }
 
-    public MediaItem AddItem(int number, IEnumerable<ArchiveLink> links)
+    public MediaItem AddItem(int number, IEnumerable<ArchiveLink> links, bool unpack = true)
     {
         var movie = release.Kind is ReleaseKind.Movie;
 
@@ -85,7 +86,8 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
             number,
             movie ? "" : number.ToString(),
             movie ? FileNames.Sanitize(name) : number.ToString(),
-            links);
+            links,
+            unpack);
 
         lock (Gate) _items = [.. _items, item];
 
@@ -143,7 +145,7 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         foreach (var item in manifest.Items)
         {
             var links = item.Parts.OrderBy(part => part.Index).Select(part => new ArchiveLink(part.Url, part.FileName, part.PartNumber));
-            job.AddItem(item.Number, links).Restore(item);
+            job.AddItem(item.Number, links, item.Unpack).Restore(item);
         }
 
         job.Activity.Restore(manifest.Activity);

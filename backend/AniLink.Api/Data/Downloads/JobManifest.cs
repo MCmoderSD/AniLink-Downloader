@@ -40,11 +40,12 @@ public sealed record ItemManifest(
     ItemStage Stage,
     string? Error,
     IReadOnlyList<string> Files,
-    IReadOnlyList<PartManifest> Parts
+    IReadOnlyList<PartManifest> Parts,
+    bool Unpack = true
 ) {
     public static ItemManifest From(MediaItem item)
     {
-        return new ItemManifest(item.Number, item.Stage, item.Error, item.Files, [.. item.Parts.Select(PartManifest.From)]);
+        return new ItemManifest(item.Number, item.Stage, item.Error, item.Files, [.. item.Parts.Select(PartManifest.From)], item.UnpackWanted);
     }
 }
 

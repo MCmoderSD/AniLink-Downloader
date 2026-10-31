@@ -7,6 +7,7 @@ public enum ItemStage
 {
     ResolvingLinks,
     Downloading,
+    Downloaded,
     Extracting,
     PasswordRequired,
     Organizing,
