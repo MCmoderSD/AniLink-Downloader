@@ -31,7 +31,6 @@
               }
             ],
             "styles": [
-              "@fontsource/roboto/latin-300.css",
               "@fontsource/roboto/latin-400.css",
               "@fontsource/roboto/latin-500.css",
               "@fontsource/roboto/latin-700.css",

@@ -11,9 +11,20 @@
   // narrower than its own label reads as broken rather than as resized.
   cursor: ns-resize;
 
+  // The drag is this element's own: without this the browser takes a touch for a scroll and cancels it.
+  touch-action: none;
+
   color: var(--mat-sys-outline);
 
   transition: color var(--app-motion-fast) var(--app-ease);
+}
+
+// The drawn grip is 14px, too small a target for a fingertip. The area is widened to 24px towards the corner's outer
+// sides only: upwards and to the left it would cover the ends of the two scroll bars, which stop where the grip starts.
+:host::before {
+  content: '';
+  position: absolute;
+  inset: 0 -10px -10px 0;
 }
 
 // Takes the brand colour under the pointer and keeps it for the whole drag, which is mostly

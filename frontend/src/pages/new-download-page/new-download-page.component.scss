@@ -139,7 +139,10 @@ textarea.new-links {
 .new-unmatched {
   margin: 0.5rem 0 0;
   padding-inline-start: 1.25rem;
-  font-size: 0.75rem;
+
+  // Size and line height only: the shorthand would also reset the family that .app-mono sets
+  font-size: var(--mat-sys-body-small-size);
+  line-height: var(--mat-sys-body-small-line-height);
 }
 
 .new-episodes {
@@ -175,7 +178,6 @@ textarea.new-links {
   min-width: 0;
   overflow: hidden;
   color: var(--mat-sys-on-surface-variant);
-  font-size: 0.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

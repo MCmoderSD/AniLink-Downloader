@@ -78,7 +78,7 @@
 // A channel behind the thumb, but only once the pointer is on the bar itself. Showing it any
 // earlier would draw a second line down the edge of every panel.
 .scroll-bar-track:hover {
-  background: rgb(255 255 255 / 0.05);
+  background: var(--app-tint-hover);
 }
 
 .scroll-bar-thumb {

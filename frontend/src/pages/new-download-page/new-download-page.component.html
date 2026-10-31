@@ -117,7 +117,7 @@
           }
 
           @if (episodes().length > 0) {
-            <ol class="new-episodes" appScrollBar>
+            <ol class="new-episodes" appScrollBar [attr.aria-label]="isSeason() ? 'Episodes found in the links' : 'Files found in the links'">
               @for (episode of episodes(); track episode.number) {
                 <li class="new-episode">
                   <span class="new-episode-title">{{ isSeason() ? 'Episode ' + episode.number : 'Files' }}</span>

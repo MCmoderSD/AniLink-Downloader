@@ -18,6 +18,8 @@ import {
 
 const NATIVE_BAR_HIDDEN: string = 'app-native-scrollbar-hidden';
 
+const FOCUSABLE: string = 'a[href], button, input, select, textarea, [tabindex]';
+
 const MIN_THUMB_SIZE: number = 24;
 const REVEAL_DISTANCE: number = 72;
 const SCROLL_REVEAL_MS: number = 900;
@@ -129,6 +131,7 @@ export class ScrollBarComponent {
   private readonly scrolling: WritableSignal<boolean> = signal(false);
 
   private scrollTimer: ReturnType<typeof setTimeout> | undefined;
+  private tabStopAdded: boolean = false;
 
   protected readonly vertical: WritableSignal<ScrollBarAxis> = signal(HIDDEN_AXIS);
   protected readonly horizontal: WritableSignal<ScrollBarAxis> = signal(HIDDEN_AXIS);
@@ -253,6 +256,7 @@ export class ScrollBarComponent {
 
     return (): void => {
       target.classList.remove(NATIVE_BAR_HIDDEN);
+      this.reachByKeyboard(target, false);
       for (const cleanup of cleanups) cleanup();
 
       clearTimeout(this.scrollTimer);
@@ -314,6 +318,8 @@ export class ScrollBarComponent {
     const needsVertical: boolean = scrollHeight - target.clientHeight > 1;
     const needsHorizontal: boolean = scrollWidth - target.clientWidth > 1;
 
+    this.reachByKeyboard(target, needsVertical || needsHorizontal);
+
     this.box.set(this.boxOf(target));
 
     const inset: number = this.endInset();
@@ -331,6 +337,21 @@ export class ScrollBarComponent {
       scrollWidth,
       target.scrollLeft
     ));
+  }
+
+  // A scrolling list that holds nothing to focus can only be read with a pointer. While it overflows it gets a tab
+  // stop, so the arrow keys scroll it; a field or a dialog that is focusable anyway is left alone.
+  private reachByKeyboard(target: HTMLElement, scrolls: boolean): void {
+    if (!scrolls) {
+      if (this.tabStopAdded) target.removeAttribute('tabindex');
+      this.tabStopAdded = false;
+      return;
+    }
+
+    if (this.tabStopAdded || target.tabIndex >= 0 || target.querySelector(FOCUSABLE)) return;
+
+    target.tabIndex = 0;
+    this.tabStopAdded = true;
   }
 
   private boxOf(target: HTMLElement): ScrollBarBox {

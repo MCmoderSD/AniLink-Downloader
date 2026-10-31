@@ -2,7 +2,7 @@
   <p class="app-hint">Nothing has happened yet.</p>
 } @else {
   <div class="activity-log">
-    <ol class="activity-list" appScrollBar>
+    <ol class="activity-list" appScrollBar aria-label="Activity entries, newest first">
       @for (entry of newestFirst(); track entry.at + entry.text) {
         <li class="activity-entry" [attr.data-tone]="tone(entry)">
           <time class="activity-time app-mono" [attr.datetime]="entry.at">{{ entry.at | date: 'HH:mm:ss' }}</time>

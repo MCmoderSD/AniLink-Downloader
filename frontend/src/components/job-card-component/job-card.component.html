@@ -77,7 +77,7 @@
       type="button"
       class="job-details-toggle"
       [attr.aria-expanded]="detailsOpen()"
-      [attr.aria-controls]="titleId + '-details'"
+      [attr.aria-controls]="detailsOpen() ? titleId + '-details' : null"
       (click)="toggleDetails()"
     >
       {{ detailsOpen() ? 'Hide details' : 'Show details' }}

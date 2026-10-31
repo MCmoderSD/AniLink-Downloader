@@ -305,7 +305,7 @@ A 10px pill track on Night Highest with a pill fill. The fill is cyan while work
 Two or three options in a pill with a 1px Steel Outline. The selected option is lit by a 22% cyan pill that slides to it, stretching on the way with a springy curve (360 ms), and its label turns cyan and bold without changing the switch's width.
 
 ### Notifications
-Stacked from the bottom right, on Night Highest with a hairline, a 4px status bar on the left, a Floating shadow and a "Dismiss" button. They enter by sliding from the right (260 ms) and under reduced motion only fade.
+Stacked from the bottom right, on Night Highest with a hairline, a 4px status bar on the left, a Floating shadow and a "Dismiss" button. They enter by sliding from the right (260 ms) and under reduced motion only fade. A message keeps its time while it is hovered or holds focus, and the stack is one live region, so every message is announced.
 
 ### Motion
 Two durations (120 ms for what follows the pointer, 220 ms for what the eye follows) and one curve, `cubic-bezier(0.2, 0, 0, 1)`. A view transition fades the page out and drifts it up by 8px (160 ms) while the next fades in from 12px below (280 ms); the navbar stays put. Under `prefers-reduced-motion` the durations collapse to 1 ms, the progress sweep stops, and notifications only fade.
@@ -321,6 +321,7 @@ Two durations (120 ms for what follows the pointer, 220 ms for what the eye foll
 - **Do** draw edges with 1px Steel Hairline and tone, and keep shadows for floating things.
 - **Do** keep keyboard focus visible with the 2px cyan ring and keep every icon-only button labelled.
 - **Do** honour `prefers-reduced-motion` for anything that moves.
+- **Do** give every list that scrolls a tab stop and a name, so it can be read with the keyboard.
 
 ### Don't:
 - **Don't** add a light theme or any light surface; the system is dark only.

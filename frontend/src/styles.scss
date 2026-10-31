@@ -188,6 +188,9 @@ body {
 // own would be a second one next to it. Scoped to the document element, so elements that scroll inside the page
 // keep theirs until ScrollBarComponent is attached to them.
 html {
+  // The navbar sticks to the top edge, so an element scrolled into view by the keyboard must stop below it
+  scroll-padding-block-start: var(--app-navbar-block);
+
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

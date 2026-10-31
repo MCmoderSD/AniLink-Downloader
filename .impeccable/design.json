@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-31T11:43:01.226Z",
+  "generatedAt": "2026-10-31T12:10:56.257Z",
   "title": "Design System: AniLink-Downloader",
   "extensions": {
     "colorMeta": {
@@ -558,7 +558,8 @@
       "**Do** keep controls at pill shape, 40px for buttons and 36px for icon buttons in dense rows.",
       "**Do** draw edges with 1px Steel Hairline and tone, and keep shadows for floating things.",
       "**Do** keep keyboard focus visible with the 2px cyan ring and keep every icon-only button labelled.",
-      "**Do** honour `prefers-reduced-motion` for anything that moves."
+      "**Do** honour `prefers-reduced-motion` for anything that moves.",
+      "**Do** give every list that scrolls a tab stop and a name, so it can be read with the keyboard."
     ],
     "donts": [
       "**Don't** add a light theme or any light surface; the system is dark only.",

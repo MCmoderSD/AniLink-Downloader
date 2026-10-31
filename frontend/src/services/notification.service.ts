@@ -42,6 +42,19 @@ export class NotificationService {
     this.entries.update((list: Notification[]): Notification[] => list.filter((entry: Notification): boolean => entry.id !== id));
   }
 
+  // The timer stands still while a message is under the pointer or holds focus, so it cannot vanish mid-sentence;
+  // letting go starts the full time again.
+  hold(id: number): void {
+    this.clearTimer(id);
+  }
+
+  release(id: number): void {
+    const notification: Notification | undefined = this.entries().find((entry: Notification): boolean => entry.id === id);
+    if (!notification || this.timers.has(id)) return;
+
+    this.schedule(id, notification.kind);
+  }
+
   private push(kind: NotificationKind, message: string): void {
     const id: number = this.nextId++;
     const next: Notification[] = [...this.entries(), { id, kind, message }];
@@ -51,6 +64,10 @@ export class NotificationService {
     }
 
     this.entries.set(next.slice(-MAX_VISIBLE));
+    this.schedule(id, kind);
+  }
+
+  private schedule(id: number, kind: NotificationKind): void {
     this.timers.set(id, setTimeout((): void => this.dismiss(id), LIFETIME_MS[kind]));
   }
 
