@@ -148,6 +148,15 @@ body {
   font-family: var(--app-font-mono), monospace;
 }
 
+// Material gives an icon in the suffix of a field 12 pixels of room on its right, but an icon button, which is 40 pixels
+// wide and shows a circle on hover and focus, is put flush against the border, and the circle runs into the line. The
+// button gets the room that its circle has above and below it in a field of 56 pixels, 8 pixels, so the circle lies
+// inside the box on every side. Global because the field is Material's and is used in a page and in a dialog.
+//noinspection CssUnusedSymbol
+.mat-mdc-form-field-icon-suffix > .mat-mdc-icon-button {
+  margin-inline-end: 0.5rem;
+}
+
 // A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.
 .app-chip {
   --chip-fg: var(--mat-sys-on-surface-variant);
