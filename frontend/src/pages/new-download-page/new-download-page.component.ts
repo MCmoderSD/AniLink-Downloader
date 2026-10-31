@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, Signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, isDevMode, signal, Signal, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -67,6 +67,7 @@ export class NewDownloadPageComponent {
 
   protected readonly kind: Signal<ReleaseKind> = this.kindValue.asReadonly();
   protected readonly seasonText: Signal<string> = this.seasonValue.asReadonly();
+  protected readonly development: boolean = isDevMode();
   protected readonly gripSize: number = RESIZE_GRIP_SIZE;
   protected readonly kinds: SegmentedOption[] = KINDS;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
