@@ -3,6 +3,9 @@ name: Docker Build & Push
 # A push to master publishes the image as `edge`. A push whose commit title (or merged pull request title) starts with
 # `Release 3.0.0` publishes it as a release: `3.0.0`, `3.0`, `3` and `latest` (a pre-release such as `3.0.0-rc.1` only
 # gets its own tag), and sets the git tag `3.0.0`. The version comes from the files that carry it.
+#
+# The Docker actions are pinned to a commit hash, with their version in the comment next to it, because a tag can be
+# moved to other code. Dependabot raises both together.
 on:
   push:
     branches: [master, main]
@@ -190,24 +193,24 @@ jobs:
       - id: qemu
         name: Set up QEMU
         if: matrix.platform == 'linux/arm/v7'
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
         with:
           platforms: arm
 
       - id: buildx
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - id: login-dockerhub
         name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - id: login-ghcr
         name: Log in to GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -215,7 +218,7 @@ jobs:
 
       - id: meta
         name: Generate image metadata
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
@@ -225,7 +228,7 @@ jobs:
 
       - id: build
         name: Build and push by digest
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           platforms: ${{ matrix.platform }}
@@ -272,18 +275,18 @@ jobs:
 
       - id: buildx
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - id: login-dockerhub
         name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - id: login-ghcr
         name: Log in to GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -291,7 +294,7 @@ jobs:
 
       - id: meta
         name: Generate image metadata
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
