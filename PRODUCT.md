@@ -47,7 +47,7 @@ Per-episode control (pause, resume, cancel, retry, remove) exists, but the owner
 
 ## Brand Commitments
 
-The name is AniLink. The mark is the owner's own `frontend/public/favicon.svg` (a katakana glyph with a download arrow); it is used in the browser tab and in the navbar and is not to be redrawn.
+The name is AniLink-Downloader, and it is what the browser tab always says on every page; the navbar shows the short form AniLink. The mark is the owner's own `frontend/public/favicon.svg` (a katakana glyph with a download arrow); it is used in the browser tab and in the navbar and is not to be redrawn.
 
 ## Evidence on Hand
 
