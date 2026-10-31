@@ -48,8 +48,10 @@ export class ItemRowComponent {
 
   protected readonly canPause: Signal<boolean> = computed((): boolean => {
     const stage: Item['stage'] = this.item().stage;
-    return stage === 'ResolvingLinks' || stage === 'Downloading' || stage === 'Extracting';
+    return stage === 'ResolvingLinks' || stage === 'Downloading';
   });
+
+  protected readonly canCancelUnpack: Signal<boolean> = computed((): boolean => this.item().stage === 'Extracting');
 
   protected readonly canResume: Signal<boolean> = computed((): boolean => this.item().stage === 'Paused');
 
@@ -66,7 +68,7 @@ export class ItemRowComponent {
 
   protected readonly canCancel: Signal<boolean> = computed((): boolean => {
     const stage: Item['stage'] = this.item().stage;
-    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled' && stage !== 'Downloaded';
+    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled' && stage !== 'Downloaded' && stage !== 'Extracting';
   });
 
   protected readonly stageLabel: Signal<string> = computed((): string => STAGE_LABELS[this.item().stage]);
@@ -130,6 +132,10 @@ export class ItemRowComponent {
 
   protected async unpack(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.unpackItem(this.jobId(), this.item().number), `${this.item().label} could not be unpacked.`);
+  }
+
+  protected async cancelUnpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.cancelUnpackItem(this.jobId(), this.item().number), `The unpacking of ${this.item().label} could not be canceled.`);
   }
 
   protected async setUnpack(on: boolean): Promise<void> {

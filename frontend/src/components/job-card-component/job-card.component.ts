@@ -47,12 +47,22 @@ export class JobCardComponent {
 
   protected readonly running: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
 
-  protected readonly canPause: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
+  protected readonly canPause: Signal<boolean> = computed((): boolean =>
+    this.job().items.some((item: Item): boolean => item.stage === 'ResolvingLinks' || item.stage === 'Downloading'));
 
-  protected readonly canResume: Signal<boolean> = computed((): boolean => this.job().status === 'Paused');
+  protected readonly canCancelUnpack: Signal<boolean> = computed((): boolean =>
+    this.job().items.some((item: Item): boolean => item.stage === 'Extracting'));
+
+  private readonly unpackingOnly: Signal<boolean> = computed((): boolean =>
+    this.canCancelUnpack() && this.job().items
+      .filter((item: Item): boolean => item.stage !== 'Completed' && item.stage !== 'Failed' && item.stage !== 'Cancelled')
+      .every((item: Item): boolean => item.stage === 'Extracting'));
+
+  protected readonly canResume: Signal<boolean> = computed((): boolean =>
+    this.job().items.some((item: Item): boolean => item.stage === 'Paused'));
 
   protected readonly canCancel: Signal<boolean> = computed((): boolean =>
-    this.job().status === 'Active' || this.job().status === 'Paused' || this.job().status === 'PasswordRequired');
+    !this.unpackingOnly() && (this.job().status === 'Active' || this.job().status === 'Paused' || this.job().status === 'PasswordRequired'));
 
   protected readonly canRetry: Signal<boolean> = computed((): boolean =>
     this.job().items.some((item: Item): boolean => item.stage === 'Failed' || item.stage === 'Cancelled'));
@@ -138,6 +148,10 @@ export class JobCardComponent {
 
   protected async unpack(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.unpack(this.job().id), 'Nothing could be unpacked.');
+  }
+
+  protected async cancelUnpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.cancelUnpack(this.job().id), 'The unpacking could not be canceled.');
   }
 
   protected async setUnpack(on: boolean): Promise<void> {

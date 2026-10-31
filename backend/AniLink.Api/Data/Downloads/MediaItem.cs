@@ -195,16 +195,31 @@ public sealed class MediaItem
         }
     }
 
+    public bool StopUnpacking()
+    {
+        lock (Gate)
+        {
+            if (Stage is not ItemStage.Extracting) return false;
+
+            UnpackWanted = false;
+            Stage = ItemStage.Downloaded;
+            ExtractPercent = 0;
+            Error = null;
+            Job.Touch();
+
+            return true;
+        }
+    }
+
     public bool Pause()
     {
         lock (Gate)
         {
-            if (Stage is not (ItemStage.ResolvingLinks or ItemStage.Downloading or ItemStage.Extracting)) return false;
+            if (Stage is not (ItemStage.ResolvingLinks or ItemStage.Downloading)) return false;
 
             foreach (var part in _parts) part.Pause();
 
             Stage = ItemStage.Paused;
-            ExtractPercent = 0;
             Job.Touch();
 
             return true;
@@ -271,6 +286,7 @@ public sealed class MediaItem
         lock (Gate)
         {
             if (Stage is ItemStage.Cancelled or ItemStage.Paused) return false;
+            if (Stage is ItemStage.Downloaded && stage is not ItemStage.Downloaded) return false;
 
             Stage = stage;
             Error = null;

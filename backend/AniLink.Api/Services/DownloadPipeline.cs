@@ -97,11 +97,10 @@ public sealed class DownloadPipeline(
 
     public bool Pause(DownloadJob job)
     {
-        var paused = job.Items.Count(item => item.Pause());
-        if (paused == 0) return false;
+        var paused = job.Items.Where(item => item.Pause()).ToList();
+        if (paused.Count == 0) return false;
 
-        if (_runs.TryRemove(job.Id, out var source)) source.Cancel();
-        else _ = jobs.SaveAsync(job);
+        foreach (var item in paused) Interrupt(item);
 
         Notify(job, NoticeLevel.Info, $"{job.Name}: paused");
 
@@ -165,6 +164,28 @@ public sealed class DownloadPipeline(
 
         item.Job.Log(NoticeLevel.Info, $"{item.Label}: unpacking after the download is {(wanted ? "on" : "off")}");
         _ = jobs.SaveAsync(item.Job);
+
+        return true;
+    }
+
+    public bool CancelUnpack(DownloadJob job)
+    {
+        var items = job.Items.Where(item => item.StopUnpacking()).ToList();
+        if (items.Count == 0) return false;
+
+        foreach (var item in items) Interrupt(item);
+
+        Notify(job, NoticeLevel.Info, $"{job.Name}: unpacking canceled for {items.Count} {(items.Count == 1 ? "item" : "items")}, the archives stay and can be unpacked again");
+
+        return true;
+    }
+
+    public bool CancelUnpackItem(MediaItem item)
+    {
+        if (!item.StopUnpacking()) return false;
+
+        Interrupt(item);
+        Notify(item.Job, NoticeLevel.Info, $"{item.Label}: unpacking canceled, the archive stays and can be unpacked again");
 
         return true;
     }

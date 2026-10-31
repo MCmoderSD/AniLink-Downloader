@@ -67,6 +67,13 @@
       </button>
     }
 
+    @if (canCancelUnpack()) {
+      <button mat-button type="button" [disabled]="busy()" (click)="cancelUnpack()">
+        <mat-icon aria-hidden="true">stop_circle</mat-icon>
+        Cancel unpacking
+      </button>
+    }
+
     @if (canCancel()) {
       <button mat-button type="button" [disabled]="busy()" (click)="cancel()">
         <mat-icon aria-hidden="true">stop_circle</mat-icon>

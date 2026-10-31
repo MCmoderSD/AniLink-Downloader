@@ -120,6 +120,17 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         };
     }
 
+    [HttpPost("{id:guid}/cancel-unpack")]
+    public IActionResult CancelUnpack(Guid id)
+    {
+        return downloads.CancelUnpack(id) switch
+        {
+            null => NotFound(),
+            false => Conflict("Nothing in this download is being unpacked."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
     [HttpPost("{id:guid}/items/{number:int}/cancel")]
     public IActionResult CancelItem(Guid id, int number)
     {
@@ -160,6 +171,17 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
         {
             null => NotFound(),
             false => Conflict("This item neither failed nor was canceled."),
+            true => Ok(downloads.Get(id))
+        };
+    }
+
+    [HttpPost("{id:guid}/items/{number:int}/cancel-unpack")]
+    public IActionResult CancelUnpackItem(Guid id, int number)
+    {
+        return downloads.CancelUnpackItem(id, number) switch
+        {
+            null => NotFound(),
+            false => Conflict("This item is not being unpacked."),
             true => Ok(downloads.Get(id))
         };
     }

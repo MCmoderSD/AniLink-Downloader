@@ -135,6 +135,16 @@ public sealed class DownloadService(
         return jobs.Get(id) is { } job ? pipeline.Unpack(job) : null;
     }
 
+    public bool? CancelUnpack(Guid id)
+    {
+        return jobs.Get(id) is { } job ? pipeline.CancelUnpack(job) : null;
+    }
+
+    public bool? CancelUnpackItem(Guid id, int number)
+    {
+        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.CancelUnpackItem(item) : null;
+    }
+
     public bool? UnpackItem(Guid id, int number)
     {
         return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.UnpackItem(item) : null;

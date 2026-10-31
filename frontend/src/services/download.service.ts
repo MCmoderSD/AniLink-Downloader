@@ -41,6 +41,10 @@ export class DownloadService extends ApiService {
     return this.post<Job>(`${id}/unpack`);
   }
 
+  cancelUnpack(id: string): Promise<Job> {
+    return this.post<Job>(`${id}/cancel-unpack`);
+  }
+
   setUnpack(id: string, unpack: boolean): Promise<Job> {
     return this.put<Job>(`${id}/auto-unpack`, { unpack });
   }
@@ -71,6 +75,10 @@ export class DownloadService extends ApiService {
 
   unpackItem(id: string, number: number): Promise<Job> {
     return this.post<Job>(`${id}/items/${number}/unpack`);
+  }
+
+  cancelUnpackItem(id: string, number: number): Promise<Job> {
+    return this.post<Job>(`${id}/items/${number}/cancel-unpack`);
   }
 
   setItemUnpack(id: string, number: number, unpack: boolean): Promise<Job> {
