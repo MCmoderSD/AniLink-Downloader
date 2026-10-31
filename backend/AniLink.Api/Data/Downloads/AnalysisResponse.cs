@@ -1,9 +1,14 @@
+using JetBrains.Annotations;
+
 namespace AniLink.Api.Data.Downloads;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record AnalyzedPart(string FileName, string Url, int PartNumber);
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record AnalyzedEpisode(int Number, IReadOnlyList<AnalyzedPart> Parts);
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record AnalysisResponse(
     string? Format,
     bool FormatDetected,

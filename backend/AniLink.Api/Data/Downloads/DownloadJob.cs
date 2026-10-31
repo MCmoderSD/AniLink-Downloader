@@ -6,8 +6,6 @@ public sealed record Release(ReleaseKind Kind, int? Season, string? Format);
 
 public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, Release release, Workspace workspace, PasswordBook passwords)
 {
-    // Replaced as a whole whenever an item is added or removed, so the many readers that walk it without a lock
-    // always see one consistent list.
     private volatile MediaItem[] _items = [];
     private long _revision;
     private int _linksAnnounced;
@@ -30,8 +28,6 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
 
     public IReadOnlyList<MediaItem> Items => _items;
 
-    // Bumped by every change. The progress publisher compares it with what it sent last, so a job that
-    // sits idle costs nothing.
     public long Revision => Interlocked.Read(ref _revision);
 
     public bool IsRemoved
@@ -70,10 +66,8 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
 
     public long BytesDone => Parts.Sum(part => part.BytesDone);
 
-    public long BytesTotal => EstimateTotal(Parts.ToList());
+    public long BytesTotal => EstimateTotal([.. Parts]);
 
-    // Sizes only become known as links are resolved, so parts without one are assumed to be as large as
-    // the average of those that have one. The bar then fills evenly instead of jumping on every new link.
     public static long EstimateTotal(IReadOnlyList<ArchivePart> parts)
     {
         var known = parts.Select(part => part.BytesTotal).Where(total => total > 0).ToList();
@@ -89,7 +83,6 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         var item = new MediaItem(
             this,
             number,
-            // A film is the only item of its download, so archives/ and output/ hold its files directly
             movie ? "" : number.ToString(),
             movie ? FileNames.Sanitize(name) : number.ToString(),
             links);
@@ -124,7 +117,6 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         lock (Gate) IsRemoved = true;
     }
 
-    // True exactly once, for the caller that gets to announce that every link of the job exists.
     public bool TryAnnounceLinks()
     {
         return Interlocked.Exchange(ref _linksAnnounced, 1) == 0;

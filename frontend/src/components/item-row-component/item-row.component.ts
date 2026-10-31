@@ -154,7 +154,6 @@ export class ItemRowComponent {
     return item.download.total > 0 ? `${formatBytes(item.download.done)} / ${formatBytes(item.download.total)}` : '';
   }
 
-  // The updated job arrives on the stream as well, so a call that ends the whole job (null) has nothing to apply
   private async act(call: () => Promise<Job | null>, failure: string): Promise<void> {
     this.working.set(true);
 

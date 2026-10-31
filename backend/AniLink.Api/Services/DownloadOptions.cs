@@ -4,11 +4,11 @@ public sealed class DownloadOptions
 {
     public static int MaxAllowedConcurrency => Environment.ProcessorCount;
 
-    public string Root { get; init; } = "";
+    public string Root { get; private init; } = "";
 
-    public int MaxConcurrency { get; init; }
+    public int MaxConcurrency { get; private init; }
 
-    public int RequestedConcurrency { get; init; }
+    public int RequestedConcurrency { get; private init; }
 
     public static DownloadOptions From(IConfiguration configuration, IHostEnvironment environment)
     {

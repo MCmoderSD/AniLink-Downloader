@@ -22,9 +22,7 @@ export class NotificationsComponent {
   }
 
   protected release(id: number, event: Event): void {
-    // Moving from the pointer to the keyboard, or the other way, must not start the clock while the other still holds it
     if ((event.currentTarget as HTMLElement).matches(':hover, :focus-within')) return;
-
     this.notificationService.release(id);
   }
 }

@@ -20,7 +20,6 @@ export class DownloadSyncService {
   readonly jobs: Signal<Job[]> = computed((): Job[] =>
     [...this.store().values()].sort((a: Job, b: Job): number => b.createdAt.localeCompare(a.createdAt)));
 
-  // True from the first failure until the server has answered again, never while the first connection is still being made
   readonly unreachable: Signal<boolean> = this.lost.asReadonly();
   readonly loaded: Signal<boolean> = this.ready.asReadonly();
 

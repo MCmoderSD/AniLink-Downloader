@@ -14,7 +14,6 @@ import { DownloadSyncService } from '../services/download-sync.service';
 export class App {
 
   constructor() {
-    // Connected for the whole session, not per page: a finished episode is announced wherever the user is.
     inject(DownloadSyncService).connect();
   }
 }

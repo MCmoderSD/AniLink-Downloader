@@ -4,11 +4,11 @@ namespace AniLink.Api.DebridLink;
 
 public sealed class DebridLinkOptions
 {
-    public string ApiKey { get; init; } = "";
+    public string ApiKey { get; private init; } = "";
 
-    public string BaseUrl { get; init; } = "";
+    public string BaseUrl { get; private init; } = "";
 
-    public int RequestDelayMs { get; init; }
+    public int RequestDelayMs { get; private init; }
 
     public static DebridLinkOptions From(IConfiguration configuration)
     {

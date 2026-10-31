@@ -10,8 +10,6 @@ public sealed record ToolResult(int ExitCode, string Output, string Error)
     public string Combined => (Output + "\n" + Error).Trim();
 }
 
-// What a running tool has said so far, readable from another thread. It exists to find out why a progress display stands
-// still: whether the tool says nothing, or says something that is not understood.
 public sealed class ToolActivity
 {
     private const int TailLength = 2048;
@@ -34,7 +32,6 @@ public sealed class ToolActivity
         get { lock (_gate) return _characters; }
     }
 
-    // The first thing the tool printed, which for 7-Zip describes the archive: its type, size, volumes and solid mode
     public string First
     {
         get { lock (_gate) return _first; }
@@ -73,8 +70,6 @@ public sealed class ToolActivity
         lock (_gate) _process = process;
     }
 
-    // The CPU time the tool has used so far, or null once it has ended. Next to the elapsed time it tells a tool
-    // that computes from one that waits for the disk.
     public TimeSpan? CpuTime
     {
         get
@@ -97,12 +92,8 @@ public sealed class ToolActivity
 
 public sealed partial class SevenZipProcess(ArchiveOptions options)
 {
-    // Enough output to always hold the latest progress line whole, even with a long file name in it
     private const int WindowLength = 1024;
 
-    // 7-Zip redraws its progress with backspaces: each redraw is one segment that starts with the percentage, followed by
-    // the number of files and the name of the current one, as in " 12% 1 - Some.Long.Release.Name.mkv". Only a
-    // percentage at the start of a segment counts, so digits and % signs in a file name are never taken for it.
     [GeneratedRegex(@"^\s*(\d{1,3})%")]
     private static partial Regex ProgressPattern();
 
@@ -147,8 +138,6 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         return new ToolResult(process.ExitCode, output.ToString(), await error);
     }
 
-    // The newest segment that starts with a percentage. When the window was cut, its first segment may have lost the
-    // front of its number ("12%" read as "2%"), so it is left out.
     private static double? LatestPercent(string window, bool cut)
     {
         var segments = window.Split(['\b', '\r', '\n']);
@@ -162,8 +151,6 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         return null;
     }
 
-    // Reads the first bytes of one entry, decrypted, and stops the tool there. That is enough to tell a good
-    // password from a bad one without unpacking a multi-gigabyte episode for every candidate.
     public async Task<byte[]?> ReadHeadAsync(IEnumerable<string> arguments, int count, CancellationToken cancellationToken)
     {
         using var process = Start(arguments);

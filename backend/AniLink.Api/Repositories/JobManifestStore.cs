@@ -43,7 +43,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 
     public Task FlushAsync()
     {
-        return Task.WhenAll(_slots.Values.Where(slot => slot.ProgressScheduled).Select(slot => WriteAsync(slot)));
+        return Task.WhenAll(_slots.Values.Where(slot => slot.ProgressScheduled).Select(WriteAsync));
     }
 
     public void Delete(DownloadJob job)
@@ -60,11 +60,6 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         }
     }
 
-    // The manifests of the downloads below root. Two things matter in how they are searched for:
-    // - The file name starts with a dot, and on Linux that makes it a hidden file. The default of a search is to skip
-    //   hidden files, so nothing would be found after a restart unless that is switched off.
-    // - archives/ and output/ are never entered. What lies there comes out of downloaded archives and is not the app's
-    //   own, so a file with this name in one of them must not be taken for a manifest.
     public static IEnumerable<string> Find(string root)
     {
         if (!Directory.Exists(root)) return [];
@@ -77,15 +72,13 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
             AttributesToSkip = 0
         };
 
-        return new FileSystemEnumerable<string>(root, (ref FileSystemEntry entry) => entry.ToFullPath(), options)
+        return new FileSystemEnumerable<string>(root, (ref entry) => entry.ToFullPath(), options)
         {
-            ShouldIncludePredicate = (ref FileSystemEntry entry) => !entry.IsDirectory && entry.FileName.Equals(Workspace.ManifestName, StringComparison.Ordinal),
-            ShouldRecursePredicate = (ref FileSystemEntry entry) => !HoldsArchiveContent(ref entry)
+            ShouldIncludePredicate = (ref entry) => !entry.IsDirectory && entry.FileName.Equals(Workspace.ManifestName, StringComparison.Ordinal),
+            ShouldRecursePredicate = (ref entry) => !HoldsArchiveContent(ref entry)
         };
     }
 
-    // archives/ and output/ hold what comes out of downloaded archives only inside the folder of a download. A download
-    // can itself be named "output", and the manifest in its folder, straight below the root, still has to be found.
     private static bool HoldsArchiveContent(ref FileSystemEntry entry)
     {
         var name = entry.FileName;
@@ -158,7 +151,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         {
             lock (slot.Sync) slot.Queued = null;
 
-            if (!slot.Deleted && !slot.Job.IsRemoved) await PersistAsync(slot.Job);
+            if (slot is { Deleted: false, Job.IsRemoved: false }) await PersistAsync(slot.Job);
 
             turn.SetResult();
         }

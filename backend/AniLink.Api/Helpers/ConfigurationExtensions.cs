@@ -27,7 +27,6 @@ public static partial class ConfigurationExtensions
                 if (!string.IsNullOrWhiteSpace(value)) mapped[key] = value;
             }
 
-            // Any number of passwords, in the order of their numbers; a gap or an empty one is simply skipped.
             var passwords = configuration.AsEnumerable()
                 .Select(pair => (Match: PasswordName.Match(pair.Key), pair.Value))
                 .Where(entry => entry.Match.Success && !string.IsNullOrWhiteSpace(entry.Value))

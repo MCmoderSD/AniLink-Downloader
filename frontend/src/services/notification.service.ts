@@ -42,8 +42,6 @@ export class NotificationService {
     this.entries.update((list: Notification[]): Notification[] => list.filter((entry: Notification): boolean => entry.id !== id));
   }
 
-  // The timer stands still while a message is under the pointer or holds focus, so it cannot vanish mid-sentence;
-  // letting go starts the full time again.
   hold(id: number): void {
     this.clearTimer(id);
   }

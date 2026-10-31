@@ -24,8 +24,6 @@ public static partial class LogSafe
         return printable.Length <= Limit ? printable : printable[..Limit] + "…";
     }
 
-    // Output of a tool on one log line: the lines are joined with " | ", and the backspaces and carriage returns of its
-    // progress display are gone. The beginning of it, or the end when fromEnd is set, is what is kept.
     public static string Excerpt(string? value, int limit, bool fromEnd = false)
     {
         var lines = (value ?? "")

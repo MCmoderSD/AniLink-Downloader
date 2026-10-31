@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+
 namespace AniLink.Api.Data.Downloads;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record ProgressResponse(long Done, long Total, double Fraction)
 {
     public static ProgressResponse Of(long done, long total)
@@ -8,6 +11,7 @@ public sealed record ProgressResponse(long Done, long Total, double Fraction)
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record NoticeResponse(DateTimeOffset At, NoticeLevel Level, string Text)
 {
     public static NoticeResponse From(ActivityEntry entry)
@@ -16,6 +20,7 @@ public sealed record NoticeResponse(DateTimeOffset At, NoticeLevel Level, string
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record PartResponse(
     int Index,
     string FileName,
@@ -40,6 +45,7 @@ public sealed record PartResponse(
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record ItemResponse(
     int Number,
     string Label,
@@ -66,6 +72,7 @@ public sealed record ItemResponse(
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record JobResponse(
     Guid Id,
     string Name,

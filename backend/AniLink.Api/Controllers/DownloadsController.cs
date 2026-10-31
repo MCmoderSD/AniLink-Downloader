@@ -14,7 +14,7 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     [HttpPost("analyze")]
     public IActionResult Analyze([FromBody] AnalyzeRequest request)
     {
-        return Ok(downloads.Analyze(request));
+        return Ok(DownloadService.Analyze(request));
     }
 
     [HttpPost]
@@ -146,8 +146,6 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     public IActionResult RemoveItem(Guid id, int number)
     {
         if (!downloads.RemoveItem(id, number)) return NotFound();
-
-        // The job is gone as well when this was its last item
         return downloads.Get(id) is { } job ? Ok(job) : NoContent();
     }
 

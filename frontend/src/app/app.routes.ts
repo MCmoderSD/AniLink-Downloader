@@ -1,6 +1,5 @@
 import { type Routes } from '@angular/router';
 
-// No route sets a title on purpose: the tab always reads what index.html says, whichever page is open.
 export const routes: Routes = [
   {
     path: '',

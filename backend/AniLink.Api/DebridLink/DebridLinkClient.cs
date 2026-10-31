@@ -95,16 +95,7 @@ public sealed class DebridLinkClient(IHttpClientFactory httpClients, DebridLinkO
             var downloadUrl = Text(value, "downloadUrl");
             if (string.IsNullOrWhiteSpace(downloadUrl)) throw new DebridLinkException("badResponse", "Debrid-Link answered without a download URL.", false);
 
-            return new DebridLinkFile(
-                Text(value, "id") ?? "",
-                Text(value, "name") ?? "",
-                Text(value, "url") ?? "",
-                downloadUrl,
-                Text(value, "host"),
-                Number(value, "size"),
-                Number(value, "created"),
-                false,
-                (int)Number(value, "chunk"));
+            return new DebridLinkFile(Text(value, "name") ?? "", downloadUrl, Text(value, "host"), Number(value, "size"));
         }
     }
 
