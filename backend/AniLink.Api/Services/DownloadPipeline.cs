@@ -313,13 +313,6 @@ public sealed class DownloadPipeline(
                 var output = workspace.OutputDirectory(item);
                 if (Directory.Exists(output)) Directory.Delete(output, true);
 
-                // What the archive holds once unpacked has to fit on the disk. The listing knows that before a byte is
-                // written, so an archive that is far bigger than it looks is turned down here instead of filling the disk.
-                if (DiskSpace.Available(output) is { } free && password.UnpackedBytes > free)
-                {
-                    throw new ExtractionException($"Unpacking needs {ByteSize.Format(password.UnpackedBytes)}, but only {ByteSize.Format(free)} are free in {workspace.Root}. Free up space and retry.");
-                }
-
                 await extractor.ExtractAsync(volumes, output, password.Password, label, item.ReportExtraction, token);
 
                 if (!item.BeginOrganizing()) return;

@@ -11,8 +11,7 @@ public enum PasswordOutcome
     Missing
 }
 
-// UnpackedBytes is what the archive holds once it is unpacked, as its listing says
-public sealed record PasswordResult(PasswordOutcome Outcome, string? Password, long UnpackedBytes = 0);
+public sealed record PasswordResult(PasswordOutcome Outcome, string? Password);
 
 public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<PasswordResolver> logger)
 {
@@ -27,9 +26,7 @@ public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<Passwor
             "Listing the archive of {Label} took {Elapsed}: {Files} files, {Size} unpacked, encrypted: {Encrypted}",
             label, DurationText.Format(clock.Elapsed), files.Count, ByteSize.Format(files.Sum(entry => entry.Size)), listing.IsEncrypted ? "yes" : "no");
 
-        var unpacked = files.Sum(entry => entry.Size);
-
-        if (!listing.IsEncrypted) return new PasswordResult(PasswordOutcome.NotRequired, null, unpacked);
+        if (!listing.IsEncrypted) return new PasswordResult(PasswordOutcome.NotRequired, null);
 
         var candidates = job.Passwords.Candidates();
         var tried = 0;
@@ -43,7 +40,7 @@ public sealed class PasswordResolver(ArchiveExtractor extractor, ILogger<Passwor
             job.Passwords.Remember(candidate);
             logger.LogInformation("Password {Number} of {Count} opened the archive of {Label} after {Elapsed}", tried, candidates.Count, label, DurationText.Format(clock.Elapsed));
 
-            return new PasswordResult(PasswordOutcome.Found, candidate, unpacked);
+            return new PasswordResult(PasswordOutcome.Found, candidate);
         }
 
         logger.LogInformation("None of {Count} passwords opened the archive of {Label} ({Elapsed})", candidates.Count, label, DurationText.Format(clock.Elapsed));
