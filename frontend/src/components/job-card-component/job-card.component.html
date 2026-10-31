@@ -32,6 +32,13 @@
   </p>
 
   <div class="job-actions">
+    @if (canUnpack()) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="unpack()">
+        <mat-icon aria-hidden="true">unarchive</mat-icon>
+        {{ unpackLabel() }}
+      </button>
+    }
+
     @if (waiting().length > 0) {
       <button mat-flat-button type="button" [disabled]="busy()" (click)="enterPassword()">
         <mat-icon aria-hidden="true">key</mat-icon>

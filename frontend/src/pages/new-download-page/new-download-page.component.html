@@ -133,8 +133,15 @@
       </div>
     </section>
 
-    <section class="new-section app-panel" aria-labelledby="new-password">
-      <h2 class="new-section-title" id="new-password">Archive password</h2>
+    <section class="new-section app-panel" aria-labelledby="new-unpacking">
+      <div class="new-section-head">
+        <h2 class="new-section-title" id="new-unpacking">Unpacking</h2>
+        <mat-slide-toggle [checked]="unpack()" aria-describedby="new-unpack-hint" (change)="setUnpack($event.checked)">
+          Unpack when downloaded
+        </mat-slide-toggle>
+      </div>
+
+      <p class="app-hint new-unpack-hint" id="new-unpack-hint">{{ unpackHint() }}</p>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Password</mat-label>

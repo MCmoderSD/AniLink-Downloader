@@ -56,9 +56,11 @@ export class ItemRowComponent {
     return stage === 'Failed' || stage === 'Cancelled';
   });
 
+  protected readonly canUnpack: Signal<boolean> = computed((): boolean => this.item().stage === 'Downloaded');
+
   protected readonly canCancel: Signal<boolean> = computed((): boolean => {
     const stage: Item['stage'] = this.item().stage;
-    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled';
+    return stage !== 'Completed' && stage !== 'Failed' && stage !== 'Cancelled' && stage !== 'Downloaded';
   });
 
   protected readonly stageLabel: Signal<string> = computed((): string => STAGE_LABELS[this.item().stage]);
@@ -73,6 +75,9 @@ export class ItemRowComponent {
 
       case 'Downloading':
         return { label: 'Download', detail: this.bytes(item), fraction: item.download.fraction, tone: 'info', active: item.download.done > 0 };
+
+      case 'Downloaded':
+        return { label: 'Downloaded, ready to unpack', detail: this.bytes(item), fraction: 1, tone: 'success', active: false };
 
       case 'Extracting':
         return { label: 'Unpacking', detail: '', fraction: item.extractPercent / 100, tone: 'info', active: true };
@@ -115,6 +120,10 @@ export class ItemRowComponent {
 
   protected async retry(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.retryItem(this.jobId(), this.item().number), `${this.item().label} could not be retried.`);
+  }
+
+  protected async unpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.unpackItem(this.jobId(), this.item().number), `${this.item().label} could not be unpacked.`);
   }
 
   protected async cancel(): Promise<void> {

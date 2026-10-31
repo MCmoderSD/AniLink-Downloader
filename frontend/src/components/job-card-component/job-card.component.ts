@@ -58,12 +58,19 @@ export class JobCardComponent {
   protected readonly waiting: Signal<Item[]> = computed((): Item[] =>
     this.job().items.filter((item: Item): boolean => item.stage === 'PasswordRequired'));
 
+  protected readonly ready: Signal<number> = computed((): number =>
+    this.job().items.filter((item: Item): boolean => item.stage === 'Downloaded').length);
+
+  protected readonly canUnpack: Signal<boolean> = computed((): boolean => this.ready() > 0);
+
+  protected readonly unpackLabel: Signal<string> = computed((): string => this.ready() > 1 ? 'Unpack all' : 'Unpack');
+
   protected readonly linksTone: Signal<Tone> = computed((): Tone =>
     this.job().links.total > 0 && this.job().links.done >= this.job().links.total ? 'success' : this.job().status === 'Failed' ? 'danger' : 'info');
 
   protected readonly downloadTone: Signal<Tone> = computed((): Tone => {
     const status: Job['status'] = this.job().status;
-    return status === 'Completed' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
+    return status === 'Completed' || status === 'Downloaded' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
   });
 
   protected readonly linksDetail: Signal<string> = computed((): string => `${this.job().links.done} of ${this.job().links.total} links`);
@@ -89,7 +96,7 @@ export class JobCardComponent {
     const noun: string = job.kind === 'Movie' ? 'file' : job.items.length === 1 ? 'episode' : 'episodes';
     const failed: number = job.items.filter((item: Item): boolean => item.stage === 'Failed').length;
 
-    return `${job.itemsCompleted} of ${job.items.length} ${noun} done${failed > 0 ? ` · ${failed} failed` : ''}`;
+    return `${job.itemsCompleted} of ${job.items.length} ${noun} done${this.ready() > 0 ? ` · ${this.ready()} ready to unpack` : ''}${failed > 0 ? ` · ${failed} failed` : ''}`;
   });
 
   protected toggleDetails(): void {
@@ -117,6 +124,10 @@ export class JobCardComponent {
 
   protected async retry(): Promise<void> {
     await this.act((): Promise<Job> => this.downloads.retry(this.job().id), 'Nothing could be retried.');
+  }
+
+  protected async unpack(): Promise<void> {
+    await this.act((): Promise<Job> => this.downloads.unpack(this.job().id), 'Nothing could be unpacked.');
   }
 
   protected async enterPassword(): Promise<void> {

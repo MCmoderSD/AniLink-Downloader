@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { NumberStepperComponent } from '../../components/number-stepper-component/number-stepper.component';
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
@@ -40,7 +41,7 @@ const KINDS: SegmentedOption[] = [
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrls: ['./new-download-page.component.scss'],
-  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent]
+  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent]
 })
 export class NewDownloadPageComponent {
 
@@ -56,6 +57,7 @@ export class NewDownloadPageComponent {
   private readonly seasonValue: WritableSignal<string> = signal('');
   private readonly passwordValue: WritableSignal<string> = signal('');
   private readonly passwordShown: WritableSignal<boolean> = signal(false);
+  private readonly unpackValue: WritableSignal<boolean> = signal(true);
 
   private readonly analysisValue: WritableSignal<Analysis | null> = signal<Analysis | null>(null);
   private readonly analysisProblem: WritableSignal<string | null> = signal<string | null>(null);
@@ -70,6 +72,7 @@ export class NewDownloadPageComponent {
   protected readonly gripSize: number = RESIZE_GRIP_SIZE;
   protected readonly kinds: SegmentedOption[] = KINDS;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
+  protected readonly unpack: Signal<boolean> = this.unpackValue.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
   protected readonly analyzing: Signal<boolean> = this.analysisRunning.asReadonly();
@@ -167,6 +170,10 @@ export class NewDownloadPageComponent {
       : `Optional. The ${count} default ${count === 1 ? 'password' : 'passwords'} from docker-compose ${count === 1 ? 'is' : 'are'} tried automatically; you are only asked if none of them opens an archive.`;
   });
 
+  protected readonly unpackHint: Signal<string> = computed((): string => this.unpackValue()
+    ? 'The archives are unpacked and sorted as soon as they are downloaded.'
+    : 'The download is done once the archives are on disk. Unpack them later with the Unpack button.');
+
   constructor() {
     void inject(ConfigService).load();
 
@@ -216,6 +223,10 @@ export class NewDownloadPageComponent {
     this.passwordValue.set((event.target as HTMLInputElement).value);
   }
 
+  protected setUnpack(checked: boolean): void {
+    this.unpackValue.set(checked);
+  }
+
   protected togglePassword(): void {
     this.passwordShown.update((value: boolean): boolean => !value);
   }
@@ -234,7 +245,8 @@ export class NewDownloadPageComponent {
         links: this.linksValue(),
         format: this.formatValue().trim() || null,
         season: this.seasonNumber(),
-        password: this.passwordValue() || null
+        password: this.passwordValue() || null,
+        unpack: this.unpackValue()
       });
 
       this.sync.apply(job);
