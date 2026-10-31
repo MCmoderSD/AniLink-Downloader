@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 
 namespace AniLink.Api.Data.Downloads;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record AnalyzeRequest
 {
     public ReleaseKind Kind { get; init; }
@@ -13,6 +15,7 @@ public sealed record AnalyzeRequest
     public string? Format { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record CreateDownloadRequest
 {
     [Required(AllowEmptyStrings = false)]
@@ -35,6 +38,7 @@ public sealed record CreateDownloadRequest
     public string? Password { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record PasswordRequest
 {
     [Required(AllowEmptyStrings = false)]
