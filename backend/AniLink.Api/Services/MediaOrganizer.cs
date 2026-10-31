@@ -32,10 +32,16 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 
         var infos = files.Where(file => string.Equals(Path.GetFileName(file), InfoName, StringComparison.OrdinalIgnoreCase)).ToList();
         var info = infos.Count == 1 ? infos[0] : null;
+        var infoTarget = workspace.TargetPath(item, ".txt");
 
         var moves = new List<(string From, string To)> { (video, workspace.TargetPath(item, Path.GetExtension(video).ToLowerInvariant())) };
         if (note is not null) moves.Add((note, workspace.TargetPath(item, ".nfo")));
-        if (info is not null && !File.Exists(workspace.TargetPath(item, ".txt"))) moves.Add((info, workspace.TargetPath(item, ".txt")));
+
+        if (info is not null)
+        {
+            if (File.Exists(infoTarget)) logger.LogInformation("The info.txt of {Item} stays in the output, because {Target} exists already", item.LogLabel, Path.GetFileName(infoTarget));
+            else moves.Add((info, infoTarget));
+        }
 
         foreach (var (_, target) in moves)
         {
