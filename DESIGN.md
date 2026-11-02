@@ -74,6 +74,11 @@ typography:
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: "1.25rem"
+  icons:
+    fontFamily: "'Material Icons', sans-serif"
+    fontSize: "1.5rem"
+    fontWeight: 400
+    lineHeight: 1
 rounded:
   xs: "2px"
   sm: "4px"
