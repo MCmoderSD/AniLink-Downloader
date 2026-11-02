@@ -162,6 +162,10 @@ body {
 // rounded one is smoothed, so while the label rests the square piece shows as a brighter, slightly offset stretch of the
 // line above and below the label. With nothing to hold a break for yet, the piece gets no width and the label simply
 // overflows it; the selectors are as specific as they are because Material's own rules are added after this file.
+//
+// Written against the structure of Angular Material 22.2.5, so look at the outline again when Material is upgraded. A field
+// that is pre-filled or autofilled floats its label from the start (its input is not empty), so it is never in the resting
+// state that these rules are for.
 //noinspection CssUnusedSymbol
 .mat-mdc-form-field .mdc-notched-outline:not(.mdc-notched-outline--notched) .mdc-notched-outline__notch {
   width: 0;
