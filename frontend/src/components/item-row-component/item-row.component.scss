@@ -19,11 +19,15 @@
 }
 
 .item-toggle {
+  // How far the pill reaches in front of its words. On a narrow screen the pill is pulled out to the left by the same
+  // amount, so that the words stand under the name of the episode and only the hover and the touch target reach past.
+  --item-toggle-inset: 0.625rem;
+
   display: inline-flex;
   align-items: center;
   gap: 0.125rem;
   margin-inline-start: auto;
-  padding: 0.125rem 0.375rem 0.125rem 0.625rem;
+  padding: 0.125rem 0.375rem 0.125rem var(--item-toggle-inset);
   border: 0;
   border-radius: var(--app-radius-pill);
   background: transparent;
@@ -78,6 +82,20 @@
   }
 }
 
+// On a wide screen the setting is the switch with its words in the head. The button is for the narrow layout, where the
+// switch would take a row of its own for something that is rarely touched. Lit means that the episode is unpacked once
+// it is downloaded.
+.item-unpack-toggle {
+  display: none;
+}
+
+//noinspection CssUnusedSymbol
+.item-unpack-toggle-on {
+  --mat-icon-button-icon-color: var(--app-info);
+
+  background: var(--app-info-container);
+}
+
 .item-error {
   margin: 0.625rem 0 0;
   padding: 0.5rem 0.75rem;
@@ -110,11 +128,37 @@
   }
 }
 
+// A long name is cut in the middle: the head gives way with an ellipsis, and the tail, the part number and the
+// extension, stays whole, so the parts of one release can still be told apart on a narrow screen.
+.item-part-name {
+  display: flex;
+  min-width: 0;
+}
+
+.item-part-head {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-part-tail {
+  flex: none;
+  white-space: pre;
+}
+
 .item-part-bytes {
   min-width: 9rem;
   color: var(--mat-sys-on-surface-variant);
   font-variant-numeric: tabular-nums;
   text-align: end;
+}
+
+// What a narrow screen shows in their place: the share that is downloaded instead of the bytes, and a symbol instead of
+// the word of the state.
+.item-part-percent,
+.item-part-icon {
+  display: none;
 }
 
 .item-part-error {
@@ -134,7 +178,7 @@
 
   .item-toggle {
     min-height: 2.75rem;
-    padding-inline: 0.875rem 0.5rem;
+    padding-inline: var(--item-toggle-inset) 0.5rem;
   }
 }
 
@@ -147,26 +191,71 @@
     gap: 0 0.75rem;
   }
 
-  app-switch {
-    grid-column: 1 / -1;
+  // The column of the state is as wide as the row of actions below it, and a chip left to stretch fills all of that.
+  .item-head > .app-chip {
+    justify-self: end;
+  }
+
+  .item-unpack-switch {
+    display: none;
+  }
+
+  .item-unpack-toggle {
+    display: inline-block;
   }
 
   .item-toggle {
+    --item-toggle-inset: 0.5rem;
+
     justify-self: start;
-    margin-inline-start: 0;
+    margin-inline-start: calc(var(--item-toggle-inset) * -1);
   }
 
   .item-actions {
     justify-self: end;
   }
 
+  // A part is one line. The name takes what is left, and at the end stand the share that is downloaded and a symbol for
+  // the state, a different shape for each, so that colour is still not the only sign. The word of the state stays in the
+  // title and for a screen reader, and the bytes are the title of the share.
   .item-part {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: 0.5rem;
+  }
+
+  .item-part-percent {
+    display: block;
+    min-width: 2.25rem;
+    color: var(--mat-sys-on-surface-variant);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
   }
 
   .item-part-bytes {
-    grid-column: 1 / -1;
-    min-width: 0;
-    text-align: start;
+    display: none;
+  }
+
+  .item-part-state {
+    position: relative;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+  }
+
+  .item-part-icon {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+    line-height: 1rem;
+  }
+
+  .item-part-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
