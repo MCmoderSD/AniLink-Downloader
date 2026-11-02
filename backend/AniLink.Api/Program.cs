@@ -20,6 +20,7 @@ var archives = ArchiveOptions.From(builder.Configuration);
 builder.Services.AddAniLinkDebridLink(debridLink);
 builder.Services.AddAniLinkDownloads(downloads, archives);
 builder.Services.AddControllers();
+builder.Services.AddResponseCompression();
 
 var app = builder.Build();
 
@@ -37,6 +38,7 @@ app.Logger.LogInformation(
     downloads.MaxConcurrency, DownloadScheduler.ExtractionLimit);
 
 app.UseAniLinkRequestLogging();
+app.UseResponseCompression();
 
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
