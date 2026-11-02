@@ -229,6 +229,11 @@ textarea.new-links {
     padding: 1rem;
   }
 
+  // The season number takes the width of the row, like the format field above it, instead of a corner of it.
+  .new-field-narrow {
+    flex: 1 1 100%;
+  }
+
   // The episode and its parts; the file names would be cut off after a few letters on this width.
   .new-episodes {
     max-height: 13rem;
