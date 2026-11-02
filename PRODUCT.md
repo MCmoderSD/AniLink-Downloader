@@ -49,6 +49,8 @@ Per-episode control (pause, resume, cancel, retry, remove) exists, but the owner
 
 The name is AniLink-Downloader, and it is what the browser tab always says on every page; the navbar shows the short form AniLink. The mark is the owner's own `frontend/public/favicon.svg` (a katakana glyph with a download arrow); it is used in the browser tab and in the navbar and is not to be redrawn.
 
+The owner wants the page to look like a professional product of its category, not like a styled demo: the known standard, played straight, at the craft level of the Vercel dashboard, in the dark theme only and with the brand cyan as the one signal colour. No pill-shaped controls everywhere and no stock look of the component library.
+
 ## Evidence on Hand
 
 - The wiki (https://github.com/MCmoderSD/AniLink-Downloader/wiki): stages, rules, configuration, HTTP API, what ends up on disk. `README.md` holds the short description, the quick start and the disclaimer.

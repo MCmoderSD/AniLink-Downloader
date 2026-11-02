@@ -31,9 +31,8 @@
               }
             ],
             "styles": [
-              "@fontsource/roboto/latin-400.css",
-              "@fontsource/roboto/latin-500.css",
-              "@fontsource/roboto/latin-700.css",
+              "@fontsource-variable/geist/wght.css",
+              "@fontsource-variable/geist-mono/wght.css",
               "@fontsource/material-icons/latin-400.css",
               "src/styles.scss"
             ]

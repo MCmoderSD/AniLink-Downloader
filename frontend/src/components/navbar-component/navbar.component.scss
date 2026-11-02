@@ -43,12 +43,26 @@
   align-items: center;
   gap: 0.5rem;
   margin-inline-start: auto;
+
+  // The page lets a word break anywhere, which also lets a button shrink until its label breaks; a label stays whole.
+  a {
+    flex: none;
+    white-space: nowrap;
+  }
 }
 
 // The page the user is on reads as pressed, without taking the filled button's colour away from "New download".
 //noinspection CssUnusedSymbol
 .navbar-link-active:not(.mat-mdc-unelevated-button) {
   background: var(--app-tint-hover);
+}
+
+// The filled button does not point at the page the user is on: there it is quiet, like the other link, so the one
+// filled button of the page is the one that does something.
+//noinspection CssUnusedSymbol
+.navbar-link-active.mat-mdc-unelevated-button {
+  --mat-button-filled-container-color: var(--app-tint-pressed);
+  --mat-button-filled-label-text-color: var(--mat-sys-on-surface);
 }
 
 // Shown only while the server cannot be reached, and nothing while all is well. It is part of the header, so it stays
@@ -71,5 +85,27 @@
 @media (max-width: 40rem) {
   .navbar-brand span {
     display: none;
+  }
+
+  .navbar-inner {
+    gap: 0.5rem;
+    padding: 0 1rem;
+  }
+}
+
+// The mark and two labelled buttons have to fit into 320 pixels. The icons only repeat what the words say, so they go
+// first.
+@media (max-width: 30rem) {
+  .navbar-links {
+    gap: 0.25rem;
+
+    mat-icon {
+      display: none;
+    }
+
+    a {
+      --mat-button-text-horizontal-padding: 0.75rem;
+      --mat-button-filled-horizontal-padding: 1rem;
+    }
   }
 }

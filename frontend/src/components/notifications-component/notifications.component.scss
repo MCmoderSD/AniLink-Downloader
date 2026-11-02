@@ -17,16 +17,27 @@
 
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem 0.875rem 0.875rem 1rem;
   border: var(--app-border);
-  border-inline-start: 0.25rem solid var(--notice-accent);
-  border-radius: var(--app-radius-md);
-  background: var(--mat-sys-surface-container-highest);
+  border-radius: var(--app-radius-lg);
+  background: var(--mat-sys-surface-container-high);
   box-shadow: var(--app-elevation-3);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
   pointer-events: auto;
+
+  // The state is a light in front of the text, in line with its first line, rather than a thick stripe down the edge.
+  &::before {
+    content: '';
+    flex: none;
+    align-self: flex-start;
+    width: 0.375rem;
+    height: 0.375rem;
+    margin-block-start: 0.5625rem;
+    border-radius: var(--app-radius-pill);
+    background: var(--notice-accent);
+  }
 
   &[data-kind='success'] {
     --notice-accent: var(--app-success);
@@ -45,11 +56,30 @@
   flex: 1;
 }
 
+// On a phone the stack takes the width of the page, so a message is not a narrow strip in a corner.
+@media (max-width: 40rem) {
+  .notifications-stack {
+    inset-inline: 0.75rem;
+    inset-block-end: 0.75rem;
+    max-width: none;
+  }
+}
+
+// The button is 44 pixels high for a finger and takes the room it needs from the padding of the message, so the
+// message itself does not grow with it.
+@media (pointer: coarse) {
+  .notification-dismiss {
+    min-height: 2.75rem;
+    margin-block: -0.5rem;
+    padding-inline: 1rem;
+  }
+}
+
 .notification-dismiss {
   flex: none;
-  padding: 0.25rem 0.625rem;
+  padding: 0.375rem 0.75rem;
   border: 0;
-  border-radius: var(--app-radius-pill);
+  border-radius: var(--app-radius-md);
   background: transparent;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-label-medium);

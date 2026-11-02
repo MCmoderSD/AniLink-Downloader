@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { computed, inject, Service, signal, Signal, WritableSignal } from '@angular/core';
 import { Job, NoticeLevel, NoticeMessage, StreamMessage } from '../data/download';
 import { DownloadService } from './download.service';
@@ -10,6 +11,7 @@ export class DownloadSyncService {
   private readonly downloads: DownloadService = inject(DownloadService);
   private readonly sse: SseService = inject(SseService);
   private readonly notifications: NotificationService = inject(NotificationService);
+  private readonly document: Document = inject(DOCUMENT);
 
   private readonly store: WritableSignal<ReadonlyMap<string, Job>> = signal<ReadonlyMap<string, Job>>(new Map<string, Job>());
   private readonly lost: WritableSignal<boolean> = signal(false);
@@ -32,6 +34,12 @@ export class DownloadSyncService {
       (): void => void this.reload(),
       (): void => this.lost.set(true)
     );
+
+    // A phone puts the page to sleep when its screen goes off, and the stream falls silent with it. When the page is
+    // shown again, the list is read anew instead of waiting for the connection to notice that it is gone.
+    this.document.addEventListener('visibilitychange', (): void => {
+      if (this.document.visibilityState === 'visible') void this.reload();
+    });
   }
 
   apply(job: Job): void {

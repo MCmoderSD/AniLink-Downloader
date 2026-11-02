@@ -12,7 +12,13 @@ html {
         primary: palette.$primary,
         tertiary: palette.$tertiary
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: 'Geist Variable',
+        brand-family: 'Geist Variable',
+        bold-weight: 600,
+        medium-weight: 500,
+        regular-weight: 400
+      ),
       density: 0
     )
   );
@@ -30,22 +36,23 @@ html {
   --mat-sys-inverse-primary: #026686;
   --mat-sys-surface-tint: var(--mat-sys-primary);
 
-  // Material lifts the surface tones from the palette's neutral, which is lighter than the near-black this design is
-  // built on. These are the same ramp with the hue of the brand colour at a low chroma, so the tokens Material
-  // computes instead of reading are pinned to it.
-  --mat-sys-surface: #0d0e10;
-  --mat-sys-background: #0d0e10;
-  --mat-sys-surface-dim: #0d0e10;
-  --mat-sys-surface-bright: #31363a;
-  --mat-sys-surface-container-lowest: #06090a;
-  --mat-sys-surface-container-low: #101417;
-  --mat-sys-surface-container: #14181b;
-  --mat-sys-surface-container-high: #1d2225;
-  --mat-sys-surface-container-highest: #272c2f;
-  --mat-sys-on-surface: #e5e6e9;
-  --mat-sys-on-surface-variant: #b6bec3;
-  --mat-sys-outline: #82898e;
-  --mat-sys-outline-variant: #3d464b;
+  // Material lifts the surface tones from the palette's neutral. The page is black and every surface above it is one
+  // small step of plain grey, so that a panel is told from the page by its hairline and a row from its panel by a tone.
+  // The tokens Material computes instead of reading are pinned to this ramp.
+  --mat-sys-surface: #000000;
+  --mat-sys-background: #000000;
+  --mat-sys-surface-dim: #000000;
+  --mat-sys-surface-bright: #2e2e2e;
+  --mat-sys-surface-container-lowest: #000000;
+  --mat-sys-surface-container-low: #0a0a0a;
+  --mat-sys-surface-container: #111111;
+  --mat-sys-surface-container-high: #1a1a1a;
+  --mat-sys-surface-container-highest: #1f1f1f;
+  --mat-sys-on-surface: #ededed;
+  --mat-sys-on-surface-variant: #a1a1a1;
+  // The outline of a field has to be seen against the panel it is in (3.6:1), a hairline only has to divide.
+  --mat-sys-outline: #6b6b6b;
+  --mat-sys-outline-variant: #2e2e2e;
 
   // Neutral state layers: a hover tint in the brand colour would read as "selected".
   --mat-button-text-state-layer-color: var(--mat-sys-on-surface);
@@ -57,18 +64,45 @@ html {
   --mat-menu-item-hover-state-layer-color: var(--app-tint-hover);
   --mat-menu-item-focus-state-layer-color: var(--app-tint-hover);
 
-  // Material's corner scale reads as square next to the rounded surfaces the rest of the app is built from.
+  // Material's corner scale, from the app's own: a 4px, 6px, 8px and 12px step.
   --mat-sys-corner-extra-small: var(--app-radius-sm);
   --mat-sys-corner-small: var(--app-radius-md);
   --mat-sys-corner-medium: var(--app-radius-lg);
   --mat-sys-corner-large: var(--app-radius-xl);
   --mat-menu-container-shape: var(--app-radius-lg);
+
+  // Buttons: 6px corners instead of pills. Only the action carries the brand colour; the others are plain, so that a row
+  // of buttons has one thing to press first.
+  --mat-button-filled-container-shape: var(--app-radius-md);
+  --mat-button-outlined-container-shape: var(--app-radius-md);
+  --mat-button-text-container-shape: var(--app-radius-md);
+  --mat-button-protected-container-shape: var(--app-radius-md);
+  --mat-button-outlined-label-text-color: var(--mat-sys-on-surface);
+  --mat-button-outlined-outline-color: #454545;
+  --mat-button-text-label-text-color: var(--mat-sys-on-surface);
+  --mat-button-filled-label-text-weight: 600;
+  --mat-button-filled-horizontal-padding: 1.25rem;
+  --mat-button-outlined-horizontal-padding: 1.25rem;
+  --mat-button-text-horizontal-padding: 1rem;
+
+  // Fields: 6px corners, a quiet outline that lights up in the brand colour, and a label that stays in the grey.
   --mat-form-field-outlined-container-shape: var(--app-radius-md);
+  --mat-form-field-outlined-hover-outline-color: #8f8f8f;
+  --mat-form-field-outlined-hover-label-text-color: var(--mat-sys-on-surface-variant);
+  --mat-form-field-outlined-label-text-color: var(--mat-sys-on-surface-variant);
+
+  // A dialog is a panel that floats: 12px corners, the panel's surface and its hairline.
+  --mat-dialog-container-shape: var(--app-radius-xl);
+  --mat-dialog-container-color: var(--mat-sys-surface-container-low);
+  --mat-dialog-subhead-weight: 600;
 }
 
 body {
-  // Dark only, like the Twitch chrome this palette is pinned to: no light variant.
+  // Dark only: no light variant.
   color-scheme: dark;
+
+  // The browser's own controls (a checkbox, a range, the caret) take the brand colour instead of the platform blue.
+  accent-color: var(--mat-sys-primary);
 
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
@@ -105,7 +139,25 @@ body {
 :where(input, select, textarea, summary):focus-visible {
   outline: 2px solid var(--mat-sys-primary);
   outline-offset: 2px;
-  border-radius: var(--app-radius-sm);
+}
+
+// --- Small screens and touch -------------------------------------------------------------------
+
+// A phone held sideways has little height to spare, so the bar that sticks to the top is made lower.
+@media (max-height: 30rem) {
+  html {
+    --app-navbar-height: 3rem;
+  }
+}
+
+// A finger needs more room than a pointer: buttons grow from 40 to 44 pixels, the least a touch target should be. The
+// icon buttons and the chips that are pressed have their own rules in their components.
+@media (pointer: coarse) {
+  html {
+    --mat-button-text-container-height: 2.75rem;
+    --mat-button-filled-container-height: 2.75rem;
+    --mat-button-outlined-container-height: 2.75rem;
+  }
 }
 
 // --- Shared building blocks --------------------------------------------------------------------
@@ -114,7 +166,7 @@ body {
   box-sizing: border-box;
   max-width: var(--app-content-max);
   margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
+  padding: 3rem 1.5rem 5rem;
 }
 
 .app-page-header {
@@ -123,12 +175,28 @@ body {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-block-end: 1.5rem;
+  margin-block-end: 2rem;
 }
 
 .app-page-title {
   margin: 0;
   font: var(--mat-sys-headline-medium);
+  letter-spacing: var(--mat-sys-headline-medium-tracking);
+}
+
+@media (max-width: 40rem) {
+  .app-page {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .app-page-header {
+    margin-block-end: 1.25rem;
+  }
+
+  .app-page-title {
+    font-size: 1.625rem;
+    line-height: 2rem;
+  }
 }
 
 .app-panel {
@@ -136,6 +204,24 @@ body {
   border: var(--app-border);
   border-radius: var(--app-radius-lg);
   box-shadow: var(--app-elevation-1);
+}
+
+// A selection is the brand colour at a third of its strength, so the selected text keeps its own colour and stays readable.
+::selection {
+  background: color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+  color: var(--mat-sys-on-surface);
+}
+
+// The hint under a field is secondary text, like every other note on the page; Material would set it in the text colour.
+//noinspection CssUnusedSymbol
+.mat-mdc-form-field-hint {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// A dialog is a panel that floats, so it carries the panel's hairline as well.
+//noinspection CssUnusedSymbol
+.mat-mdc-dialog-surface {
+  border: var(--app-border);
 }
 
 .app-hint {
@@ -165,12 +251,23 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.125rem 0.625rem;
-  border-radius: var(--app-radius-pill);
+  padding: 0.125rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--chip-fg) 22%, transparent);
+  border-radius: var(--app-radius-sm);
   background: var(--chip-bg);
   color: var(--chip-fg);
   font: var(--mat-sys-label-medium);
   white-space: nowrap;
+
+  // A status light in front of the word for every tone but the plain one. The word still says it.
+  &[data-tone]:not([data-tone='neutral'])::before {
+    content: '';
+    flex: none;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: var(--app-radius-pill);
+    background: var(--chip-fg);
+  }
 
   &[data-tone='info'] {
     --chip-fg: var(--app-info);
@@ -248,6 +345,11 @@ body {
   //noinspection CssUnusedSymbol
   .mdc-label {
     padding-inline-start: 0.625rem;
+
+    // The track is 20 pixels high, so what a finger hits is the label beside it, and the label is made 44 pixels high.
+    @media (pointer: coarse) {
+      padding-block: 0.625rem;
+    }
   }
 
   //noinspection CssUnusedSymbol

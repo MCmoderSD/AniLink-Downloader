@@ -1,6 +1,6 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .app-main {
@@ -22,7 +22,7 @@
   inset-block-start: -4rem;
   z-index: 20;
   padding: 0.5rem 1rem;
-  border-radius: var(--app-radius-pill);
+  border-radius: var(--app-radius-md);
   background: var(--mat-sys-primary);
   color: var(--mat-sys-on-primary);
   font: var(--mat-sys-label-large);

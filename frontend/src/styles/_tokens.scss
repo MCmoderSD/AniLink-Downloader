@@ -1,33 +1,42 @@
-// The semantic layer on top of Material's --mat-sys-* tokens: the status colours the M3 palette has no names
-// for, and the shape, depth and motion vocabulary every component reuses. Plain sRGB throughout; the ratios in
-// the comments are measured against the page surface (#0d0e10).
+// The semantic layer on top of Material's --mat-sys-* tokens: the status colours the M3 palette has no names for, and
+// the shape, depth, type and motion vocabulary every component reuses. Plain sRGB throughout; the ratios in the
+// comments are measured against the page surface (#000000).
+
+// Sets one role of Material's type scale: the shorthand the app reads and the parts that Material's own components read.
+@mixin app-type($role, $weight, $size, $line, $tracking: normal) {
+  --mat-sys-#{$role}: #{$weight} #{$size}/#{$line} var(--app-font);
+  --mat-sys-#{$role}-weight: #{$weight};
+  --mat-sys-#{$role}-size: #{$size};
+  --mat-sys-#{$role}-line-height: #{$line};
+  --mat-sys-#{$role}-tracking: #{$tracking};
+}
+
 @mixin app-tokens {
   // --- Status ---------------------------------------------------------------------------------
   // Four states that differ in hue and not only in brightness, so they survive a monochrome display and the
   // common forms of colour blindness. Each clears 7:1 as text on the page and on the raised surfaces.
-  --app-success: #4ade80; // 11.1:1
+  --app-success: #4ade80; // 12.6:1
   --app-on-success: #00210f;
-  --app-success-container: #0f3d24;
+  --app-success-container: #0d2b1b;
 
-  --app-warning: #fbbf24; // 11.6:1
+  --app-warning: #fbbf24; // 13.1:1
   --app-on-warning: #241a00;
-  --app-warning-container: #453000;
+  --app-warning-container: #33260a;
 
-  --app-danger: #ff8a88; // 8.5:1
+  --app-danger: #ff8a88; // 9.9:1
   --app-on-danger: #3f0710;
-  --app-danger-container: #5e121c;
+  --app-danger-container: #4a141b;
 
   // Information takes the brand cyan instead of a second blue that would sit next to it and read as the same thing.
-  --app-info: var(--mat-sys-primary); // 8.3:1
+  --app-info: var(--mat-sys-primary); // 9.2:1
   --app-on-info: var(--mat-sys-on-primary);
-  --app-info-container: #013041; // 6.0:1 for the text on it
+  --app-info-container: #04283a;
 
   // --- Depth ----------------------------------------------------------------------------------
-  // On a near-black surface a drop shadow is close to invisible, so depth is a lifted background plus a
-  // hairline border. The shadows only add the softness underneath.
-  --app-elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
-  --app-elevation-2: 0 2px 8px rgb(0 0 0 / 0.45);
-  --app-elevation-3: 0 8px 24px rgb(0 0 0 / 0.5);
+  // Surfaces are told apart by tone and a hairline, not by shadow. Only what floats over the page has one.
+  --app-elevation-1: none;
+  --app-elevation-2: 0 2px 8px rgb(0 0 0 / 0.5);
+  --app-elevation-3: 0 8px 24px rgb(0 0 0 / 0.6);
 
   --app-border: 1px solid var(--mat-sys-outline-variant);
   --app-border-strong: 1px solid var(--mat-sys-outline);
@@ -36,27 +45,41 @@
   --app-tint-pressed: rgb(255 255 255 / 0.1);
 
   // --- Shape ----------------------------------------------------------------------------------
-  --app-radius-sm: 0.5rem;
-  --app-radius-md: 0.75rem;
-  --app-radius-lg: 1.125rem;
-  --app-radius-xl: 1.5rem;
+  // A small ladder of square-ish corners: 4px for a tag or a block inside a row, 6px for every control and row, 8px for a
+  // panel, 12px for what floats. The full pill is kept for the few things that are round by nature (a switch, a scroll bar).
+  --app-radius-xs: 0.125rem;
+  --app-radius-sm: 0.25rem;
+  --app-radius-md: 0.375rem;
+  --app-radius-lg: 0.5rem;
+  --app-radius-xl: 0.75rem;
   --app-radius-pill: 999px;
 
   // --- Motion ---------------------------------------------------------------------------------
   // Two durations: -fast for what tracks the pointer, -base for what the eye follows across the screen.
   --app-motion-fast: 120ms;
   --app-motion-base: 220ms;
-  // For a shape that glides to its place and is watched all the way, like the pill of the type switch.
+  // For a shape that glides to its place and is watched all the way, like the highlight of the type switch.
   --app-motion-glide: 400ms;
   --app-ease: cubic-bezier(0.2, 0, 0, 1);
-  // A little past the target and back, for what slides into place and should settle instead of stopping dead.
-  --app-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+  // A long, soft deceleration without overshoot, for what slides into place and should settle instead of stopping dead.
+  --app-spring: cubic-bezier(0.22, 1, 0.36, 1);
   --app-timing-fast: var(--app-motion-fast) var(--app-ease);
   --app-timing-base: var(--app-motion-base) var(--app-ease);
   --app-timing-glide: var(--app-motion-glide) var(--app-spring);
 
   // --- Type ----------------------------------------------------------------------------------
-  --app-font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+  // One family for the page, in the weights 400, 500 and 600, and its monospace sibling for links and paths.
+  --app-font: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+
+  @include app-type(headline-medium, 600, 2rem, 2.5rem, -0.025em);
+  @include app-type(title-large, 600, 1.25rem, 1.75rem, -0.015em);
+  @include app-type(title-medium, 600, 1rem, 1.5rem, -0.005em);
+  @include app-type(title-small, 500, 0.9375rem, 1.5rem);
+  @include app-type(body-medium, 400, 0.9375rem, 1.5rem);
+  @include app-type(body-small, 400, 0.875rem, 1.25rem);
+  @include app-type(label-large, 500, 0.875rem, 1.25rem);
+  @include app-type(label-medium, 500, 0.8125rem, 1.25rem);
 
   // --- Layout ---------------------------------------------------------------------------------
   --app-content-max: 64rem;

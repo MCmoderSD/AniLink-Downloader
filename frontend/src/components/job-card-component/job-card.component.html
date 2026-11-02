@@ -47,17 +47,11 @@
     }
 
     @if (canRetry()) {
-      <button mat-stroked-button type="button" [disabled]="busy()" (click)="retry()">
-        <mat-icon aria-hidden="true">refresh</mat-icon>
-        Retry
-      </button>
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="retry()">Retry</button>
     }
 
     @if (canPause()) {
-      <button mat-stroked-button type="button" [disabled]="busy()" (click)="pause()">
-        <mat-icon aria-hidden="true">pause</mat-icon>
-        Pause
-      </button>
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="pause()">Pause</button>
     }
 
     @if (canResume()) {
@@ -68,23 +62,14 @@
     }
 
     @if (canCancelUnpack()) {
-      <button mat-button type="button" [disabled]="busy()" (click)="cancelUnpack()">
-        <mat-icon aria-hidden="true">stop_circle</mat-icon>
-        Cancel unpacking
-      </button>
+      <button mat-button type="button" [disabled]="busy()" (click)="cancelUnpack()">Cancel unpacking</button>
     }
 
     @if (canCancel()) {
-      <button mat-button type="button" [disabled]="busy()" (click)="cancel()">
-        <mat-icon aria-hidden="true">stop_circle</mat-icon>
-        Cancel
-      </button>
+      <button mat-button type="button" [disabled]="busy()" (click)="cancel()">Cancel</button>
     }
 
-    <button mat-button type="button" [disabled]="busy()" (click)="remove()">
-      <mat-icon aria-hidden="true">delete_outline</mat-icon>
-      Remove
-    </button>
+    <button mat-button type="button" [disabled]="busy()" (click)="remove()">Remove</button>
 
     @if (canSetUnpack()) {
       <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>

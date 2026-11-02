@@ -5,8 +5,8 @@
 .job {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
 .job-header {
@@ -19,10 +19,11 @@
 .job-title {
   margin: 0;
   font: var(--mat-sys-title-large);
+  letter-spacing: var(--mat-sys-title-large-tracking);
 }
 
 .job-subtitle {
-  margin: 0.125rem 0 0;
+  margin: 0.25rem 0 0;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-body-medium);
 }
@@ -63,14 +64,14 @@
 // The card puts a gap above every child. This one takes it back, because the space above the details is part of
 // what opens (see .job-details): left in place it would appear at once and only the rest would slide.
 .job-fold {
-  margin-block-start: -1.25rem;
+  margin-block-start: -1.5rem;
 }
 
 .job-details {
   display: grid;
-  gap: 1.25rem;
-  margin-block-start: 1.25rem;
-  padding-block-start: 1.25rem;
+  gap: 1.5rem;
+  margin-block-start: 1.5rem;
+  padding-block-start: 1.5rem;
   border-block-start: var(--app-border);
 }
 
@@ -86,7 +87,7 @@
 
 .job-items {
   display: grid;
-  gap: 0.625rem;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -102,7 +103,37 @@
     padding: 1rem;
   }
 
+  // On the narrowest phones the state drops below the name instead of squeezing it into a column of a few letters.
+  .job-header {
+    flex-wrap: wrap;
+  }
+
+  .job-heading {
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  // The buttons share the width of the card instead of leaving a ragged edge: each row is filled, and one that has no
+  // frame on a desktop gets a hairline here, so that the three kinds of button (filled, outlined, plain) fill their row
+  // alike and every one of them is a target the size of a thumb.
+  .job-actions {
+    margin-block-start: 0;
+
+    > .mat-mdc-button-base {
+      flex: 1 1 auto;
+    }
+
+    > .mat-mdc-button.mdc-button {
+      border: var(--app-border);
+    }
+
+    > app-switch {
+      flex: 1 1 100%;
+    }
+  }
+
   .job-details-toggle {
+    flex: 1 1 100%;
     margin-inline-start: 0;
   }
 }
