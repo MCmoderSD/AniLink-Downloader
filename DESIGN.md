@@ -250,7 +250,9 @@ A single centred column, 64rem at most, with 1.25rem side padding and 2rem above
 
 Density is moderate and information-forward: a job card shows its bars and actions at once and folds its episodes and activity log behind a toggle that opens with a height animation. Forms use flexible rows that wrap (`flex: 1 1 18rem` for wide fields, `0 1 11rem` for narrow ones).
 
-Below 40rem the page tightens: panel padding drops from 1.25–1.5rem to 1rem, the navbar hides the brand name and the connection status, part rows and episode previews collapse to fewer columns, and the episode controls wrap under the title. There is no other breakpoint.
+Below 40rem the page tightens: page and panel padding drop to 1rem, and the navbar hides the brand name. A download card's buttons share its width in filled rows, with a hairline around the plain ones, and the second "New download" button of the page header goes, because the navbar has it. An episode row keeps its name and state on the first line and puts the part count on the left and the actions on the right of the second, part rows and the episode preview collapse to fewer columns (the preview drops its file names), the form's buttons stack at the full width with the download button on top, and notifications take the width of the page. Below 30rem the navbar buttons lose their icons, so that the mark and both labels fit into 320px. Below 30rem of height, a phone held sideways, the navbar is 3rem instead of 4rem. There is no other breakpoint.
+
+On a touch screen (`pointer: coarse`) a target is at least 44px: buttons are 44px high, the icon buttons of an episode 44px square, the label of a switch 44px high and the dismiss button of a notification 44px high. The chevrons that step the season number are hidden, since a number keypad opens for the field, and the link box uses 16px type, because iOS zooms into a field with smaller type when it gets focus. When the page becomes visible again after the phone slept, the list of downloads is read anew.
 
 ## Elevation & Depth
 

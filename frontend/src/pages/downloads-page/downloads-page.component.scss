@@ -5,6 +5,14 @@
   min-height: 1rem;
 }
 
+// The navbar has the same button, and on a phone it is always in sight there; here it would only push the first
+// download down by a screen of its own.
+@media (max-width: 40rem) {
+  .downloads-new {
+    display: none;
+  }
+}
+
 .downloads-list {
   display: grid;
   gap: 1.25rem;

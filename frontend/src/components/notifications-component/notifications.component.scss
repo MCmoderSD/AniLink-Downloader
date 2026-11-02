@@ -45,6 +45,25 @@
   flex: 1;
 }
 
+// On a phone the stack takes the width of the page, so a message is not a narrow strip in a corner.
+@media (max-width: 40rem) {
+  .notifications-stack {
+    inset-inline: 0.75rem;
+    inset-block-end: 0.75rem;
+    max-width: none;
+  }
+}
+
+// The button is 44 pixels high for a finger and takes the room it needs from the padding of the message, so the
+// message itself does not grow with it.
+@media (pointer: coarse) {
+  .notification-dismiss {
+    min-height: 2.75rem;
+    margin-block: -0.5rem;
+    padding-inline: 1rem;
+  }
+}
+
 .notification-dismiss {
   flex: none;
   padding: 0.25rem 0.625rem;
