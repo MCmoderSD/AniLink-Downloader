@@ -157,6 +157,27 @@ body {
   margin-inline-end: 0.5rem;
 }
 
+// Material draws the outline of a field in three pieces: two with rounded corners and, between them, a square one that is
+// as wide as the label and holds the break for it once the label floats. A square border is painted to the pixel and a
+// rounded one is smoothed, so while the label rests the square piece shows as a brighter, slightly offset stretch of the
+// line above and below the label. With nothing to hold a break for yet, the piece gets no width and the label simply
+// overflows it; the selectors are as specific as they are because Material's own rules are added after this file.
+//noinspection CssUnusedSymbol
+.mat-mdc-form-field .mdc-notched-outline:not(.mdc-notched-outline--notched) .mdc-notched-outline__notch {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  margin: 0;
+  clip-path: none;
+  overflow: visible;
+}
+
+//noinspection CssUnusedSymbol
+.mat-mdc-form-field .mdc-notched-outline:not(.mdc-notched-outline--notched) .mdc-floating-label {
+  max-width: none;
+}
+
 // A coloured label. The tone is set with data-tone, and carries its meaning in hue and in the text, never in colour alone.
 .app-chip {
   --chip-fg: var(--mat-sys-on-surface-variant);
