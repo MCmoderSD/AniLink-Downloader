@@ -1,4 +1,33 @@
+# The one .gitattributes of this repository: line endings, binary files, diffs and generated files.
+
+# ── Line endings ──
+# Git detects text files itself and stores and checks them out with LF on every system, so a Windows
+# checkout (even with core.autocrlf=true) and the Linux Docker build work with the same bytes
 * text=auto eol=lf
+
+# ── Binary files ──
+# Never touched by line-ending conversion and never shown as a text diff
+# Images (SVG is text and stays out of this list)
 *.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
 *.ico binary
+# Fonts
+*.woff binary
 *.woff2 binary
+*.ttf binary
+*.otf binary
+
+# ── Readable diffs ──
+# The header of a hunk names the surrounding method, class, rule or heading instead of an unrelated line
+*.cs diff=csharp
+*.html diff=html
+*.css diff=css
+*.scss diff=css
+*.md diff=markdown
+
+# ── Generated files ──
+# Shown collapsed in pull requests and left out of the language statistics
+package-lock.json linguist-generated

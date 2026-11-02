@@ -1,23 +1,37 @@
-# Version control and CI
-.git/
-.github/
-.idea/
-.vs/
+# What goes into the Docker build context. Only the two folders the Dockerfile copies are let in, so
+# the upload to the daemon stays small and a change anywhere else (docs, notes, local tools) cannot
+# invalidate a cached layer. A new COPY in the Dockerfile needs its folder allowed here as well.
+# Docker reads the rules from top to bottom and the last matching one wins; * matches the top level
+# only, ** matches at any depth.
 
-# Build output and installed packages are produced inside the image
-**/bin/
-**/obj/
-**/node_modules/
-**/dist/
-**/.angular/
+# ── Only what the Dockerfile copies ──
+*
+# Stage "frontend": COPY frontend/
+!frontend
+# Stage "backend": COPY backend/AniLink.Api/ (the solution file and anything else beside it stays out)
+!backend
+backend/*
+!backend/AniLink.Api
 
-# Local state and secrets must never end up in an image layer
-downloads/
-data/
-.env
-.env.*
-!.env.example
+# ── Inside them: build output and installed packages are produced in the image ──
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/coverage
+# A frontend build that is copied next to the backend for local runs; the image takes its own from stage "frontend"
+backend/**/wwwroot
+
+# ── Local state, secrets and IDE files must never end up in an image layer ──
+**/.env
+**/.env.*
+# Case-sensitive on the Linux builder, so both spellings are listed
 **/appsettings.Local.json
+**/*.local.json
+**/.idea
+**/.vs
+**/*.user
 
-*.md
-!README.md
+# ── Notes and docs are not part of the image, and editing one must not rebuild the frontend ──
+**/*.md

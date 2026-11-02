@@ -1,36 +1,59 @@
-# ── IDEs ──
-.idea/
-.vs/
-*.user
+# The one .gitignore of this repository. There are no nested ones on purpose (frontend/, backend/,
+# floorplan/ or .idea/): everything that git ignores is listed here, grouped by what creates it.
+# A leading / anchors a rule to the repository root, **/ matches at any depth.
 
-# ── .NET ──
+# ── Build output ──
+# .NET compiler output
 **/bin/
 **/obj/
-
-# ── Angular / Node ──
-**/node_modules/
+# Angular build output, cache and test coverage
 **/dist/
 **/.angular/
 **/coverage/
+# The frontend build that is copied next to the backend for local runs (the Docker image does this itself)
+backend/**/wwwroot/
+
+# ── Dependencies ──
+**/node_modules/
 
 # ── Local configuration and secrets ──
+# Real values (Debrid-Link key, archive passwords) live in .env; .env.example documents the names
 .env
 .env.*
 !.env.example
+# Case-sensitive on Linux, so *.local.json does not cover the capital L of this file
 appsettings.Local.json
+# Personal overrides of any tool, for example .impeccable/config.local.json
 *.local.json
 
-# ── Downloaded media and test data ──
+# ── Local runs and test data ──
+# Finished media of a local run (in Docker the folder is mounted as /downloads)
 /downloads/
+# Local data that never belongs in the repository
 /data/
+# Link lists and scratch files for manual tests
 /testing/
+
+# ── IDEs ──
+# JetBrains Rider and WebStorm, including the .gitignore files they write into .idea/ themselves
+.idea/
+# Visual Studio
+.vs/
+*.user
 
 # ── System files ──
 .DS_Store
 Thumbs.db
 
-# ── Claude Code ──
+# ── Tools that write into the repository ──
+# Claude Code: settings and launch configuration of the local sessions
 .claude/
-
-# ── Frontend build copied next to the backend for local runs (the Docker image does this itself) ──
-backend/**/wwwroot/
+# Claude Code: personal notes for this project (the Floorplan skill adds a block to it)
+CLAUDE.local.md
+# Floorplan: the generated map of the codebase; a build recreates floorplan/.gitignore, this rule is the one that counts
+/floorplan/
+# Impeccable: caches of the design hook (config.local.json is covered by *.local.json)
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json
+# Brag: the generated launch video with its poster, plan and Hyperframes project
+/brag-output/
