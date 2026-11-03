@@ -2,8 +2,8 @@ import { Component, computed, inject, input, InputSignal, signal, Signal, Writab
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { Item, Job, Part, PART_LABELS, PART_TONES, STAGE_LABELS, STAGE_TONES, Tone } from '../../data/download';
-import { formatBytes } from '../../data/format';
+import { Item, Job, Part, PART_ICONS, PART_LABELS, PART_TONES, STAGE_LABELS, STAGE_TONES, Tone } from '../../data/download';
+import { formatBytes, formatPercent, splitFileName } from '../../data/format';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
 import { errorMessage } from '../../services/http-error';
@@ -173,6 +173,18 @@ export class ItemRowComponent {
 
   protected partTone(part: Part): Tone {
     return PART_TONES[part.state];
+  }
+
+  protected partIcon(part: Part): string {
+    return PART_ICONS[part.state];
+  }
+
+  protected partPercent(part: Part): string {
+    return part.bytesTotal > 0 ? formatPercent(part.bytesDone / part.bytesTotal) : '';
+  }
+
+  protected partName(part: Part): { head: string; tail: string } {
+    return splitFileName(part.fileName);
   }
 
   protected partBytes(part: Part): string {

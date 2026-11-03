@@ -41,11 +41,15 @@ app.UseAniLinkRequestLogging();
 app.UseResponseCompression();
 
 app.UseDefaultFiles();
+app.UseAniLinkPrecompressedFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
+    ContentTypeProvider = PrecompressedFilesExtensions.ContentTypes,
     OnPrepareResponse = context =>
     {
-        var hashed = Regex.IsMatch(context.File.Name, @"-[A-Za-z0-9]{8}\.(js|css)$");
+        PrecompressedFilesExtensions.RestoreContentType(context.Context);
+
+        var hashed = Regex.IsMatch(context.File.Name, @"-[A-Za-z0-9]{8}\.(js|css)(\.br|\.gz)?$");
         context.Context.Response.Headers.CacheControl = hashed ? "public, max-age=31536000, immutable" : "no-cache";
     }
 });

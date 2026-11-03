@@ -29,3 +29,11 @@ export function formatEta(remainingBytes: number, bytesPerSecond: number): strin
   const hours: number = Math.floor(minutes / 60);
   return `${hours}h ${minutes % 60}m left`;
 }
+
+const NAME_END: RegExp = /(?:\.part\d+)?\.[^.]+$/i;
+
+export function splitFileName(name: string): { head: string; tail: string } {
+  const start: number = name.search(NAME_END);
+
+  return start > 0 ? { head: name.slice(0, start), tail: name.slice(start) } : { head: name, tail: '' };
+}

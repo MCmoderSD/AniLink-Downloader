@@ -14,6 +14,7 @@ export class SwitchComponent {
   readonly checked: InputSignal<boolean> = input(false);
   readonly disabled: InputSignal<boolean> = input(false);
   readonly describedBy: InputSignal<string> = input('');
+  readonly row: InputSignal<boolean> = input(false);
 
   readonly toggled: OutputEmitterRef<boolean> = output<boolean>();
 

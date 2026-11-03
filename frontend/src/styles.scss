@@ -108,6 +108,25 @@ body {
   border-radius: var(--app-radius-sm);
 }
 
+// --- Small screens and touch -------------------------------------------------------------------
+
+// A phone held sideways has little height to spare, so the bar that sticks to the top is made lower.
+@media (max-height: 30rem) {
+  html {
+    --app-navbar-height: 3rem;
+  }
+}
+
+// A finger needs more room than a pointer: buttons grow from 40 to 44 pixels, the least a touch target should be. The
+// icon buttons and the chips that are pressed have their own rules in their components.
+@media (pointer: coarse) {
+  html {
+    --mat-button-text-container-height: 2.75rem;
+    --mat-button-filled-container-height: 2.75rem;
+    --mat-button-outlined-container-height: 2.75rem;
+  }
+}
+
 // --- Shared building blocks --------------------------------------------------------------------
 
 .app-page {
@@ -129,6 +148,16 @@ body {
 .app-page-title {
   margin: 0;
   font: var(--mat-sys-headline-medium);
+}
+
+@media (max-width: 40rem) {
+  .app-page {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .app-page-header {
+    margin-block-end: 1rem;
+  }
 }
 
 .app-panel {
@@ -273,6 +302,11 @@ body {
   //noinspection CssUnusedSymbol
   .mdc-label {
     padding-inline-start: 0.625rem;
+
+    // The track is 20 pixels high, so what a finger hits is the label beside it, and the label is made 44 pixels high.
+    @media (pointer: coarse) {
+      padding-block: 0.625rem;
+    }
   }
 
   //noinspection CssUnusedSymbol
@@ -323,6 +357,48 @@ body {
     transition:
       background-color var(--app-motion-glide) var(--app-ease),
       border-color var(--app-motion-glide) var(--app-ease);
+  }
+}
+
+// A setting that has a narrow column to itself is a row of its own: the words at the start, the switch at the end, in the
+// frame and at the height of the buttons around it. The whole row is what a finger hits, not the 20 pixels of the switch.
+@media (max-width: 40rem) {
+  .app-switch-row {
+    flex: 1 1 auto;
+
+    //noinspection CssUnusedSymbol
+    .mdc-form-field {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: stretch;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: var(--mat-button-text-container-height, 2.5rem);
+      border: var(--app-border);
+      border-radius: var(--app-radius-pill);
+      transition: background-color var(--app-timing-fast);
+
+      @media (hover: hover) {
+        &:hover {
+          background: var(--app-tint-hover);
+        }
+      }
+    }
+
+    //noinspection CssUnusedSymbol
+    .mdc-switch {
+      align-self: center;
+      margin-inline-end: 1rem;
+    }
+
+    //noinspection CssUnusedSymbol
+    .mdc-label {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      padding: 0 0.5rem 0 1rem;
+      font: var(--mat-sys-label-large);
+    }
   }
 }
 

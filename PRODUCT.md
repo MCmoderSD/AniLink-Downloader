@@ -10,7 +10,7 @@ web
 
 Self-hosters who run AniLink-Downloader on their own machine, home server or Raspberry Pi and work with its web page at a desktop. Their job is a short burst of setup followed by waiting: paste the hoster links of a season, an episode or a film, enter a password when none of the known ones opens an archive, and then keep an eye on the progress while doing something else. The page has no authentication because it is meant for the user's own machine or network.
 
-Mobile layouts exist in the code, but a phone or tablet is not a confirmed primary device.
+The owner also wants to reach the page from a phone on the same network, to check the progress or enter a password away from the desk. So the page has to work at phone widths and with touch; the desktop stays the main device.
 
 ## Product Purpose
 

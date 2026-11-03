@@ -3,7 +3,7 @@
   <span class="app-chip" [attr.data-tone]="stageTone()">{{ stageLabel() }}</span>
 
   @if (manageable() && canSetUnpack()) {
-    <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
+    <app-switch class="item-unpack-switch" [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
   }
 
   <button
@@ -19,6 +19,21 @@
 
   @if (manageable()) {
     <div class="item-actions" role="group" [attr.aria-label]="'Actions for ' + item().label">
+      @if (canSetUnpack()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="item-action item-unpack-toggle"
+          [class.item-unpack-toggle-on]="unpackOn()"
+          [attr.aria-pressed]="unpackOn()"
+          [attr.aria-label]="'Unpack ' + item().label + ' when downloaded'"
+          title="Unpack when downloaded"
+          (click)="setUnpack(!unpackOn())"
+        >
+          <mat-icon aria-hidden="true">unarchive</mat-icon>
+        </button>
+      }
+
       @if (canUnpack()) {
         <button
           mat-icon-button
@@ -136,9 +151,14 @@
     <div class="app-fold-inner">
       <ul class="item-parts">
         @for (part of item().parts; track part.index) {
+          @let name = partName(part);
           <li class="item-part">
-            <span class="item-part-name app-mono">{{ part.fileName }}</span>
-            <span class="app-chip" [attr.data-tone]="partTone(part)">{{ partLabel(part) }}</span>
+            <span class="item-part-name app-mono" [attr.title]="part.fileName"><span class="item-part-head">{{ name.head }}</span><span class="item-part-tail">{{ name.tail }}</span></span>
+            <span class="item-part-percent" [attr.title]="partBytes(part)">{{ partPercent(part) }}</span>
+            <span class="app-chip item-part-state" [attr.data-tone]="partTone(part)" [attr.title]="partLabel(part)">
+              <mat-icon class="item-part-icon" aria-hidden="true">{{ partIcon(part) }}</mat-icon>
+              <span class="item-part-label">{{ partLabel(part) }}</span>
+            </span>
             <span class="item-part-bytes">{{ partBytes(part) }}</span>
 
             @if (part.error) {

@@ -1,4 +1,5 @@
 import { type Routes } from '@angular/router';
+import { DownloadsPageComponent } from '../pages/downloads-page/downloads-page.component';
 
 export const routes: Routes = [
   {
@@ -8,7 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'downloads',
-    loadComponent: () => import('../pages/downloads-page/downloads-page.component').then((module): typeof module.DownloadsPageComponent => module.DownloadsPageComponent)
+    component: DownloadsPageComponent
   },
   {
     path: 'add-download',

@@ -206,6 +206,15 @@ export const PART_TONES: Record<PartState, Tone> = {
   Failed: 'danger'
 };
 
+export const PART_ICONS: Record<PartState, string> = {
+  Pending: 'schedule',
+  Resolving: 'sync',
+  Resolved: 'link',
+  Downloading: 'downloading',
+  Downloaded: 'check',
+  Failed: 'error_outline'
+};
+
 export const NOTICE_TONES: Record<NoticeLevel, Tone> = {
   Info: 'neutral',
   Success: 'success',

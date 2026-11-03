@@ -102,7 +102,37 @@
     padding: 1rem;
   }
 
+  // On the narrowest phones the state drops below the name instead of squeezing it into a column of a few letters.
+  .job-header {
+    flex-wrap: wrap;
+  }
+
+  .job-heading {
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  // The buttons share the width of the card instead of leaving a ragged edge: each row is filled, and one that has no
+  // frame on a desktop gets a hairline here, so that the three kinds of button (filled, outlined, plain) fill their row
+  // alike and every one of them is a target the size of a thumb.
+  .job-actions {
+    margin-block-start: 0;
+
+    > .mat-mdc-button-base {
+      flex: 1 1 auto;
+    }
+
+    > .mat-mdc-button.mdc-button {
+      border: var(--app-border);
+    }
+
+    > app-switch {
+      flex: 1 1 100%;
+    }
+  }
+
   .job-details-toggle {
+    flex: 1 1 100%;
     margin-inline-start: 0;
   }
 }

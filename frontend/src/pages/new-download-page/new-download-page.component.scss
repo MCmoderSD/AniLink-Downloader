@@ -210,9 +210,37 @@ textarea.new-links {
   gap: 0.75rem;
 }
 
+// A field with type below 16 pixels makes iOS zoom into the page when it gets focus, and the page then has to be zoomed
+// out by hand again. Only there the links are set that large; other touch browsers do not zoom and keep the size of the
+// desktop, where most of a link fits in the box. `-webkit-touch-callout` is known to WebKit on iOS and nowhere else.
+// The links stay on one line each and the box scrolls sideways.
+@supports (-webkit-touch-callout: none) {
+  textarea.new-links {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+@media (pointer: coarse) {
+  // A pair of arrows 24 by 18 pixels is not something to hit with a finger, and a number keypad opens for the field.
+  app-number-stepper {
+    display: none;
+  }
+}
+
 @media (max-width: 40rem) {
   .new-section {
     padding: 1rem;
+  }
+
+  // The season number takes the width of the row, like the format field above it, instead of a corner of it.
+  .new-field-narrow {
+    flex: 1 1 100%;
+  }
+
+  // The episode and its parts; the file names would be cut off after a few letters on this width.
+  .new-episodes {
+    max-height: 13rem;
   }
 
   .new-episode {
@@ -220,6 +248,15 @@ textarea.new-links {
   }
 
   .new-episode-files {
-    grid-column: 1 / -1;
+    display: none;
+  }
+
+  // The button that starts the download on top and as wide as the page, where the thumb reaches it.
+  .new-actions {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
   }
 }
