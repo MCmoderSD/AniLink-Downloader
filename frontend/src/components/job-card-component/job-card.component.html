@@ -87,7 +87,7 @@
     </button>
 
     @if (canSetUnpack()) {
-      <app-switch [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
+      <app-switch [row]="true" [checked]="unpackOn()" (toggled)="setUnpack($event)">Unpack when downloaded</app-switch>
     }
 
     <button

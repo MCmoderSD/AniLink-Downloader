@@ -15,6 +15,9 @@ export class SwitchComponent {
   readonly disabled: InputSignal<boolean> = input(false);
   readonly describedBy: InputSignal<string> = input('');
 
+  // On a narrow screen the switch is a row of its own, framed like the buttons around it
+  readonly row: InputSignal<boolean> = input(false);
+
   readonly toggled: OutputEmitterRef<boolean> = output<boolean>();
 
   protected readonly flipped: Signal<boolean> = this.touched.asReadonly();

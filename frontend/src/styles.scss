@@ -360,6 +360,48 @@ body {
   }
 }
 
+// A setting that has a narrow column to itself is a row of its own: the words at the start, the switch at the end, in the
+// frame and at the height of the buttons around it. The whole row is what a finger hits, not the 20 pixels of the switch.
+@media (max-width: 40rem) {
+  .app-switch-row {
+    flex: 1 1 auto;
+
+    //noinspection CssUnusedSymbol
+    .mdc-form-field {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: stretch;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: var(--mat-button-text-container-height, 2.5rem);
+      border: var(--app-border);
+      border-radius: var(--app-radius-pill);
+      transition: background-color var(--app-timing-fast);
+
+      @media (hover: hover) {
+        &:hover {
+          background: var(--app-tint-hover);
+        }
+      }
+    }
+
+    //noinspection CssUnusedSymbol
+    .mdc-switch {
+      align-self: center;
+      margin-inline-end: 1rem;
+    }
+
+    //noinspection CssUnusedSymbol
+    .mdc-label {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      padding: 0 0.5rem 0 1rem;
+      font: var(--mat-sys-label-large);
+    }
+  }
+}
+
 // The page scrolls under PageScrollBarComponent, which draws the app's bar over the right edge; the platform's
 // own would be a second one next to it. Scoped to the document element, so elements that scroll inside the page
 // keep theirs until ScrollBarComponent is attached to them.
