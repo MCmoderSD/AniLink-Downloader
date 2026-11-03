@@ -1,16 +1,12 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { brotliCompress, constants, gzip } from 'node:zlib';
 
-const root = process.argv[2];
+const root = fileURLToPath(new URL('../dist/AniLink/browser', import.meta.url));
 const extensions = new Set(['.css', '.html', '.js', '.json', '.svg', '.txt', '.webmanifest', '.xml']);
 const smallest = 1024;
-
-if (!root) {
-  console.error('Usage: node precompress.mjs <build folder>');
-  process.exit(1);
-}
 
 const brotli = promisify(brotliCompress);
 const deflate = promisify(gzip);
