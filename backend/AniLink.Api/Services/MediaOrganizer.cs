@@ -11,6 +11,8 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 
     private static readonly string[] IgnoredExtensions = [".md5", ".download", ".url", ".uri"];
 
+    private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+
     public IReadOnlyList<string> Organize(Workspace workspace, MediaItem item)
     {
         var output = workspace.OutputDirectory(item);
@@ -50,16 +52,26 @@ public sealed class MediaOrganizer(ILogger<MediaOrganizer> logger)
 
         foreach (var (from, to) in moves) File.Move(from, to);
 
-        DeleteIgnored(files);
+        DeleteIgnored(files, Path.GetFileNameWithoutExtension(video));
 
         logger.LogInformation("Organized {Item} into {Files}", item.LogLabel, string.Join(", ", moves.Select(move => Path.GetFileName(move.To))));
 
         return [.. moves.Select(move => Path.GetFileName(move.To))];
     }
 
-    private static void DeleteIgnored(IEnumerable<string> files)
+    private static bool IsIgnored(string file, string videoName)
     {
-        foreach (var file in files.Where(file => IgnoredExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase)))
+        var extension = Path.GetExtension(file);
+
+        if (IgnoredExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)) return true;
+
+        return ImageExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase)
+               && string.Equals(Path.GetFileNameWithoutExtension(file), videoName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void DeleteIgnored(IEnumerable<string> files, string videoName)
+    {
+        foreach (var file in files.Where(file => IsIgnored(file, videoName)))
         {
             try
             {
