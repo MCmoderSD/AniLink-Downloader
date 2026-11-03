@@ -43,7 +43,12 @@ public static class PrecompressedFilesExtensions
             context.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
             var accepted = request.GetTypedHeaders().AcceptEncoding;
-            var chosen = available.FirstOrDefault(variant => accepted.Any(encoding => Matches(encoding, variant.Encoding)));
+            var chosen = available
+                .Select(variant => (Variant: variant, Quality: QualityOf(accepted, variant.Encoding)))
+                .Where(candidate => candidate.Quality > 0)
+                .OrderByDescending(candidate => candidate.Quality)
+                .Select(candidate => candidate.Variant)
+                .FirstOrDefault();
 
             if (chosen.Encoding is not null)
             {
@@ -58,8 +63,14 @@ public static class PrecompressedFilesExtensions
         return app;
     }
 
-    private static bool Matches(StringWithQualityHeaderValue encoding, string name) =>
-        (encoding.Value.Equals(name, StringComparison.OrdinalIgnoreCase) || encoding.Value.Equals("*", StringComparison.Ordinal)) && encoding.Quality is null or > 0;
+    // An entry for the encoding itself wins over "*", which only speaks for the encodings that are not named
+    private static double QualityOf(IList<StringWithQualityHeaderValue> accepted, string name)
+    {
+        var entry = accepted.FirstOrDefault(encoding => encoding.Value.Equals(name, StringComparison.OrdinalIgnoreCase))
+            ?? accepted.FirstOrDefault(encoding => encoding.Value.Equals("*", StringComparison.Ordinal));
+
+        return entry is null ? 0 : entry.Quality ?? 1;
+    }
 
     private static FileExtensionContentTypeProvider CreateContentTypes()
     {
