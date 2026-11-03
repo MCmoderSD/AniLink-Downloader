@@ -30,8 +30,6 @@ export function formatEta(remainingBytes: number, bytesPerSecond: number): strin
   return `${hours}h ${minutes % 60}m left`;
 }
 
-// The end of a file name that has to stay readable when the name is cut to fit: the part number and the extension,
-// as in ".part2.rar". It is what tells the files of one release apart.
 const NAME_END: RegExp = /(?:\.part\d+)?\.[^.]+$/i;
 
 export function splitFileName(name: string): { head: string; tail: string } {

@@ -1,6 +1,3 @@
-// Compresses the text files of the build once, as small as they get, and writes the result next to them as .br and .gz.
-// The backend serves these files as they are. Compressing on every request has to be quick, so it can only use the
-// lowest level, which leaves a quarter of the size on the table.
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
@@ -41,7 +38,6 @@ for await (const path of walk(root)) {
     deflate(content, { level: 9 })
   ]);
 
-  // A variant that is not smaller than the file is of no use to anyone
   if (brotliContent.length < content.length) await writeFile(`${path}.br`, brotliContent);
   if (gzipContent.length < content.length) await writeFile(`${path}.gz`, gzipContent);
 

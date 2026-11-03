@@ -35,8 +35,6 @@ export class DownloadSyncService {
       (): void => this.lost.set(true)
     );
 
-    // A phone puts the page to sleep when its screen goes off, and the stream falls silent with it. When the page is
-    // shown again, the list is read anew instead of waiting for the connection to notice that it is gone.
     this.document.addEventListener('visibilitychange', (): void => {
       if (this.document.visibilityState === 'visible') void this.reload();
     });

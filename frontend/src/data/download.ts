@@ -206,7 +206,6 @@ export const PART_TONES: Record<PartState, Tone> = {
   Failed: 'danger'
 };
 
-// A symbol for each state, a different shape for each, for the places that have no room for the word.
 export const PART_ICONS: Record<PartState, string> = {
   Pending: 'schedule',
   Resolving: 'sync',
