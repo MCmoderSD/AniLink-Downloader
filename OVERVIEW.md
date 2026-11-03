@@ -28,7 +28,7 @@ only thing you have to install.
 | `latest` | The newest release.                                                            |
 | `3`      | The newest 3.x release: updates that stay within version 3.                    |
 | `3.1`    | The newest 3.1.x release: bug fixes only.                                      |
-| `3.1.0`  | Exactly this release. It never changes.                                        |
+| `3.1.1`  | Exactly this release. It never changes.                                        |
 | `edge`   | The newest state of the `master` branch. It is not a release and may be rough. |
 
 ## Quick start
@@ -93,6 +93,7 @@ More than two default passwords, the log level and everything else are on the
 ## Good to know
 - Unfinished downloads carry on after a restart of the container: their state is kept next to the files.
 - The image has a health check on `/health/live`; `docker compose ps` shows the result.
+- The web page is laid out for a phone as well as for a desktop.
 - The web page and the API have no authentication, because they are meant for your own machine or network. **Do not
   expose port 8080 to the internet**; put it behind a VPN or a reverse proxy with authentication if it has to be
   reachable from outside.

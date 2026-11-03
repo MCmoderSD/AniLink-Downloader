@@ -6,7 +6,7 @@ film, and it creates the direct download links with [Debrid-Link](https://debrid
 archive parts, unpacks them with 7-Zip and puts the renamed video into a folder named after the show.
 
 Everything stays local: there is no account, no login and no database. 7-Zip is part of the image, so Docker is the
-only thing you have to install.
+only thing you have to install. The web page is laid out for a phone as well as for a desktop.
 
 **The documentation is in the [wiki](https://github.com/MCmoderSD/AniLink-Downloader/wiki):**
 [Installation](https://github.com/MCmoderSD/AniLink-Downloader/wiki/Installation) ·
