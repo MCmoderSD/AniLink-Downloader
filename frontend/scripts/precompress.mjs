@@ -1,0 +1,56 @@
+// Compresses the text files of the build once, as small as they get, and writes the result next to them as .br and .gz.
+// The backend serves these files as they are. Compressing on every request has to be quick, so it can only use the
+// lowest level, which leaves a quarter of the size on the table.
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { extname, join } from 'node:path';
+import { promisify } from 'node:util';
+import { brotliCompress, constants, gzip } from 'node:zlib';
+
+const root = process.argv[2];
+const extensions = new Set(['.css', '.html', '.js', '.json', '.svg', '.txt', '.webmanifest', '.xml']);
+const smallest = 1024;
+
+if (!root) {
+  console.error('Usage: node precompress.mjs <build folder>');
+  process.exit(1);
+}
+
+const brotli = promisify(brotliCompress);
+const deflate = promisify(gzip);
+
+async function* walk(folder) {
+  for (const entry of await readdir(folder, { withFileTypes: true })) {
+    const path = join(folder, entry.name);
+
+    if (entry.isDirectory()) yield* walk(path);
+    else if (extensions.has(extname(entry.name))) yield path;
+  }
+}
+
+let files = 0;
+let raw = 0;
+let br = 0;
+let gz = 0;
+
+for await (const path of walk(root)) {
+  const content = await readFile(path);
+  if (content.length < smallest) continue;
+
+  const [brotliContent, gzipContent] = await Promise.all([
+    brotli(content, { params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_SIZE_HINT]: content.length } }),
+    deflate(content, { level: 9 })
+  ]);
+
+  // A variant that is not smaller than the file is of no use to anyone
+  if (brotliContent.length < content.length) await writeFile(`${path}.br`, brotliContent);
+  if (gzipContent.length < content.length) await writeFile(`${path}.gz`, gzipContent);
+
+  files++;
+  raw += content.length;
+  br += Math.min(brotliContent.length, content.length);
+  gz += Math.min(gzipContent.length, content.length);
+}
+
+const kib = bytes => `${(bytes / 1024).toFixed(0)} KiB`;
+
+console.log(`Precompressed ${files} files: ${kib(raw)} -> ${kib(br)} with Brotli, ${kib(gz)} with gzip.`);
