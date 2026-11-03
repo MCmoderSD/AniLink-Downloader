@@ -63,7 +63,6 @@ public static class PrecompressedFilesExtensions
         return app;
     }
 
-    // An entry for the encoding itself wins over "*", which only speaks for the encodings that are not named
     private static double QualityOf(IList<StringWithQualityHeaderValue> accepted, string name)
     {
         var entry = accepted.FirstOrDefault(encoding => encoding.Value.Equals(name, StringComparison.OrdinalIgnoreCase))
