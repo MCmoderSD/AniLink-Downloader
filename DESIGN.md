@@ -246,7 +246,7 @@ The theme also generates a lilac tertiary role (#c8c2ea). No component reads it;
 
 ## Layout
 
-A single centred column, 64rem at most, with 1.25rem side padding and 2rem above and 4rem below. A sticky navbar 4rem high sits on top; the page scrolls under it, and the app draws its own scroll bar over the right edge instead of the platform's. Pages are stacks of panels with 1.25rem between them. Inside a panel the rhythm is 1.25rem between blocks, 0.5 to 1rem between related items and 0.25rem between rows of a list.
+A single centred column, 64rem at most, with 1.25rem side padding and 2rem above and 4rem below. A sticky navbar 4rem high sits on top; the page scrolls under it, and the app draws its own scroll bar over the right edge instead of the platform's. A footer closes the page: at the bottom of the screen on a short page, below the content on a long one. Pages are stacks of panels with 1.25rem between them. Inside a panel the rhythm is 1.25rem between blocks, 0.5 to 1rem between related items and 0.25rem between rows of a list.
 
 Density is moderate and information-forward: a job card shows its bars and actions at once and folds its episodes and activity log behind a toggle that opens with a height animation. Forms use flexible rows that wrap (`flex: 1 1 18rem` for wide fields, `0 1 11rem` for narrow ones).
 
@@ -299,6 +299,9 @@ Tactile and confident: solid fills, full pills, strong contrast between rest and
 
 ### Navigation
 - A sticky bar on Night Base (88% over the page) with a 12px backdrop blur and a hairline underneath. The mark and the name "AniLink" sit on the left; "Downloads" is a text button, "New download" is the filled button. While the server cannot be reached, a full-width amber strip (2.5rem, a cloud-off icon and "The server is not reachable.") sits under the bar as part of the sticky header; nothing is shown while all is well. On small screens only the mark remains on the left.
+
+### Footer
+- A hairline above it, on the page itself, in the column of the navbar. At the left edge of the mark stands "AniLink-Downloader v3.1.1" in Label Medium, a link to the release of the version that is running (the number is read from package.json when the page is built). At the right edge of the buttons stand three links to the GitHub repository, the Docker Hub image and the wiki, each with the mark of the service in front of it: the GitHub mark and the book from Octicons, the whale from Simple Icons. They are SVG files in public/icons, drawn as a mask over the colour of the text, so an icon turns with its link. They are plain text in the muted colour, like any link: when pointed at or focused, they take the primary text colour and are underlined. All of them open in a new tab, which a screen reader is told. There are no legal pages: the tool is hosted by its owner and is not meant to be reachable from outside. Below 40rem the name and the version go and the three links are centred in one row, which fits 320px; on a touch screen the links are 44px high without a frame.
 
 ### Progress Bar (signature)
 A 10px pill track on Night Highest with a pill fill. The fill is cyan while work is active and carries a slow light sweep (1.6 s, linear) that says "still working" when the number has not moved yet. Done is green, paused amber, failed coral, idle Steel Outline. Percentage and detail text use tabular figures; a compact variant is 6px high.

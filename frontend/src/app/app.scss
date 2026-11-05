@@ -1,10 +1,13 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
+// Takes what is left of the screen, so that the footer sits at the bottom of a short page and below a long one
 .app-main {
   display: block;
+  flex: 1 0 auto;
 
   // The part of the document that animates between two pages; the navbar around it does not take part.
   view-transition-name: page;

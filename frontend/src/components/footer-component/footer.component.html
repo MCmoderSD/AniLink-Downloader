@@ -1,0 +1,18 @@
+<footer class="footer">
+  <div class="footer-inner">
+    <a class="footer-name" [href]="release" target="_blank" rel="noopener noreferrer">
+      AniLink-Downloader <span class="footer-version">v{{ version }}</span>
+      <span class="footer-hint">(opens in a new tab)</span>
+    </a>
+
+    <nav class="footer-links" aria-label="Project">
+      @for (link of links; track link.href) {
+        <a class="footer-link" [href]="link.href" target="_blank" rel="noopener noreferrer">
+          <span class="footer-icon" aria-hidden="true" [style.--footer-icon]="link.icon"></span>
+          {{ link.label }}
+          <span class="footer-hint">(opens in a new tab)</span>
+        </a>
+      }
+    </nav>
+  </div>
+</footer>
