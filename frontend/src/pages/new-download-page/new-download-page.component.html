@@ -69,7 +69,7 @@
     <section class="new-section app-panel" aria-labelledby="new-links">
       <h2 class="new-section-title" id="new-links">Links</h2>
 
-      <div class="new-links-box">
+      <div class="new-links-box" appFileDrop #drop="appFileDrop" [class.new-links-dropping]="drop.active()" (filesDropped)="addLinkFiles($event)">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
           <mat-label>One link per line</mat-label>
           <textarea
@@ -87,6 +87,11 @@
 
         <app-scroll-bar [target]="links" [endInset]="gripSize"/>
         <app-resize-grip [target]="links"/>
+
+        <div class="new-links-drop" aria-hidden="true">
+          <mat-icon>upload_file</mat-icon>
+          <span>Drop a text file to add its links</span>
+        </div>
       </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">

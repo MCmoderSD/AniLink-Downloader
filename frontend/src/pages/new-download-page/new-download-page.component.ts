@@ -1,9 +1,10 @@
-import { Component, computed, effect, inject, isDevMode, signal, Signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, isDevMode, signal, Signal, viewChild, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { FileDropDirective } from '../../components/file-drop-component/file-drop.directive';
 import { NumberStepperComponent } from '../../components/number-stepper-component/number-stepper.component';
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
 import { ScrollBarComponent } from '../../components/scroll-bar-component/scroll-bar.component';
@@ -22,6 +23,7 @@ import {
   Limits,
   ReleaseKind
 } from '../../data/download';
+import { appendLinks, AppendedLinks, extractLinks } from '../../data/links-file';
 import { ConfigService } from '../../services/config.service';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
@@ -41,7 +43,7 @@ const KINDS: SegmentedOption[] = [
   selector: 'app-new-download-page',
   templateUrl: './new-download-page.component.html',
   styleUrls: ['./new-download-page.component.scss'],
-  imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent, SwitchComponent]
+  imports: [FileDropDirective, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, NumberStepperComponent, ResizeGripComponent, RouterLink, ScrollBarComponent, ScrollBarDirective, SegmentedSwitchComponent, SwitchComponent]
 })
 export class NewDownloadPageComponent {
 
@@ -49,6 +51,8 @@ export class NewDownloadPageComponent {
   private readonly sync: DownloadSyncService = inject(DownloadSyncService);
   private readonly notifications: NotificationService = inject(NotificationService);
   private readonly router: Router = inject(Router);
+
+  private readonly linksField: Signal<ElementRef<HTMLTextAreaElement> | undefined> = viewChild<ElementRef<HTMLTextAreaElement>>('links');
 
   private readonly nameValue: WritableSignal<string> = signal('');
   private readonly kindValue: WritableSignal<ReleaseKind> = signal<ReleaseKind>('Season');
@@ -202,6 +206,53 @@ export class NewDownloadPageComponent {
 
   protected setLinks(event: Event): void {
     this.linksValue.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected async addLinkFiles(files: File[]): Promise<void> {
+    const limit: number = this.limits()?.linksLength ?? Infinity;
+    const found: string[] = [];
+    const read: string[] = [];
+
+    for (const file of files) {
+      try {
+        if (file.size > limit) {
+          this.notifications.failure(`${file.name} is larger than the ${limit} characters a download may hold.`);
+          continue;
+        }
+
+        found.push(...extractLinks(await file.text()));
+        read.push(file.name);
+      } catch {
+        this.notifications.failure(`${file.name} could not be read.`);
+      }
+    }
+
+    const field: HTMLTextAreaElement | undefined = this.linksField()?.nativeElement;
+    if (!field || read.length === 0) return;
+
+    const source: string = read.length === 1 ? read[0] : `${read.length} files`;
+
+    if (found.length === 0) {
+      this.notifications.warning(`No links found in ${source}.`);
+      return;
+    }
+
+    const result: AppendedLinks = appendLinks(field.value, found);
+
+    if (result.added === 0) {
+      this.notifications.info(`The links of ${source} are already in the list.`);
+      return;
+    }
+
+    if (result.text.length > limit) {
+      this.notifications.failure(`The links of ${source} do not fit: ${result.text.length} of ${limit} characters. Add them as a second download.`);
+      return;
+    }
+
+    field.value = result.text;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+
+    this.notifications.success(`Added ${result.added} ${result.added === 1 ? 'link' : 'links'} from ${source}.`);
   }
 
   protected setFormat(event: Event): void {
