@@ -146,9 +146,9 @@ public sealed class MediaItem
                 return false;
             }
 
+            _pace.Reset();
             Stage = ItemStage.Extracting;
             ExtractPercent = 0;
-            _pace.Reset();
             Error = null;
             Job.Touch();
 

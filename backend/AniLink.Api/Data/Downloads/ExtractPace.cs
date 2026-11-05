@@ -49,6 +49,9 @@ public sealed class ExtractPace
             if (span < ShortestSpan / 1000d || last <= first.Percent) return 0;
 
             var rate = (last - first.Percent) / span;
+
+            if ((now - lastAt) / 1000d > 3 / rate + 5) return 0;
+
             var done = Math.Min(last + Math.Max(now - lastAt, 0) / 1000d * rate, Math.Min(last + 1, 100));
 
             return Math.Max((int)Math.Ceiling((100 - done) / rate), 1);
