@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Item, Job, jobSubtitle, STATUS_LABELS, STATUS_TONES, Tone } from '../../data/download';
-import { formatBytes, formatEta, formatSpeed } from '../../data/format';
+import { formatBytes, formatEta, formatLeft, formatSpeed } from '../../data/format';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
 import { errorMessage } from '../../services/http-error';
@@ -93,7 +93,15 @@ export class JobCardComponent {
     return status === 'Completed' || status === 'Downloaded' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
   });
 
-  protected readonly linksDetail: Signal<string> = computed((): string => `${this.job().links.done} of ${this.job().links.total} links`);
+  protected readonly linksDetail: Signal<string> = computed((): string => {
+    const job: Job = this.job();
+    const text: string = `${job.links.done} of ${job.links.total} links`;
+    const remaining: number = job.links.total - job.links.done;
+
+    const waiting: number = Math.max(job.linksAhead, remaining);
+
+    return this.running() && remaining > 0 && job.linkSecondsEach > 0 ? `${text} · ${formatLeft(Math.ceil(waiting * job.linkSecondsEach))}` : text;
+  });
 
   protected readonly downloadDetail: Signal<string> = computed((): string => {
     const progress: Job['download'] = this.job().download;

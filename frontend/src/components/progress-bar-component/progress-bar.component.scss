@@ -113,6 +113,13 @@
   }
 }
 
+@media (max-width: 30rem) {
+  .progress-head,
+  .progress-detail {
+    gap: 0.5rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .progress-fill-active::after {
     display: none;

@@ -17,10 +17,7 @@ export function formatPercent(fraction: number): string {
   return `${Math.round(Math.min(Math.max(fraction, 0), 1) * 100)}%`;
 }
 
-export function formatEta(remainingBytes: number, bytesPerSecond: number): string | null {
-  if (remainingBytes <= 0 || bytesPerSecond < 1) return null;
-
-  const seconds: number = Math.ceil(remainingBytes / bytesPerSecond);
+export function formatLeft(seconds: number): string {
   if (seconds < 60) return `${seconds}s left`;
 
   const minutes: number = Math.floor(seconds / 60);
@@ -28,6 +25,12 @@ export function formatEta(remainingBytes: number, bytesPerSecond: number): strin
 
   const hours: number = Math.floor(minutes / 60);
   return `${hours}h ${minutes % 60}m left`;
+}
+
+export function formatEta(remainingBytes: number, bytesPerSecond: number): string | null {
+  if (remainingBytes <= 0 || bytesPerSecond < 1) return null;
+
+  return formatLeft(Math.ceil(remainingBytes / bytesPerSecond));
 }
 
 const NAME_END: RegExp = /(?:\.part\d+)?\.[^.]+$/i;

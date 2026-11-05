@@ -5,7 +5,7 @@ using AniLink.Api.Helpers;
 
 namespace AniLink.Api.Services;
 
-public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> logger) : BackgroundService
+public sealed class LinkResolver(DebridLinkClient client, LinkPace pace, ILogger<LinkResolver> logger) : BackgroundService
 {
     private const int MaxAttempts = 3;
 
@@ -13,6 +13,7 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
     private readonly PriorityQueue<Request, (int Priority, long Sequence)> _queue = new();
     private readonly SemaphoreSlim _signal = new(0);
     private long _sequence;
+    private Request? _current;
 
     private sealed record Request(ArchivePart Part, TaskCompletionSource Completion, CancellationToken Token);
 
@@ -31,6 +32,22 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
         return request.Completion.Task;
     }
 
+    public int LinksAhead(DownloadJob job)
+    {
+        lock (_gate)
+        {
+            var running = _current is { Completion.Task.IsCompleted: false } ? _current : null;
+            var waiting = _queue.UnorderedItems.Where(entry => !entry.Element.Completion.Task.IsCompleted).ToList();
+            var own = waiting.Where(entry => entry.Element.Part.Item.Job == job).ToList();
+
+            if (own.Count == 0) return running?.Part.Item.Job == job ? 1 : 0;
+
+            var last = own.Max(entry => entry.Priority);
+
+            return waiting.Count(entry => Comparer<(int Priority, long Sequence)>.Default.Compare(entry.Priority, last) <= 0) + (running is null ? 0 : 1);
+        }
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
@@ -40,11 +57,24 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
                 await _signal.WaitAsync(stoppingToken);
 
                 Request? request;
-                lock (_gate) _queue.TryDequeue(out request, out _);
 
-                if (request is null || request.Completion.Task.IsCompleted) continue;
+                lock (_gate)
+                {
+                    _queue.TryDequeue(out request, out _);
+                    _current = request;
+                }
 
-                await ResolveOneAsync(request, stoppingToken);
+                if (request is not null && !request.Completion.Task.IsCompleted && await ResolveOneAsync(request, stoppingToken)) pace.Finished();
+
+                bool empty;
+
+                lock (_gate)
+                {
+                    _current = null;
+                    empty = _queue.Count == 0;
+                }
+
+                if (empty) pace.Idle();
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -53,7 +83,7 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
         }
     }
 
-    private async Task ResolveOneAsync(Request request, CancellationToken stoppingToken)
+    private async Task<bool> ResolveOneAsync(Request request, CancellationToken stoppingToken)
     {
         var part = request.Part;
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, request.Token);
@@ -69,14 +99,14 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
                 part.Resolved(file);
                 request.Completion.TrySetResult();
 
-                return;
+                return true;
             }
             catch (OperationCanceledException)
             {
                 part.ResetForRetry();
                 request.Completion.TrySetCanceled(request.Token);
 
-                return;
+                return false;
             }
             catch (DebridLinkException exception) when (exception.Retryable && attempt < MaxAttempts)
             {
@@ -91,7 +121,7 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
                     part.ResetForRetry();
                     request.Completion.TrySetCanceled(request.Token);
 
-                    return;
+                    return false;
                 }
             }
             catch (Exception exception)
@@ -101,7 +131,7 @@ public sealed class LinkResolver(DebridLinkClient client, ILogger<LinkResolver> 
                 part.Fail(exception.Message);
                 request.Completion.TrySetException(exception);
 
-                return;
+                return true;
             }
         }
     }

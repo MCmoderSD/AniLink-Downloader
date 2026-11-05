@@ -69,6 +69,8 @@ export interface Job {
   links: Progress;
   download: Progress;
   speedBytesPerSecond: number;
+  linkSecondsEach: number;
+  linksAhead: number;
   itemsCompleted: number;
   items: Item[];
   activity: Notice[];
