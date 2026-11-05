@@ -45,6 +45,7 @@ export interface Item {
   links: Progress;
   download: Progress;
   extractPercent: number;
+  extractSecondsLeft: number;
   files: string[];
   parts: Part[];
   unpack: boolean;

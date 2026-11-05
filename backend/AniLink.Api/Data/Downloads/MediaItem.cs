@@ -5,6 +5,7 @@ namespace AniLink.Api.Data.Downloads;
 public sealed class MediaItem
 {
     private readonly List<ArchivePart> _parts = [];
+    private readonly ExtractPace _pace = new();
 
     public MediaItem(DownloadJob job, int number, string key, string targetName, IEnumerable<ArchiveLink> links, bool unpack)
     {
@@ -53,6 +54,8 @@ public sealed class MediaItem
         get { lock (Gate) return field; }
         private set;
     }
+
+    public int ExtractSecondsLeft => Stage is ItemStage.Extracting ? _pace.SecondsLeft() : 0;
 
     public IReadOnlyList<string> Files
     {
@@ -143,6 +146,7 @@ public sealed class MediaItem
                 return false;
             }
 
+            _pace.Reset();
             Stage = ItemStage.Extracting;
             ExtractPercent = 0;
             Error = null;
@@ -157,6 +161,7 @@ public sealed class MediaItem
         lock (Gate)
         {
             ExtractPercent = percent;
+            _pace.Report(percent);
             Job.Touch();
         }
     }
