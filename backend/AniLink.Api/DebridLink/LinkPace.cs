@@ -38,7 +38,7 @@ public sealed class LinkPace(DebridLinkOptions options)
         Finished(Environment.TickCount64);
     }
 
-    public void Finished(long at)
+    private void Finished(long at)
     {
         lock (_gate)
         {
