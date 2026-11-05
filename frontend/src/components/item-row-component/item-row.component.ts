@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Item, Job, Part, PART_ICONS, PART_LABELS, PART_TONES, STAGE_LABELS, STAGE_TONES, Tone } from '../../data/download';
-import { formatBytes, formatPercent, splitFileName } from '../../data/format';
+import { formatBytes, formatLeft, formatPercent, splitFileName } from '../../data/format';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
 import { errorMessage } from '../../services/http-error';
@@ -88,7 +88,7 @@ export class ItemRowComponent {
         return { label: 'Downloaded, ready to unpack', detail: this.bytes(item), fraction: 1, tone: 'success', active: false };
 
       case 'Extracting':
-        return { label: 'Unpacking', detail: '', fraction: item.extractPercent / 100, tone: 'info', active: true };
+        return { label: 'Unpacking', detail: item.extractSecondsLeft > 0 ? formatLeft(item.extractSecondsLeft) : '', fraction: item.extractPercent / 100, tone: 'info', active: true };
 
       case 'Organizing':
         return { label: 'Sorting files', detail: '', fraction: 1, tone: 'info', active: true };
