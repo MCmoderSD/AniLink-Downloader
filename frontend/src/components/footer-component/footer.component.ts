@@ -7,6 +7,8 @@ interface FooterLink {
   icon: string;
 }
 
+const REPOSITORY: string = 'https://github.com/MCmoderSD/AniLink-Downloader';
+
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
@@ -16,11 +18,11 @@ export class FooterComponent {
 
   protected readonly version: string = version;
 
-  protected readonly release: string = `https://github.com/MCmoderSD/AniLink-Downloader/releases/tag/${version}`;
+  protected readonly release: string = `${REPOSITORY}/releases/tag/${version}`;
 
   protected readonly links: readonly FooterLink[] = [
-    { label: 'GitHub', href: 'https://github.com/MCmoderSD/AniLink-Downloader', icon: 'url(icons/github.svg)' },
+    { label: 'GitHub', href: REPOSITORY, icon: 'url(icons/github.svg)' },
     { label: 'Docker Hub', href: 'https://hub.docker.com/r/mcmodersd/anilink-downloader', icon: 'url(icons/docker.svg)' },
-    { label: 'Wiki', href: 'https://github.com/MCmoderSD/AniLink-Downloader/wiki', icon: 'url(icons/wiki.svg)' }
+    { label: 'Wiki', href: `${REPOSITORY}/wiki`, icon: 'url(icons/wiki.svg)' }
   ];
 }

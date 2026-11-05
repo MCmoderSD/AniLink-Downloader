@@ -20,6 +20,7 @@
 
 // The name and the version lead to the release of the version that is running
 .footer-name {
+  position: relative;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-label-medium);
   text-decoration: none;
@@ -40,6 +41,7 @@
 
 // Text, like any link: quiet until it is pointed at, and then underlined
 .footer-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -78,6 +80,7 @@
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 // The text is small, so a finger gets room above and below it instead of a frame around it
