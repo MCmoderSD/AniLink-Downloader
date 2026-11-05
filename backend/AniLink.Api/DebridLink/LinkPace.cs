@@ -26,8 +26,6 @@ public sealed class LinkPace(DebridLinkOptions options)
 
                 var steps = Math.Max(_finished.Count - 1, 0);
                 var delay = (double)options.RequestDelayMs;
-
-                // The delay stands in for the first few steps, so there is a figure from the start and a single odd step cannot move it far
                 var mean = (sum + PriorWeight * delay) / (steps + PriorWeight);
 
                 return Math.Round(Math.Max(mean, delay) / 1000, 2);
