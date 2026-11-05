@@ -42,6 +42,18 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
         set { lock (Gate) field = value; }
     }
 
+    public double LinkSecondsEach
+    {
+        get { lock (Gate) return field; }
+        set { lock (Gate) field = value; }
+    }
+
+    public int LinksAhead
+    {
+        get { lock (Gate) return field; }
+        set { lock (Gate) field = value; }
+    }
+
     public JobStatus Status
     {
         get

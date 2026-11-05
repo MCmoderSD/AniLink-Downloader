@@ -1,17 +1,18 @@
 using System.Diagnostics;
 using AniLink.Api.Data.Downloads;
+using AniLink.Api.DebridLink;
 using AniLink.Api.Repositories;
 using AniLink.Api.Services.Streaming;
 
 namespace AniLink.Api.Services;
 
-public sealed class ProgressPublisher(JobRepository jobs, ProgressHub hub) : BackgroundService
+public sealed class ProgressPublisher(JobRepository jobs, ProgressHub hub, LinkPace pace, LinkResolver resolver) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromMilliseconds(500);
 
     private readonly Dictionary<Guid, Seen> _seen = [];
 
-    private sealed record Seen(long Revision, long Bytes, long Stamp, double Speed, bool Moving);
+    private sealed record Seen(long Revision, long Bytes, long Stamp, double Speed, bool Moving, int LinksAhead);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -52,13 +53,18 @@ public sealed class ProgressPublisher(JobRepository jobs, ProgressHub hub) : Bac
             }
 
             job.SpeedBytesPerSecond = speed;
+            var creating = job.Status is JobStatus.Active && job.LinksResolved < job.LinksTotal;
+            var ahead = creating ? resolver.LinksAhead(job) : 0;
+
+            job.LinkSecondsEach = creating ? pace.SecondsEach : 0;
+            job.LinksAhead = ahead;
 
             var moving = speed > 0;
-            var changed = previous is null || previous.Revision != revision || previous.Moving != moving;
+            var changed = previous is null || previous.Revision != revision || previous.Moving != moving || previous.LinksAhead != ahead;
 
             if (changed && hub.HasListeners) hub.Publish(DownloadEvents.Job(job));
 
-            _seen[job.Id] = new Seen(revision, bytes, now, speed, moving);
+            _seen[job.Id] = new Seen(revision, bytes, now, speed, moving, ahead);
         }
 
         foreach (var gone in _seen.Keys.Where(id => !live.Contains(id)).ToList()) _seen.Remove(gone);

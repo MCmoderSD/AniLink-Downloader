@@ -22,6 +22,7 @@ public static class DebridLinkServiceCollectionExtensions
                 PooledConnectionLifetime = TimeSpan.FromMinutes(5)
             });
 
+        services.AddSingleton<LinkPace>();
         services.AddSingleton<DebridLinkClient>();
 
         return services;

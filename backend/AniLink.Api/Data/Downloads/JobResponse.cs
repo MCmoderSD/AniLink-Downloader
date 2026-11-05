@@ -89,6 +89,8 @@ public sealed record JobResponse(
     ProgressResponse Links,
     ProgressResponse Download,
     double SpeedBytesPerSecond,
+    double LinkSecondsEach,
+    int LinksAhead,
     int ItemsCompleted,
     IReadOnlyList<ItemResponse> Items,
     IReadOnlyList<NoticeResponse> Activity
@@ -111,6 +113,8 @@ public sealed record JobResponse(
                 ProgressResponse.Of(job.LinksResolved, job.LinksTotal),
                 ProgressResponse.Of(job.BytesDone, job.BytesTotal),
                 job.SpeedBytesPerSecond,
+                job.LinkSecondsEach,
+                job.LinksAhead,
                 job.Items.Count(item => item.Stage is ItemStage.Completed),
                 [.. job.Items.Select(ItemResponse.From)],
                 [.. job.Activity.Entries().TakeLast(ActivityShown).Select(NoticeResponse.From)]);
