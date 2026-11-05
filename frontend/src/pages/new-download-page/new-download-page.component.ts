@@ -209,14 +209,14 @@ export class NewDownloadPageComponent {
   }
 
   protected async addLinkFiles(files: File[]): Promise<void> {
-    const maxBytes: number = this.limits()?.linksLength ?? Infinity;
+    const limit: number = this.limits()?.linksLength ?? Infinity;
     const found: string[] = [];
     const read: string[] = [];
 
     for (const file of files) {
       try {
-        if (file.size > maxBytes) {
-          this.notifications.failure(`${file.name} is larger than the ${maxBytes} characters a download may hold.`);
+        if (file.size > limit) {
+          this.notifications.failure(`${file.name} is larger than the ${limit} characters a download may hold.`);
           continue;
         }
 
@@ -241,6 +241,11 @@ export class NewDownloadPageComponent {
 
     if (result.added === 0) {
       this.notifications.info(`The links of ${source} are already in the list.`);
+      return;
+    }
+
+    if (result.text.length > limit) {
+      this.notifications.failure(`The links of ${source} do not fit: ${result.text.length} of ${limit} characters. Add them as a second download.`);
       return;
     }
 
