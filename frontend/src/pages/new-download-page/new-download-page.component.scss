@@ -123,6 +123,29 @@ textarea.new-links {
   resize: none;
 }
 
+.new-links-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px dashed var(--mat-sys-primary);
+  border-radius: var(--app-radius-md);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-label-large);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--app-timing-fast);
+}
+
+.new-links-dropping .new-links-drop {
+  opacity: 1;
+}
+
 .new-hint-error {
   color: var(--app-danger);
 }
