@@ -1,18 +1,15 @@
-name: Docker Build & Push
+name: Release
 
 on:
   push:
     branches: [master, main]
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
   workflow_dispatch:
-    inputs:
-      release:
-        description: Publish the version in the project files as a release, not just as edge
-        type: boolean
-        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !contains(github.event.head_commit.message, 'Release ') && !inputs.release }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 permissions:
   contents: read
@@ -27,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       publish: ${{ steps.plan.outputs.publish }}
-      release: ${{ steps.plan.outputs.release }}
       version: ${{ steps.plan.outputs.version }}
       tags: ${{ steps.plan.outputs.tags }}
 
@@ -36,15 +32,15 @@ jobs:
         name: Checkout
         uses: actions/checkout@v7
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - id: plan
         name: Resolve the version, the release and the tags
         env:
-          EVENT: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
-          MESSAGE: ${{ github.event.head_commit.message }}
-          INPUT_RELEASE: ${{ inputs.release }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
 
@@ -76,43 +72,20 @@ jobs:
           prerelease="${BASH_REMATCH[4]}"
 
           release=false
-          if [ "$EVENT" = workflow_dispatch ]; then
-            if [ "$INPUT_RELEASE" = true ]; then release=true; fi
-          else
-            title="$(printf '%s\n' "$MESSAGE" | head -n 1)"
-            case "$title" in
-              "Merge pull request "*) title="$(printf '%s\n' "$MESSAGE" | tail -n +2 | grep -m1 -v '^[[:space:]]*$' || true)" ;;
-            esac
-            marker="$(printf '%s\n' "$title" | grep -Eom1 '^Release [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?' | cut -d' ' -f2 || true)"
-            if [ -n "$marker" ]; then
-              if [ "$marker" != "$version" ]; then
-                echo "::error::The message says Release $marker, but the files say $version."
-                exit 1
-              fi
-              release=true
+          if [ "$REF_TYPE" = tag ]; then
+            if [ "$REF_NAME" != "$version" ]; then
+              echo "::error::The tag is $REF_NAME, but the files say $version."
+              exit 1
             fi
-          fi
-
-          if [ "$release" = true ]; then
-            set +e
-            git ls-remote --exit-code --tags origin "refs/tags/${version}" > /dev/null
-            status=$?
-            set -e
-            case "$status" in
-              0)
-                echo "::error::The tag ${version} exists already, so this version has been released. Raise the version first."
-                exit 1
-                ;;
-              2) ;;
-              *)
-                echo "::error::The tags of the repository could not be looked up (git exit code ${status})."
-                exit 1
-                ;;
-            esac
+            if ! git merge-base --is-ancestor HEAD "origin/$DEFAULT_BRANCH"; then
+              echo "::error::The tagged commit is not on '$DEFAULT_BRANCH'. Releases are only built from the default branch."
+              exit 1
+            fi
+            release=true
           fi
 
           on_default=false
-          if [ "$REF_NAME" = master ] || [ "$REF_NAME" = main ]; then on_default=true; fi
+          if [ "$REF_TYPE" = branch ] && [ "$REF_NAME" = "$DEFAULT_BRANCH" ]; then on_default=true; fi
 
           publish=false
           tags=()
@@ -128,7 +101,6 @@ jobs:
 
           {
             echo "publish=${publish}"
-            echo "release=${release}"
             echo "version=${version}"
             echo "tags<<TAGS_END"
             for tag in "${tags[@]}"; do echo "type=raw,value=${tag}"; done
@@ -141,7 +113,7 @@ jobs:
             if [ "$publish" = true ]; then
               echo "Publishes: ${tags[*]}"
             else
-              echo "Nothing is published: this push is neither on master or main nor a release."
+              echo "Nothing is published: this run is neither on the default branch ($DEFAULT_BRANCH) nor a version tag."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -305,19 +277,3 @@ jobs:
           SOURCE_IMAGE: ${{ steps.prepare.outputs.ghcr-image }}
           VERSION: ${{ steps.meta.outputs.version }}
         run: docker buildx imagetools inspect "${SOURCE_IMAGE}:${VERSION}"
-
-  tag:
-    name: Set the git tag
-    runs-on: ubuntu-latest
-    needs: [version, merge]
-    if: needs.version.outputs.release == 'true'
-    permissions:
-      contents: write
-
-    steps:
-      - id: create-tag
-        name: Create the tag on the built commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.version.outputs.version }}
-        run: gh api "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/tags/${VERSION}" -f sha="${GITHUB_SHA}"
