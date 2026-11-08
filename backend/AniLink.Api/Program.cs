@@ -7,7 +7,6 @@ using AniLink.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 #if DEBUG
-builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 #endif
 
