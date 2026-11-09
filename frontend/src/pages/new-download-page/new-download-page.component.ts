@@ -37,6 +37,7 @@ import {
   ReleaseKind
 } from '../../data/download';
 import { appendLinks, AppendedLinks, extractLinks } from '../../data/links-file';
+import { suggestKind } from '../../data/release-kind';
 import { ConfigService } from '../../services/config.service';
 import { DownloadDraftService } from '../../services/download-draft.service';
 import { DownloadService } from '../../services/download.service';
@@ -71,6 +72,7 @@ export class NewDownloadPageComponent {
 
   private readonly nameValue: WritableSignal<string> = signal('');
   private readonly kindValue: WritableSignal<ReleaseKind> = signal<ReleaseKind>('Season');
+  private readonly kindPicked: WritableSignal<boolean> = signal(false);
   private readonly linksValue: WritableSignal<string> = signal('');
   private readonly formatValue: WritableSignal<string> = signal('');
   private readonly seasonValue: WritableSignal<string> = signal('');
@@ -199,13 +201,19 @@ export class NewDownloadPageComponent {
 
     if (draft) {
       this.passwordsFromDlc.set(draft.passwords);
-      this.kindValue.set(draft.kind);
 
       afterNextRender((): void => {
         this.fill(this.nameField()?.nativeElement, draft.name);
         this.fill(this.linksField()?.nativeElement, draft.links);
       });
     }
+
+    effect((): void => {
+      if (this.kindPicked()) return;
+
+      const suggested: ReleaseKind | null = suggestKind(this.linksValue().split('\n'));
+      if (suggested) this.kindValue.set(suggested);
+    });
 
     effect((onCleanup: (cleanup: () => void) => void): void => {
       const request: AnalyzeRequest | null = this.request();
@@ -230,6 +238,7 @@ export class NewDownloadPageComponent {
   }
 
   protected setKind(kind: string): void {
+    this.kindPicked.set(true);
     this.kindValue.set(kind as ReleaseKind);
   }
 

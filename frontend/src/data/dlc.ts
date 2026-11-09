@@ -1,7 +1,3 @@
-import { ReleaseKind } from './download';
-
-const EPISODE: RegExp = /S\d{1,3}E\d{1,3}/i;
-
 export interface DlcHeader {
   generatorApp?: string;
   generatorVersion?: string;
@@ -42,10 +38,6 @@ export function packageLinks(pack: DlcPackage): string[] {
   return pack.files
     .map((file: DlcFile): string | undefined => file.url)
     .filter((url: string | undefined): url is string => !!url);
-}
-
-export function releaseKindOf(pack: DlcPackage): ReleaseKind {
-  return pack.files.some((file: DlcFile): boolean => EPISODE.test(file.fileName ?? file.url ?? '')) ? 'Season' : 'Movie';
 }
 
 export function linksOf(container: DlcContainer): string[] {

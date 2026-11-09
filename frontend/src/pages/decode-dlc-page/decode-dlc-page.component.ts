@@ -26,7 +26,6 @@ import {
   linksOf,
   packageDetails,
   packageLinks,
-  releaseKindOf,
   sizeOf
 } from '../../data/dlc';
 import { AppConfig } from '../../data/download';
@@ -209,7 +208,6 @@ export class DecodeDlcPageComponent {
   protected async addDownload(pack: DlcPackage): Promise<void> {
     this.drafts.set({
       name: pack.name ?? '',
-      kind: releaseKindOf(pack),
       links: packageLinks(pack).join('\n'),
       passwords: pack.passwords.filter((password: string): boolean => password.trim() !== '')
     });

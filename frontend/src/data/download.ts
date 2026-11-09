@@ -113,7 +113,6 @@ export interface CreateDownloadRequest extends AnalyzeRequest {
 
 export interface DownloadDraft {
   name: string;
-  kind: ReleaseKind;
   links: string;
   passwords: string[];
 }
