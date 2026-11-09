@@ -36,9 +36,12 @@ import {
   Limits,
   ReleaseKind
 } from '../../data/download';
+import { DlcContainer, DlcPackage, isDlcFile, packageLinks } from '../../data/dlc';
+import { formatBytes, formatList } from '../../data/format';
 import { appendLinks, AppendedLinks, extractLinks } from '../../data/links-file';
 import { suggestKind } from '../../data/release-kind';
 import { ConfigService } from '../../services/config.service';
+import { DlcService } from '../../services/dlc.service';
 import { DownloadDraftService } from '../../services/download-draft.service';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
@@ -63,6 +66,7 @@ const KINDS: SegmentedOption[] = [
 export class NewDownloadPageComponent {
 
   private readonly downloads: DownloadService = inject(DownloadService);
+  private readonly dlc: DlcService = inject(DlcService);
   private readonly sync: DownloadSyncService = inject(DownloadSyncService);
   private readonly notifications: NotificationService = inject(NotificationService);
   private readonly router: Router = inject(Router);
@@ -80,6 +84,7 @@ export class NewDownloadPageComponent {
   private readonly passwordShown: WritableSignal<boolean> = signal(false);
   private readonly unpackValue: WritableSignal<boolean> = signal(true);
   private readonly passwordsFromDlc: WritableSignal<string[]> = signal<string[]>([]);
+  private readonly decodingName: WritableSignal<string | null> = signal<string | null>(null);
 
   private readonly analysisValue: WritableSignal<Analysis | null> = signal<Analysis | null>(null);
   private readonly analysisProblem: WritableSignal<string | null> = signal<string | null>(null);
@@ -97,6 +102,7 @@ export class NewDownloadPageComponent {
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
   protected readonly unpack: Signal<boolean> = this.unpackValue.asReadonly();
   protected readonly draftPasswords: Signal<string[]> = this.passwordsFromDlc.asReadonly();
+  protected readonly decodingFile: Signal<string | null> = this.decodingName.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
   protected readonly analyzing: Signal<boolean> = this.analysisRunning.asReadonly();
@@ -247,6 +253,15 @@ export class NewDownloadPageComponent {
   }
 
   protected async addLinkFiles(files: File[]): Promise<void> {
+    const dlcFiles: File[] = files.filter(isDlcFile);
+    const textFiles: File[] = files.filter((file: File): boolean => !isDlcFile(file));
+
+    if (dlcFiles.length > 1) this.notifications.info(`Only ${dlcFiles[0].name} is decoded, one DLC file at a time.`);
+    if (dlcFiles.length > 0) await this.addDlcFile(dlcFiles[0]);
+    if (textFiles.length > 0) await this.addTextFiles(textFiles);
+  }
+
+  private async addTextFiles(files: File[]): Promise<void> {
     const limit: number = this.limits()?.linksLength ?? Infinity;
     const found: string[] = [];
     const read: string[] = [];
@@ -265,8 +280,7 @@ export class NewDownloadPageComponent {
       }
     }
 
-    const field: HTMLTextAreaElement | undefined = this.linksField()?.nativeElement;
-    if (!field || read.length === 0) return;
+    if (read.length === 0) return;
 
     const source: string = read.length === 1 ? read[0] : `${read.length} files`;
 
@@ -275,22 +289,96 @@ export class NewDownloadPageComponent {
       return;
     }
 
+    const added: number = this.insertLinks(found, source);
+
+    if (added > 0) this.notifications.success(`Added ${added} ${added === 1 ? 'link' : 'links'} from ${source}.`);
+  }
+
+  private async addDlcFile(file: File): Promise<void> {
+    const limit: number | undefined = this.limits()?.dlcBytes;
+
+    if (this.decodingName() !== null) {
+      this.notifications.info(`${this.decodingName()} is still being decoded.`);
+      return;
+    }
+
+    if (file.size === 0) {
+      this.notifications.failure(`${file.name} is empty.`);
+      return;
+    }
+
+    if (limit !== undefined && file.size > limit) {
+      this.notifications.failure(`${file.name} is larger than ${formatBytes(limit)}.`);
+      return;
+    }
+
+    this.decodingName.set(file.name);
+
+    try {
+      this.takeContainer(file.name, await this.dlc.decode(file));
+    } catch (error: unknown) {
+      this.notifications.failure(errorMessage(error, `${file.name} could not be decoded.`));
+    } finally {
+      this.decodingName.set(null);
+    }
+  }
+
+  private takeContainer(source: string, container: DlcContainer): void {
+    const packages: DlcPackage[] = container.packages.filter((pack: DlcPackage): boolean => packageLinks(pack).length > 0);
+    const pack: DlcPackage | undefined = packages[0];
+
+    if (!pack) {
+      this.notifications.warning(`No links found in ${source}.`);
+      return;
+    }
+
+    const added: number = this.insertLinks(packageLinks(pack), source);
+    const nameField: HTMLInputElement | undefined = this.nameField()?.nativeElement;
+    const taken: string[] = [];
+
+    if (pack.name && nameField && nameField.value.trim() === '') {
+      this.fill(nameField, pack.name);
+      taken.push('the name');
+    }
+
+    if (added > 0) taken.push(`${added} ${added === 1 ? 'link' : 'links'}`);
+
+    const known: string[] = this.passwordsFromDlc();
+    const fresh: string[] = [...new Set(pack.passwords.filter((password: string): boolean => password.trim() !== ''))].filter((password: string): boolean => !known.includes(password));
+
+    if (fresh.length > 0) {
+      this.passwordsFromDlc.set([...known, ...fresh]);
+      taken.push(`${fresh.length} ${fresh.length === 1 ? 'password' : 'passwords'}`);
+    }
+
+    if (taken.length > 0) this.notifications.success(`Filled in ${formatList(taken)} from ${source}.`);
+
+    if (packages.length > 1) {
+      this.notifications.warning(`${source} holds ${packages.length} packages with links. Only the first one, ${pack.name || 'without a name'}, was taken. Decode DLC lets you choose.`);
+    }
+  }
+
+  private insertLinks(found: readonly string[], source: string): number {
+    const field: HTMLTextAreaElement | undefined = this.linksField()?.nativeElement;
+    if (!field) return 0;
+
+    const limit: number = this.limits()?.linksLength ?? Infinity;
     const result: AppendedLinks = appendLinks(field.value, found);
 
     if (result.added === 0) {
       this.notifications.info(`The links of ${source} are already in the list.`);
-      return;
+      return 0;
     }
 
     if (result.text.length > limit) {
       this.notifications.failure(`The links of ${source} do not fit: ${result.text.length} of ${limit} characters. Add them as a second download.`);
-      return;
+      return 0;
     }
 
     field.value = result.text;
     field.dispatchEvent(new Event('input', { bubbles: true }));
 
-    this.notifications.success(`Added ${result.added} ${result.added === 1 ? 'link' : 'links'} from ${source}.`);
+    return result.added;
   }
 
   protected setFormat(event: Event): void {

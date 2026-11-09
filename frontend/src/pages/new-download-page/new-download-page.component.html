@@ -90,11 +90,15 @@
 
         <div class="new-links-drop" aria-hidden="true">
           <mat-icon>upload_file</mat-icon>
-          <span>Drop a text file to add its links</span>
+          <span>Drop a text or DLC file to add its links</span>
         </div>
       </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">
+        @if (decodingFile(); as file) {
+          <p class="app-hint" role="status">Decoding {{ file }}…</p>
+        }
+
         @if (linksProblem(); as tooLong) {
           <p class="new-callout new-callout-error" role="alert">{{ tooLong }}</p>
         } @else if (analysisError(); as problem) {

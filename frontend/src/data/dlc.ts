@@ -30,6 +30,10 @@ export interface DlcDetail {
   value: string;
 }
 
+export function isDlcFile(file: File): boolean {
+  return file.name.toLowerCase().endsWith('.dlc');
+}
+
 export function filesOf(container: DlcContainer): DlcFile[] {
   return container.packages.flatMap((pack: DlcPackage): DlcFile[] => pack.files);
 }

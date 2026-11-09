@@ -23,6 +23,7 @@ import {
   downloadsText,
   filesOf,
   headerDetails,
+  isDlcFile,
   linksOf,
   packageDetails,
   packageLinks,
@@ -39,10 +40,6 @@ import { NotificationService } from '../../services/notification.service';
 import { saveTextFile } from '../../services/save-file';
 
 const DOWNLOADS_FILE: string = 'Downloads.txt';
-
-function isDlcFile(file: File): boolean {
-  return file.name.toLowerCase().endsWith('.dlc');
-}
 
 @Component({
   selector: 'app-decode-dlc-page',
