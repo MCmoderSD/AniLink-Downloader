@@ -1,3 +1,7 @@
+interface SelectionCopy {
+  execCommand(command: 'copy'): boolean;
+}
+
 export async function copyText(document: Document, text: string): Promise<boolean> {
   const clipboard: Clipboard | undefined = document.defaultView?.navigator.clipboard;
 
@@ -10,7 +14,6 @@ export async function copyText(document: Document, text: string): Promise<boolea
     }
   }
 
-  // Over plain http on a local network the browser offers no clipboard API; selecting a hidden field still works there.
   const active: HTMLElement | null = document.activeElement as HTMLElement | null;
   const field: HTMLTextAreaElement = document.createElement('textarea');
 
@@ -23,7 +26,7 @@ export async function copyText(document: Document, text: string): Promise<boolea
   field.select();
 
   try {
-    return document.execCommand('copy');
+    return (document as SelectionCopy).execCommand('copy');
   } finally {
     field.remove();
     active?.focus();
