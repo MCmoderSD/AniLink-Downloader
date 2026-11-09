@@ -70,6 +70,7 @@ public sealed class DownloadService(
         }
 
         var passwords = new PasswordBook(archive.Passwords);
+        // Add puts a password in front of the others, so the list goes in backwards to be tried in the order given.
         foreach (var password in Enumerable.Reverse(request.Passwords ?? [])) passwords.Add(password);
         if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
 
