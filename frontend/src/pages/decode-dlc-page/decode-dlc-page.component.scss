@@ -226,4 +226,28 @@
   .dlc-files {
     max-height: 16rem;
   }
+
+  .dlc-actions-pair {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+
+    > button {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+}
+
+// Two labelled buttons side by side have to fit into 320 pixels, so the icons, which only repeat the words, go first.
+@media (max-width: 30rem) {
+  .dlc-actions-pair > button {
+    --mat-button-outlined-horizontal-padding: 0.75rem;
+    --mat-button-outlined-with-icon-horizontal-padding: 0.75rem;
+    --mat-button-filled-horizontal-padding: 0.75rem;
+    --mat-button-filled-with-icon-horizontal-padding: 0.75rem;
+
+    mat-icon {
+      display: none;
+    }
+  }
 }
