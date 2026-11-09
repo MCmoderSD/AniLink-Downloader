@@ -40,6 +40,16 @@ public sealed class DownloadService(
         var name = request.Name.Trim();
         if (FileNames.Sanitize(name).Length == 0) throw new InvalidDownloadException("The name has no characters that can be used for a folder.");
 
+        if (request.Passwords is { Length: > DownloadLimits.MaxPasswords })
+        {
+            throw new InvalidDownloadException($"A download takes at most {DownloadLimits.MaxPasswords} passwords.");
+        }
+
+        if (request.Passwords?.Any(password => password is { Length: > DownloadLimits.MaxPasswordLength }) is true)
+        {
+            throw new InvalidDownloadException($"A password may have at most {DownloadLimits.MaxPasswordLength} characters.");
+        }
+
         var analysis = LinkAnalyzer.Analyze(request.Links, request.Kind, request.Format);
 
         if (analysis.Episodes.Count == 0) throw new InvalidDownloadException(analysis.Unmatched.Count > 0
@@ -60,6 +70,7 @@ public sealed class DownloadService(
         }
 
         var passwords = new PasswordBook(archive.Passwords);
+        foreach (var password in Enumerable.Reverse(request.Passwords ?? [])) passwords.Add(password);
         if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
 
         var job = new DownloadJob(

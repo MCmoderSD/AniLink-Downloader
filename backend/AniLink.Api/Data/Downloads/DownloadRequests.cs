@@ -37,6 +37,8 @@ public sealed record CreateDownloadRequest
     [MaxLength(DownloadLimits.MaxPasswordLength)]
     public string? Password { get; init; }
 
+    public string[]? Passwords { get; init; }
+
     public bool Unpack { get; init; } = true;
 }
 
@@ -60,6 +62,7 @@ public static class DownloadLimits
     public const int MaxNameBytes = 251;
     public const int MaxFormatLength = 255;
     public const int MaxPasswordLength = 127;
+    public const int MaxPasswords = 20;
     public const int MaxLinksLength = 5_000_000;
     public const int MaxDlcBytes = 5 * 1024 * 1024;
 }
