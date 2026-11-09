@@ -1,16 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  isDevMode,
-  signal,
-  Signal,
-  viewChild,
-  WritableSignal
-} from '@angular/core';
+import { afterNextRender, Component, computed, effect, ElementRef, inject, isDevMode, signal, Signal, viewChild, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,21 +9,9 @@ import { NumberStepperComponent } from '../../components/number-stepper-componen
 import { RESIZE_GRIP_SIZE, ResizeGripComponent } from '../../components/resize-grip-component/resize-grip.component';
 import { ScrollBarComponent } from '../../components/scroll-bar-component/scroll-bar.component';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
-import {
-  SegmentedOption,
-  SegmentedSwitchComponent
-} from '../../components/segmented-switch-component/segmented-switch.component';
+import { SegmentedOption, SegmentedSwitchComponent } from '../../components/segmented-switch-component/segmented-switch.component';
 import { SwitchComponent } from '../../components/switch-component/switch.component';
-import {
-  Analysis,
-  AnalyzedEpisode,
-  AnalyzeRequest,
-  AppConfig,
-  DownloadDraft,
-  Job,
-  Limits,
-  ReleaseKind
-} from '../../data/download';
+import { Analysis, AnalyzedEpisode, AnalyzeRequest, AppConfig, DownloadDraft, Job, Limits, ReleaseKind } from '../../data/download';
 import { DlcContainer, DlcPackage, isDlcFile, packageLinks } from '../../data/dlc';
 import { formatBytes, formatList } from '../../data/format';
 import { appendLinks, AppendedLinks, extractLinks } from '../../data/links-file';

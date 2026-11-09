@@ -1,34 +1,11 @@
 import { DOCUMENT } from '@angular/common';
-import {
-  afterNextRender,
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  Injector,
-  signal,
-  Signal,
-  viewChild,
-  WritableSignal
-} from '@angular/core';
+import { afterNextRender, Component, computed, ElementRef, inject, Injector, signal, Signal, viewChild, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { FileDropDirective } from '../../components/file-drop-component/file-drop.directive';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
-import {
-  DlcContainer,
-  DlcDetail,
-  DlcPackage,
-  downloadsText,
-  filesOf,
-  headerDetails,
-  isDlcFile,
-  linksOf,
-  packageDetails,
-  packageLinks,
-  sizeOf
-} from '../../data/dlc';
+import { DlcContainer, DlcDetail, DlcPackage, downloadsText, filesOf, headerDetails, isDlcFile, linksOf, packageDetails, packageLinks, sizeOf } from '../../data/dlc';
 import { AppConfig } from '../../data/download';
 import { formatBytes } from '../../data/format';
 import { copyText } from '../../services/clipboard';
@@ -79,7 +56,6 @@ export class DecodeDlcPageComponent {
 
   protected readonly limitText: Signal<string | null> = computed((): string | null => {
     const bytes: number | undefined = this.config()?.limits.dlcBytes;
-
     return bytes === undefined ? null : formatBytes(bytes);
   });
 
@@ -87,25 +63,21 @@ export class DecodeDlcPageComponent {
 
   protected readonly fileCount: Signal<number> = computed((): number => {
     const container: DlcContainer | null = this.containerValue();
-
     return container ? filesOf(container).length : 0;
   });
 
   protected readonly linkCount: Signal<number> = computed((): number => {
     const container: DlcContainer | null = this.containerValue();
-
     return container ? linksOf(container).length : 0;
   });
 
   protected readonly totalBytes: Signal<number> = computed((): number => {
     const container: DlcContainer | null = this.containerValue();
-
     return container ? sizeOf(container) : 0;
   });
 
   protected readonly details: Signal<DlcDetail[]> = computed((): DlcDetail[] => {
     const container: DlcContainer | null = this.containerValue();
-
     return container ? headerDetails(container.header) : [];
   });
 
