@@ -4,7 +4,7 @@ const MAX_LINKS: number = 1000;
 
 const WEB_LINK: RegExp = /^https?:\/\//i;
 
-const PART_AND_EXTENSION: RegExp = /(?:\.part\d+)?\.(?:rar|zip|7z|r\d{2,3}|z\d{2}|\d{3}|[a-z0-9]{2,4})$/i;
+const PART_AND_EXTENSION: RegExp = /(?:\.part\d+)?\.(?:rar|zip|7z|r\d{2,3}|z\d{2}|\d{3}|[a-z][a-z0-9]{1,3})$/i;
 
 const SEASON_AND_EPISODE: readonly RegExp[] = [
   /S(\d{1,3})E(\d{1,4})/i,
