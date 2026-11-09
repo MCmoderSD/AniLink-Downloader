@@ -6,7 +6,8 @@ creates the direct download links with [Debrid-Link](https://debrid-link.com/pre
 unpacks them with 7-Zip and puts the renamed video into a folder named after the show.
 
 Everything stays local: there is no account, no login and no database. 7-Zip is part of the image, so Docker is the
-only thing you have to install.
+only thing you have to install. Decoding a DLC file is the one exception to everything staying local: its key part is
+sent to the JDownloader key service.
 
 ## Quick reference
 - **Source code, issues and releases:** [github.com/MCmoderSD/AniLink-Downloader](https://github.com/MCmoderSD/AniLink-Downloader)
