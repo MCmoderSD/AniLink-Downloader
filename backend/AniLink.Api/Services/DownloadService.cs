@@ -13,8 +13,8 @@ public sealed class DownloadService(
     JobRepository jobs,
     DownloadPipeline pipeline,
     ProgressHub hub,
-    ILogger<DownloadService> logger)
-{
+    ILogger<DownloadService> logger
+) {
     public ConfigResponse GetConfig()
     {
         return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root, LimitsResponse.Current);
@@ -65,8 +65,7 @@ public sealed class DownloadService(
         }
 
         var passwords = new PasswordBook(archive.Passwords);
-        // Add puts a password in front of the others, so the list goes in backwards to be tried in the order given.
-        foreach (var password in Enumerable.Reverse(request.Passwords ?? [])) passwords.Add(password);
+        foreach (var password in (request.Passwords ?? []).Reverse()) passwords.Add(password);
         if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
 
         var job = new DownloadJob(
