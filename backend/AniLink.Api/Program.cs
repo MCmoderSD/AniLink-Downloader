@@ -18,6 +18,7 @@ var archives = ArchiveOptions.From(builder.Configuration);
 
 builder.Services.AddAniLinkDebridLink(debridLink);
 builder.Services.AddAniLinkDownloads(downloads, archives);
+builder.Services.AddSingleton<DlcService>();
 builder.Services.AddControllers();
 builder.Services.AddResponseCompression();
 

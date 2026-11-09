@@ -61,4 +61,5 @@ public static class DownloadLimits
     public const int MaxFormatLength = 255;
     public const int MaxPasswordLength = 127;
     public const int MaxLinksLength = 5_000_000;
+    public const int MaxDlcBytes = 5 * 1024 * 1024;
 }
