@@ -115,6 +115,7 @@ export interface Limits {
   formatLength: number;
   passwordLength: number;
   linksLength: number;
+  dlcBytes: number;
 }
 
 export interface AppConfig {

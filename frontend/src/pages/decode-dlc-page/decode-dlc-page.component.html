@@ -1,0 +1,149 @@
+<div class="app-page">
+  <div class="app-page-header">
+    <div>
+      <h1 class="app-page-title">Decode DLC</h1>
+      <p class="app-hint dlc-subtitle">Read a JDownloader container and list its packages, files and links.</p>
+    </div>
+  </div>
+
+  <div class="dlc-stack">
+    @if (container(); as result) {
+      <section class="dlc-section app-panel" aria-labelledby="dlc-result">
+        <div class="dlc-head">
+          <div class="dlc-head-title">
+            <button mat-button type="button" aria-label="Back to the file selection" (click)="back()">
+              <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              Back
+            </button>
+            <h2 class="dlc-section-title" id="dlc-result" tabindex="-1" #title>{{ fileName() }}</h2>
+          </div>
+          <button mat-flat-button type="button" [disabled]="linkCount() === 0" (click)="saveLinks()">
+            <mat-icon aria-hidden="true">download</mat-icon>
+            Download Downloads.txt
+          </button>
+        </div>
+
+        <p class="dlc-chips">
+          <span class="app-chip" data-tone="info">{{ packageCount() }} {{ packageCount() === 1 ? 'package' : 'packages' }}</span>
+          <span class="app-chip" data-tone="info">{{ fileCount() }} {{ fileCount() === 1 ? 'file' : 'files' }}</span>
+          @if (totalBytes() > 0) {
+            <span class="app-chip">{{ formatBytes(totalBytes()) }}</span>
+          }
+          @if (fileCount() > linkCount()) {
+            <span class="app-chip" data-tone="warning">{{ fileCount() - linkCount() }} without a link</span>
+          }
+        </p>
+
+        @if (details().length > 0) {
+          <dl class="dlc-details">
+            @for (detail of details(); track detail.label) {
+              <div class="dlc-detail">
+                <dt>{{ detail.label }}</dt>
+                <dd>{{ detail.value }}</dd>
+              </div>
+            }
+          </dl>
+        }
+
+        @if (result.packages.length === 0) {
+          <p class="app-hint">This container holds no packages.</p>
+        }
+      </section>
+
+      @for (pack of result.packages; track pack; let index = $index) {
+        <section class="dlc-section app-panel dlc-package" [attr.aria-labelledby]="'dlc-package-' + index">
+          <div class="dlc-head">
+            <h3 class="dlc-section-title" [id]="'dlc-package-' + index">{{ pack.name || 'Unnamed package' }}</h3>
+            <p class="dlc-chips">
+              <span class="app-chip" data-tone="info">{{ pack.files.length }} {{ pack.files.length === 1 ? 'file' : 'files' }}</span>
+            </p>
+          </div>
+
+          @let rows = packageDetails(pack);
+          @if (rows.length > 0) {
+            <dl class="dlc-details">
+              @for (detail of rows; track detail.label) {
+                <div class="dlc-detail">
+                  <dt>{{ detail.label }}</dt>
+                  <dd>{{ detail.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          @if (pack.passwords.length > 0) {
+            <div class="dlc-passwords">
+              <h4 class="dlc-label" [id]="'dlc-passwords-' + index">{{ pack.passwords.length === 1 ? 'Password' : 'Passwords' }}</h4>
+              <ul class="dlc-secrets" [attr.aria-labelledby]="'dlc-passwords-' + index">
+                @for (password of pack.passwords; track $index) {
+                  @let key = index + ':' + $index;
+                  @let noun = pack.passwords.length > 1 ? 'password ' + ($index + 1) : 'password';
+                  <li class="dlc-secret">
+                    @if (shown().has(key)) {
+                      <span class="dlc-secret-text app-mono">{{ password }}</span>
+                    } @else {
+                      <span class="dlc-secret-text dlc-secret-hidden" role="img" [attr.aria-label]="'Hidden ' + noun">••••••••</span>
+                    }
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [attr.aria-label]="(shown().has(key) ? 'Hide ' : 'Show ') + noun"
+                      [attr.aria-pressed]="shown().has(key)"
+                      (click)="toggleSecret(key)"
+                    >
+                      <mat-icon aria-hidden="true">{{ shown().has(key) ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" [attr.aria-label]="'Copy ' + noun" (click)="copySecret(password)">
+                      <mat-icon aria-hidden="true">content_copy</mat-icon>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (pack.files.length > 0) {
+            <ol class="dlc-files" appScrollBar [attr.aria-label]="'Files of ' + (pack.name || 'the package')">
+              @for (file of pack.files; track $index) {
+                <li class="dlc-file">
+                  <span class="dlc-file-name" [class.dlc-missing]="!file.fileName">{{ file.fileName || 'Unnamed file' }}</span>
+                  @if (file.size !== undefined) {
+                    <span class="dlc-file-size" [attr.title]="file.size + ' bytes'">{{ formatBytes(file.size) }}</span>
+                  }
+                  <span class="dlc-file-url app-mono" [class.dlc-missing]="!file.url">{{ file.url || 'No link in the container' }}</span>
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="app-hint">This package holds no files.</p>
+          }
+        </section>
+      }
+    } @else {
+      <section class="dlc-section app-panel" aria-labelledby="dlc-file">
+        <h2 class="dlc-section-title" id="dlc-file">DLC file</h2>
+
+        <div class="dlc-drop" appFileDrop #drop="appFileDrop" [class.dlc-drop-active]="drop.active()" (filesDropped)="decodeFiles($event)">
+          <mat-icon aria-hidden="true">upload_file</mat-icon>
+          <p class="dlc-drop-title">Drop a .dlc file here</p>
+          <p class="app-hint dlc-drop-or">or</p>
+          <button mat-flat-button type="button" #choose [disabled]="decoding()" (click)="picker.click()">Choose file</button>
+          <input #picker type="file" accept=".dlc" hidden (change)="pick($event)" />
+          @if (limitText(); as limit) {
+            <p class="app-hint">Up to {{ limit }}.</p>
+          }
+        </div>
+
+        <div class="dlc-status" aria-live="polite">
+          @if (decoding()) {
+            <p class="app-hint" role="status">Decoding {{ fileName() }}…</p>
+          } @else if (problem(); as text) {
+            <p class="dlc-callout dlc-callout-error" role="alert">{{ text }}</p>
+          }
+        </div>
+
+        <p class="app-hint">To decrypt the file, its key part is sent to the JDownloader key service. The links in the file are not.</p>
+      </section>
+    }
+  </div>
+</div>
