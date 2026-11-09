@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { FileDropDirective } from '../../components/file-drop-component/file-drop.directive';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
 import {
@@ -24,6 +25,8 @@ import {
   headerDetails,
   linksOf,
   packageDetails,
+  packageLinks,
+  releaseKindOf,
   sizeOf
 } from '../../data/dlc';
 import { AppConfig } from '../../data/download';
@@ -31,8 +34,10 @@ import { formatBytes } from '../../data/format';
 import { copyText } from '../../services/clipboard';
 import { ConfigService } from '../../services/config.service';
 import { DlcService } from '../../services/dlc.service';
+import { DownloadDraftService } from '../../services/download-draft.service';
 import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
+import { saveTextFile } from '../../services/save-file';
 
 const DOWNLOADS_FILE: string = 'Downloads.txt';
 
@@ -54,6 +59,8 @@ export class DecodeDlcPageComponent {
   private readonly configuration: ConfigService = inject(ConfigService);
   private readonly config: Signal<AppConfig | null> = this.configuration.config;
   private readonly injector: Injector = inject(Injector);
+  private readonly drafts: DownloadDraftService = inject(DownloadDraftService);
+  private readonly router: Router = inject(Router);
 
   private readonly chooseButton: Signal<ElementRef<HTMLElement> | undefined> = viewChild<HTMLElement, ElementRef<HTMLElement>>('choose', { read: ElementRef });
   private readonly resultTitle: Signal<ElementRef<HTMLElement> | undefined> = viewChild<ElementRef<HTMLElement>>('title');
@@ -66,6 +73,7 @@ export class DecodeDlcPageComponent {
 
   protected readonly formatBytes: (bytes: number) => string = formatBytes;
   protected readonly packageDetails: (pack: DlcPackage) => DlcDetail[] = packageDetails;
+  protected readonly packageLinks: (pack: DlcPackage) => string[] = packageLinks;
 
   protected readonly fileName: Signal<string> = this.nameValue.asReadonly();
   protected readonly container: Signal<DlcContainer | null> = this.containerValue.asReadonly();
@@ -185,18 +193,28 @@ export class DecodeDlcPageComponent {
     }
   }
 
-  protected saveLinks(): void {
+  protected async saveLinks(): Promise<void> {
     const container: DlcContainer | null = this.containerValue();
     if (!container) return;
 
-    const url: string = URL.createObjectURL(new Blob([downloadsText(container)], { type: 'text/plain;charset=utf-8' }));
-    const anchor: HTMLAnchorElement = this.document.createElement('a');
+    try {
+      const saved: string | null = await saveTextFile(this.document, DOWNLOADS_FILE, downloadsText(container));
 
-    anchor.href = url;
-    anchor.download = DOWNLOADS_FILE;
-    anchor.click();
+      if (saved) this.notifications.success(`Saved ${saved}.`);
+    } catch {
+      this.notifications.failure('The links could not be saved.');
+    }
+  }
 
-    setTimeout((): void => URL.revokeObjectURL(url));
+  protected async addDownload(pack: DlcPackage): Promise<void> {
+    this.drafts.set({
+      name: pack.name ?? '',
+      kind: releaseKindOf(pack),
+      links: packageLinks(pack).join('\n'),
+      passwords: pack.passwords.filter((password: string): boolean => password.trim() !== '')
+    });
+
+    await this.router.navigateByUrl('/add-download');
   }
 
   private focusAfterRender(target: Signal<ElementRef<HTMLElement> | undefined>): void {
