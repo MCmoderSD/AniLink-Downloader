@@ -9,6 +9,10 @@ export function formatBytes(bytes: number): string {
   return `${value >= 100 || exponent === 0 ? value.toFixed(0) : value.toFixed(1)} ${UNITS[exponent]}`;
 }
 
+export function formatList(items: readonly string[]): string {
+  return items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : (items[0] ?? '');
+}
+
 export function formatSpeed(bytesPerSecond: number): string {
   return `${formatBytes(bytesPerSecond)}/s`;
 }

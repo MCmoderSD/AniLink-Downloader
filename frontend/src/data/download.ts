@@ -107,7 +107,14 @@ export interface CreateDownloadRequest extends AnalyzeRequest {
   name: string;
   season: number | null;
   password: string | null;
+  passwords: string[];
   unpack: boolean;
+}
+
+export interface DownloadDraft {
+  name: string;
+  links: string;
+  passwords: string[];
 }
 
 export interface Limits {
@@ -115,6 +122,7 @@ export interface Limits {
   formatLength: number;
   passwordLength: number;
   linksLength: number;
+  dlcBytes: number;
 }
 
 export interface AppConfig {

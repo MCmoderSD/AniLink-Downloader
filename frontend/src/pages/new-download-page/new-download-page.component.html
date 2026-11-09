@@ -17,7 +17,7 @@
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="new-field-full">
         <mat-label>Name</mat-label>
-        <input matInput type="text" autocomplete="off" required [attr.aria-invalid]="nameTooLong()" (input)="setName($event)"/>
+        <input matInput #name type="text" autocomplete="off" required [attr.aria-invalid]="nameTooLong()" (input)="setName($event)"/>
         <mat-hint [class.new-hint-error]="nameTooLong()">{{ nameHint() }}</mat-hint>
       </mat-form-field>
 
@@ -90,11 +90,15 @@
 
         <div class="new-links-drop" aria-hidden="true">
           <mat-icon>upload_file</mat-icon>
-          <span>Drop a text file to add its links</span>
+          <span>Drop a text or DLC file to add its links</span>
         </div>
       </div>
 
       <div class="new-preview" id="new-preview" aria-live="polite">
+        @if (decodingFile(); as file) {
+          <p class="app-hint" role="status">Decoding {{ file }}…</p>
+        }
+
         @if (linksProblem(); as tooLong) {
           <p class="new-callout new-callout-error" role="alert">{{ tooLong }}</p>
         } @else if (analysisError(); as problem) {
@@ -177,6 +181,12 @@
         </button>
         <mat-hint>{{ passwordHint() }}</mat-hint>
       </mat-form-field>
+
+      @if (draftPasswords().length > 0) {
+        <p class="app-hint">
+          {{ draftPasswords().length }} {{ draftPasswords().length === 1 ? 'password' : 'passwords' }} from the DLC file {{ draftPasswords().length === 1 ? 'is' : 'are' }} saved with this download and tried first.
+        </p>
+      }
     </section>
 
     @if (submitError(); as problem) {

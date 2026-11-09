@@ -85,14 +85,24 @@
   }
 }
 
-// The mark and two labelled buttons have to fit into 320 pixels. The icons only repeat what the words say, so they go
-// first, and the buttons take an even padding again now that nothing stands in front of the label.
+// The mark and three labelled buttons have to fit into 320 pixels. The icons only repeat what the words say, so they go
+// first, and the buttons take an even padding again now that nothing stands in front of the label. Two labels then lose
+// their first or last word, which stays in the page for a screen reader.
 @media (max-width: 30rem) {
   .navbar-links {
     gap: 0.25rem;
 
     mat-icon {
       display: none;
+    }
+
+    .navbar-more {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
     a {

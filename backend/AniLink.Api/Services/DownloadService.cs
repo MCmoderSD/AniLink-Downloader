@@ -13,8 +13,8 @@ public sealed class DownloadService(
     JobRepository jobs,
     DownloadPipeline pipeline,
     ProgressHub hub,
-    ILogger<DownloadService> logger)
-{
+    ILogger<DownloadService> logger
+) {
     public ConfigResponse GetConfig()
     {
         return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root, LimitsResponse.Current);
@@ -40,6 +40,11 @@ public sealed class DownloadService(
         var name = request.Name.Trim();
         if (FileNames.Sanitize(name).Length == 0) throw new InvalidDownloadException("The name has no characters that can be used for a folder.");
 
+        if (request.Passwords?.Any(password => password is { Length: > DownloadLimits.MaxPasswordLength }) is true)
+        {
+            throw new InvalidDownloadException($"A password may have at most {DownloadLimits.MaxPasswordLength} characters.");
+        }
+
         var analysis = LinkAnalyzer.Analyze(request.Links, request.Kind, request.Format);
 
         if (analysis.Episodes.Count == 0) throw new InvalidDownloadException(analysis.Unmatched.Count > 0
@@ -60,6 +65,7 @@ public sealed class DownloadService(
         }
 
         var passwords = new PasswordBook(archive.Passwords);
+        foreach (var password in (request.Passwords ?? []).Reverse()) passwords.Add(password);
         if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
 
         var job = new DownloadJob(
