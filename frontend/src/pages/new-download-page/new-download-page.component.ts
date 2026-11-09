@@ -1,4 +1,16 @@
-import { Component, computed, effect, ElementRef, inject, isDevMode, signal, Signal, viewChild, WritableSignal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  isDevMode,
+  signal,
+  Signal,
+  viewChild,
+  WritableSignal
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,12 +31,14 @@ import {
   AnalyzedEpisode,
   AnalyzeRequest,
   AppConfig,
+  DownloadDraft,
   Job,
   Limits,
   ReleaseKind
 } from '../../data/download';
 import { appendLinks, AppendedLinks, extractLinks } from '../../data/links-file';
 import { ConfigService } from '../../services/config.service';
+import { DownloadDraftService } from '../../services/download-draft.service';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
 import { errorMessage } from '../../services/http-error';
@@ -53,6 +67,7 @@ export class NewDownloadPageComponent {
   private readonly router: Router = inject(Router);
 
   private readonly linksField: Signal<ElementRef<HTMLTextAreaElement> | undefined> = viewChild<ElementRef<HTMLTextAreaElement>>('links');
+  private readonly nameField: Signal<ElementRef<HTMLInputElement> | undefined> = viewChild<ElementRef<HTMLInputElement>>('name');
 
   private readonly nameValue: WritableSignal<string> = signal('');
   private readonly kindValue: WritableSignal<ReleaseKind> = signal<ReleaseKind>('Season');
@@ -62,6 +77,7 @@ export class NewDownloadPageComponent {
   private readonly passwordValue: WritableSignal<string> = signal('');
   private readonly passwordShown: WritableSignal<boolean> = signal(false);
   private readonly unpackValue: WritableSignal<boolean> = signal(true);
+  private readonly passwordsFromDlc: WritableSignal<string[]> = signal<string[]>([]);
 
   private readonly analysisValue: WritableSignal<Analysis | null> = signal<Analysis | null>(null);
   private readonly analysisProblem: WritableSignal<string | null> = signal<string | null>(null);
@@ -78,6 +94,7 @@ export class NewDownloadPageComponent {
   protected readonly kinds: SegmentedOption[] = KINDS;
   protected readonly passwordVisible: Signal<boolean> = this.passwordShown.asReadonly();
   protected readonly unpack: Signal<boolean> = this.unpackValue.asReadonly();
+  protected readonly draftPasswords: Signal<string[]> = this.passwordsFromDlc.asReadonly();
   protected readonly analysis: Signal<Analysis | null> = this.analysisValue.asReadonly();
   protected readonly analysisError: Signal<string | null> = this.analysisProblem.asReadonly();
   protected readonly analyzing: Signal<boolean> = this.analysisRunning.asReadonly();
@@ -177,6 +194,18 @@ export class NewDownloadPageComponent {
 
   constructor() {
     void inject(ConfigService).load();
+
+    const draft: DownloadDraft | null = inject(DownloadDraftService).take();
+
+    if (draft) {
+      this.passwordsFromDlc.set(draft.passwords);
+      this.kindValue.set(draft.kind);
+
+      afterNextRender((): void => {
+        this.fill(this.nameField()?.nativeElement, draft.name);
+        this.fill(this.linksField()?.nativeElement, draft.links);
+      });
+    }
 
     effect((onCleanup: (cleanup: () => void) => void): void => {
       const request: AnalyzeRequest | null = this.request();
@@ -294,6 +323,7 @@ export class NewDownloadPageComponent {
         format: this.formatValue().trim() || null,
         season: this.seasonNumber(),
         password: this.passwordValue() || null,
+        passwords: this.passwordsFromDlc(),
         unpack: this.unpackValue()
       });
 
@@ -306,6 +336,13 @@ export class NewDownloadPageComponent {
     } finally {
       this.sending.set(false);
     }
+  }
+
+  private fill(field: HTMLInputElement | HTMLTextAreaElement | undefined, value: string): void {
+    if (!field) return;
+
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   private async analyze(request: AnalyzeRequest): Promise<void> {
