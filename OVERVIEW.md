@@ -28,8 +28,8 @@ sent to the JDownloader key service.
 | -------- | ------------------------------------------------------------------------------ |
 | `latest` | The newest release.                                                            |
 | `3`      | The newest 3.x release: updates that stay within version 3.                    |
-| `3.1`    | The newest 3.1.x release: bug fixes only.                                      |
-| `3.1.1`  | Exactly this release. It never changes.                                        |
+| `3.2`    | The newest 3.2.x release: bug fixes only.                                      |
+| `3.2.0`  | Exactly this release. It never changes.                                        |
 | `edge`   | The newest state of the `master` branch. It is not a release and may be rough. |
 
 ## Quick start
