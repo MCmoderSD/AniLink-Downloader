@@ -10,7 +10,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- Stage 2: Backend ----
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS backend
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:11.0-alpine AS backend
 WORKDIR /src
 
 COPY backend/AniLink.Api/AniLink.Api.csproj ./
