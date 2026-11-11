@@ -33,7 +33,7 @@ RUN apk add --no-cache curl xz \
     && 7zz i | grep -q Rar5
 
 # ---- Stage 4: Runtime ----
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine AS runtime
 WORKDIR /app
 
 COPY --from=sevenzip /usr/local/bin/7zz /usr/local/bin/7zz
