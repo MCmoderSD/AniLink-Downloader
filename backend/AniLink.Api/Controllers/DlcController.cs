@@ -29,15 +29,20 @@ public sealed class DlcController(DlcService dlc, ILogger<DlcController> logger)
 
             return Content(await dlc.DecodeAsync(stream, cancellationToken), "application/json");
         }
-        catch (DlcFormatException exception)
+        catch (DlcException exception)
         {
-            return BadRequest(exception.Message);
+            return exception switch
+            {
+                DlcFormatException => BadRequest(exception.Message),
+                DlcServiceException service => KeyServiceFailed(service)
+            };
         }
-        catch (DlcServiceException exception)
-        {
-            logger.LogWarning("The DLC key service failed: {Error}, status {StatusCode}.", exception.Error, exception.StatusCode);
+    }
 
-            return StatusCode(exception.Error == DlcServiceError.Timeout ? StatusCodes.Status504GatewayTimeout : StatusCodes.Status502BadGateway, exception.Message);
-        }
+    private ObjectResult KeyServiceFailed(DlcServiceException exception)
+    {
+        logger.LogWarning("The DLC key service failed: {Error}, status {StatusCode}.", exception.Error, exception.StatusCode);
+
+        return StatusCode(exception.Error == DlcServiceError.Timeout ? StatusCodes.Status504GatewayTimeout : StatusCodes.Status502BadGateway, exception.Message);
     }
 }

@@ -1,11 +1,13 @@
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using AniLink.Api.Exceptions.Archives;
 
 namespace AniLink.Api.Archives;
 
-public sealed record ToolResult(int ExitCode, string Output, string Error)
+public sealed record ToolResult(int ExitCode, string Output, string Error, PosixSignal? Signal = null)
 {
     public string Combined => (Output + "\n" + Error).Trim();
 }
@@ -82,7 +84,7 @@ public sealed class ToolActivity
             {
                 return process?.TotalProcessorTime;
             }
-            catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or System.ComponentModel.Win32Exception)
+            catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or Win32Exception)
             {
                 return null;
             }
@@ -99,11 +101,30 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
     public string Executable => options.SevenZipPath;
 
-    public async Task<ToolResult> RunAsync(IEnumerable<string> arguments, Action<double>? onProgress, CancellationToken cancellationToken, ToolActivity? activity = null)
+    public async Task<ToolResult> CaptureAsync(IEnumerable<string> arguments, CancellationToken cancellationToken)
+    {
+        var info = CreateStartInfo(arguments);
+
+        using var noInput = File.OpenNullHandle();
+        info.StandardInputHandle = noInput;
+
+        try
+        {
+            var result = await Process.RunAndCaptureTextAsync(info, cancellationToken);
+
+            return new ToolResult(result.ExitStatus.ExitCode, result.StandardOutput, result.StandardError, result.ExitStatus.Signal);
+        }
+        catch (Exception exception) when (exception is Win32Exception or FileNotFoundException)
+        {
+            throw NotFound(exception);
+        }
+    }
+
+    public async Task<ToolResult> RunAsync(IEnumerable<string> arguments, Action<double> onProgress, CancellationToken cancellationToken, ToolActivity activity)
     {
         using var process = Start(arguments);
 
-        activity?.Attach(process);
+        activity.Attach(process);
 
         var output = new StringBuilder();
         var error = process.StandardError.ReadToEndAsync(cancellationToken);
@@ -118,24 +139,22 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         {
             var chunk = new string(buffer, 0, read);
 
-            activity?.Record(chunk);
+            activity.Record(chunk);
 
             if (output.Length < 1_000_000) output.Append(chunk);
-
-            if (onProgress is null) continue;
 
             var cut = window.Length + chunk.Length > WindowLength;
             window = (window + chunk)[^Math.Min(window.Length + chunk.Length, WindowLength)..];
 
             if (LatestPercent(window, cut) is not { } percent) continue;
 
-            activity?.Reported(percent);
+            activity.Reported(percent);
             onProgress(percent);
         }
 
-        await process.WaitForExitAsync(cancellationToken);
+        var status = await process.WaitForExitStatusAsync(cancellationToken);
 
-        return new ToolResult(process.ExitCode, output.ToString(), await error);
+        return new ToolResult(status.ExitCode, output.ToString(), await error, status.Signal);
     }
 
     private static double? LatestPercent(string window, bool cut)
@@ -175,11 +194,10 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         return total == count ? buffer : null;
     }
 
-    private Process Start(IEnumerable<string> arguments)
+    private ProcessStartInfo CreateStartInfo(IEnumerable<string> arguments)
     {
         var info = new ProcessStartInfo(options.SevenZipPath)
         {
-            RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -194,20 +212,33 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
         foreach (var argument in arguments) info.ArgumentList.Add(argument);
 
+        return info;
+    }
+
+    private Process Start(IEnumerable<string> arguments)
+    {
+        var info = CreateStartInfo(arguments);
+        info.RedirectStandardInput = true;
+
         Process process;
 
         try
         {
             process = Process.Start(info) ?? throw new ExtractionException("7-Zip could not be started.");
         }
-        catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or FileNotFoundException)
+        catch (Exception exception) when (exception is Win32Exception or FileNotFoundException)
         {
-            throw new ExtractionException($"7-Zip was not found at '{options.SevenZipPath}'. Set Archive__SevenZipPath to the 7zz or 7z.exe binary.", exception);
+            throw NotFound(exception);
         }
 
         process.StandardInput.Close();
 
         return process;
+    }
+
+    private ExtractionException NotFound(Exception exception)
+    {
+        return new ExtractionException($"7-Zip was not found at '{options.SevenZipPath}'. Set Archive__SevenZipPath to the 7zz or 7z.exe binary.", exception);
     }
 
     private static void Kill(Process process)
