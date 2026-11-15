@@ -372,7 +372,9 @@ public sealed class DownloadPipeline(
 
                     if (password.Outcome is PasswordOutcome.Missing)
                     {
-                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one", announce: true);
+                        var first = IsFirstToAskForPassword(job, item);
+
+                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one", announce: first);
 
                         return;
                     }
@@ -473,8 +475,10 @@ public sealed class DownloadPipeline(
 
         if (cause is ExtractionException { PasswordProblem: true })
         {
+            var first = IsFirstToAskForPassword(job, item);
+
             item.RequirePassword();
-            Notify(job, NoticeLevel.Warning, $"{item.Label}: the password was rejected while unpacking, enter another one", announce: true);
+            Notify(job, NoticeLevel.Warning, $"{item.Label}: the password was rejected while unpacking, enter another one", announce: first);
 
             return;
         }
@@ -483,6 +487,11 @@ public sealed class DownloadPipeline(
 
         item.Fail(cause.Message);
         Notify(job, NoticeLevel.Error, $"{item.Label} failed: {cause.Message}", announce: true);
+    }
+
+    private static bool IsFirstToAskForPassword(DownloadJob job, MediaItem item)
+    {
+        return !job.Items.Any(other => other != item && other.Stage is ItemStage.PasswordRequired);
     }
 
     private async Task FinishAsync(DownloadJob job, List<Task> tasks)
