@@ -192,7 +192,7 @@ export class ItemRowComponent {
   }
 
   private bytes(item: Item): string {
-    return item.download.total > 0 ? `${formatBytes(item.download.done)} / ${formatBytes(item.download.total)}` : '';
+    return item.download.total > 0 ? `${formatBytes(item.download.done)} / ${formatBytes(item.download.total, item.download.estimated)}` : '';
   }
 
   private async act(call: () => Promise<Job | null>, failure: string): Promise<void> {

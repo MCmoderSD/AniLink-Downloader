@@ -52,6 +52,10 @@ export function sizeOf(container: DlcContainer): number {
   return filesOf(container).reduce((total: number, file: DlcFile): number => total + (file.size ?? 0), 0);
 }
 
+export function sizeIsComplete(container: DlcContainer): boolean {
+  return filesOf(container).every((file: DlcFile): boolean => (file.size ?? 0) > 0);
+}
+
 export function downloadsText(container: DlcContainer): string {
   const links: string[] = linksOf(container);
 

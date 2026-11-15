@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { FileDropDirective } from '../../components/file-drop-component/file-drop.directive';
 import { ScrollBarDirective } from '../../components/scroll-bar-component/scroll-bar.directive';
-import { DlcContainer, DlcDetail, DlcPackage, downloadsText, filesOf, headerDetails, isDlcFile, linksOf, packageDetails, packageLinks, sizeOf } from '../../data/dlc';
+import { DlcContainer, DlcDetail, DlcPackage, downloadsText, filesOf, headerDetails, isDlcFile, linksOf, packageDetails, packageLinks, sizeIsComplete, sizeOf } from '../../data/dlc';
 import { AppConfig } from '../../data/download';
 import { formatBytes } from '../../data/format';
 import { copyText } from '../../services/clipboard';
@@ -44,7 +44,7 @@ export class DecodeDlcPageComponent {
   private readonly running: WritableSignal<boolean> = signal(false);
   private readonly revealed: WritableSignal<ReadonlySet<string>> = signal<ReadonlySet<string>>(new Set<string>());
 
-  protected readonly formatBytes: (bytes: number) => string = formatBytes;
+  protected readonly formatBytes: (bytes: number, estimated?: boolean) => string = formatBytes;
   protected readonly packageDetails: (pack: DlcPackage) => DlcDetail[] = packageDetails;
   protected readonly packageLinks: (pack: DlcPackage) => string[] = packageLinks;
 
@@ -74,6 +74,11 @@ export class DecodeDlcPageComponent {
   protected readonly totalBytes: Signal<number> = computed((): number => {
     const container: DlcContainer | null = this.containerValue();
     return container ? sizeOf(container) : 0;
+  });
+
+  protected readonly totalEstimated: Signal<boolean> = computed((): boolean => {
+    const container: DlcContainer | null = this.containerValue();
+    return container ? !sizeIsComplete(container) : false;
   });
 
   protected readonly details: Signal<DlcDetail[]> = computed((): DlcDetail[] => {

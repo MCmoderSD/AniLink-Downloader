@@ -81,12 +81,19 @@ public sealed class DownloadJob(Guid id, string name, DateTimeOffset createdAt, 
 
     public long BytesTotal => EstimateTotal([.. Parts]);
 
+    public bool BytesEstimated => IsTotalEstimated([.. Parts]);
+
     public static long EstimateTotal(IReadOnlyList<ArchivePart> parts)
     {
         var known = parts.Select(part => part.BytesTotal).Where(total => total > 0).ToList();
         if (known.Count == 0) return 0;
 
         return known.Sum() + known.Sum() / known.Count * (parts.Count - known.Count);
+    }
+
+    public static bool IsTotalEstimated(IReadOnlyList<ArchivePart> parts)
+    {
+        return parts.Any(part => part.BytesTotal <= 0);
     }
 
     public MediaItem AddItem(int number, IEnumerable<ArchiveLink> links, bool unpack = true)
