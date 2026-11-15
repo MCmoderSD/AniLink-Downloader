@@ -11,7 +11,9 @@
       (focusin)="hold(notification.id)"
       (focusout)="release(notification.id, $event)"
     >
-      <span class="notification-message">{{ notification.message }}</span>
+      <mat-icon class="notification-icon" aria-hidden="true">{{ icon(notification.kind) }}</mat-icon>
+
+      <span class="notification-message" [attr.title]="notification.message">{{ notification.message }}</span>
 
       <button
         type="button"
@@ -19,7 +21,7 @@
         [attr.aria-label]="'Dismiss: ' + notification.message"
         (click)="dismiss(notification.id)"
       >
-        Dismiss
+        <mat-icon aria-hidden="true">close</mat-icon>
       </button>
     </div>
   }

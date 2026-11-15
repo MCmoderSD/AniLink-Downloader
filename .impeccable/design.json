@@ -386,12 +386,12 @@
       {
         "name": "lifted",
         "value": "0 2px 8px rgb(0 0 0 / 0.45)",
-        "purpose": "Defined for small floating pieces; no component uses it yet."
+        "purpose": "Notifications, the small pieces that float above the page."
       },
       {
         "name": "floating",
         "value": "0 8px 24px rgb(0 0 0 / 0.5)",
-        "purpose": "Notifications."
+        "purpose": "Defined for larger floating pieces; no component uses it yet."
       }
     ],
     "motion": [
@@ -497,9 +497,9 @@
       "name": "Notification",
       "kind": "custom",
       "refersTo": "notification",
-      "description": "A floating message with a 4px status bar on its left edge and a Dismiss button.",
-      "html": "<div class=\"ds-note\"><span class=\"ds-note-message\">Episode 3 is done.</span><button class=\"ds-note-dismiss\">Dismiss</button></div>",
-      "css": ".ds-note { display: flex; align-items: center; gap: 16px; padding: 12px 12px 12px 16px; border: 1px solid var(--mat-sys-outline-variant, #3d464b); border-inline-start: 4px solid var(--app-success, #4ade80); border-radius: 12px; background: var(--mat-sys-surface-container-highest, #272c2f); box-shadow: 0 8px 24px rgb(0 0 0 / 0.5); color: var(--mat-sys-on-surface, #e5e6e9); font: 400 0.875rem/1.25rem Roboto, sans-serif; } .ds-note-message { flex: 1; } .ds-note-dismiss { padding: 4px 10px; border: 0; border-radius: 999px; background: transparent; color: var(--mat-sys-on-surface-variant, #b6bec3); font: 500 0.75rem/1rem Roboto, sans-serif; cursor: pointer; } .ds-note-dismiss:hover { background: rgb(255 255 255 / 0.06); }"
+      "description": "A floating message with a status icon in front and a round close button behind it.",
+      "html": "<div class=\"ds-note\"><span class=\"ds-note-icon\">&#10003;</span><span class=\"ds-note-message\">Episode 3 is done.</span><button class=\"ds-note-dismiss\" aria-label=\"Dismiss\">&#215;</button></div>",
+      "css": ".ds-note { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; border: 1px solid var(--mat-sys-outline-variant, #3d464b); border-radius: 12px; background: var(--mat-sys-surface-container-highest, #272c2f); box-shadow: 0 2px 8px rgb(0 0 0 / 0.45); color: var(--mat-sys-on-surface, #e5e6e9); font: 400 0.875rem/1.25rem Roboto, sans-serif; } .ds-note-icon { flex: none; width: 18px; text-align: center; color: var(--app-success, #4ade80); } .ds-note-message { flex: 1; } .ds-note-dismiss { flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--mat-sys-on-surface-variant, #b6bec3); cursor: pointer; } .ds-note-dismiss:hover { background: rgb(255 255 255 / 0.06); }"
     }
   ],
   "narrative": {

@@ -145,6 +145,7 @@ export interface NoticeMessage {
   at: string;
   level: NoticeLevel;
   text: string;
+  announce: boolean;
 }
 
 export interface RemovedMessage {
