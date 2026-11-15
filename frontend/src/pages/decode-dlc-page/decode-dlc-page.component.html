@@ -35,7 +35,7 @@
           <span class="app-chip" data-tone="info">{{ packageCount() }} {{ packageCount() === 1 ? 'package' : 'packages' }}</span>
           <span class="app-chip" data-tone="info">{{ fileCount() }} {{ fileCount() === 1 ? 'file' : 'files' }}</span>
           @if (totalBytes() > 0) {
-            <span class="app-chip">{{ formatBytes(totalBytes()) }}</span>
+            <span class="app-chip">{{ formatBytes(totalBytes(), totalEstimated()) }}</span>
           }
           @if (fileCount() > linkCount()) {
             <span class="app-chip" data-tone="warning">{{ fileCount() - linkCount() }} without a link</span>

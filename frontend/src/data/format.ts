@@ -1,12 +1,13 @@
 const UNITS: readonly string[] = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-export function formatBytes(bytes: number): string {
+export function formatBytes(bytes: number, estimated = false): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
 
   const exponent: number = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), UNITS.length - 1);
   const value: number = bytes / 1024 ** exponent;
+  const text: string = `${value >= 100 || exponent === 0 ? value.toFixed(0) : value.toFixed(1)} ${UNITS[exponent]}`;
 
-  return `${value >= 100 || exponent === 0 ? value.toFixed(0) : value.toFixed(1)} ${UNITS[exponent]}`;
+  return estimated ? `~${text}` : text;
 }
 
 export function formatList(items: readonly string[]): string {
@@ -31,10 +32,12 @@ export function formatLeft(seconds: number): string {
   return `${hours}h ${minutes % 60}m left`;
 }
 
-export function formatEta(remainingBytes: number, bytesPerSecond: number): string | null {
+export function formatEta(remainingBytes: number, bytesPerSecond: number, estimated = false): string | null {
   if (remainingBytes <= 0 || bytesPerSecond < 1) return null;
 
-  return formatLeft(Math.ceil(remainingBytes / bytesPerSecond));
+  const left: string = formatLeft(Math.ceil(remainingBytes / bytesPerSecond));
+
+  return estimated ? `~${left}` : left;
 }
 
 const NAME_END: RegExp = /(?:\.part\d+)?\.[^.]+$/i;

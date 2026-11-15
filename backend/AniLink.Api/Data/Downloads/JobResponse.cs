@@ -3,11 +3,11 @@ using JetBrains.Annotations;
 namespace AniLink.Api.Data.Downloads;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public sealed record ProgressResponse(long Done, long Total, double Fraction)
+public sealed record ProgressResponse(long Done, long Total, double Fraction, bool Estimated)
 {
-    public static ProgressResponse Of(long done, long total)
+    public static ProgressResponse Of(long done, long total, bool estimated = false)
     {
-        return new ProgressResponse(done, total, total <= 0 ? 0 : Math.Clamp((double)done / total, 0, 1));
+        return new ProgressResponse(done, total, total <= 0 ? 0 : Math.Clamp((double)done / total, 0, 1), estimated);
     }
 }
 
@@ -68,7 +68,7 @@ public sealed record ItemResponse(
             item.Stage,
             item.Error,
             ProgressResponse.Of(item.LinksResolved, item.Parts.Count),
-            ProgressResponse.Of(item.BytesDone, DownloadJob.EstimateTotal(item.Parts)),
+            ProgressResponse.Of(item.BytesDone, DownloadJob.EstimateTotal(item.Parts), DownloadJob.IsTotalEstimated(item.Parts)),
             item.ExtractPercent,
             item.ExtractSecondsLeft,
             item.Files,
@@ -113,7 +113,7 @@ public sealed record JobResponse(
                 job.CreatedAt,
                 job.Workspace.Root,
                 ProgressResponse.Of(job.LinksResolved, job.LinksTotal),
-                ProgressResponse.Of(job.BytesDone, job.BytesTotal),
+                ProgressResponse.Of(job.BytesDone, job.BytesTotal, job.BytesEstimated),
                 job.SpeedBytesPerSecond,
                 job.LinkSecondsEach,
                 job.LinksAhead,

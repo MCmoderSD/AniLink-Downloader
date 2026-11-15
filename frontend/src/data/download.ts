@@ -24,6 +24,7 @@ export interface Progress {
   done: number;
   total: number;
   fraction: number;
+  estimated: boolean;
 }
 
 export interface Part {

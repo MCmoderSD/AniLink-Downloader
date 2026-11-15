@@ -107,12 +107,12 @@ export class JobCardComponent {
     const progress: Job['download'] = this.job().download;
     if (progress.total <= 0) return 'waiting for the first links';
 
-    const parts: string[] = [`${formatBytes(progress.done)} of ${formatBytes(progress.total)}`];
+    const parts: string[] = [`${formatBytes(progress.done)} of ${formatBytes(progress.total, progress.estimated)}`];
 
     if (this.running() && this.job().speedBytesPerSecond > 0) {
       parts.push(formatSpeed(this.job().speedBytesPerSecond));
 
-      const eta: string | null = formatEta(progress.total - progress.done, this.job().speedBytesPerSecond);
+      const eta: string | null = formatEta(progress.total - progress.done, this.job().speedBytesPerSecond, progress.estimated);
       if (eta) parts.push(eta);
     }
 
