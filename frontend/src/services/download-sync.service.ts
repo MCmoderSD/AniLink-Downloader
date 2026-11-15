@@ -78,6 +78,8 @@ export class DownloadSyncService {
   }
 
   private announce(message: NoticeMessage): void {
+    if (!message.announce) return;
+
     const text: string = message.text.startsWith(message.job) ? message.text : `${message.job} · ${message.text}`;
     const level: NoticeLevel = message.level;
 

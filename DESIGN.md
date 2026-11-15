@@ -157,7 +157,7 @@ components:
     textColor: "{colors.paper-text}"
     typography: "{typography.body}"
     rounded: "{rounded.md}"
-    padding: "0.75rem 0.75rem 0.75rem 1rem"
+    padding: "0.5rem 0.5rem 0.5rem 0.75rem"
 ---
 
 # Design System: AniLink-Downloader
@@ -252,7 +252,7 @@ Density is moderate and information-forward: a job card shows its bars and actio
 
 Below 40rem the page tightens: page and panel padding drop to 1rem, and the navbar hides the brand name. A download card's buttons share its width in filled rows, with a hairline around the plain ones, and its unpack setting is a row of the same frame and height, the words at the start and the switch at the end, which a finger can hit anywhere along the row. The second "New download" button of the page header goes, because the navbar has it. An episode row keeps its name and state on the first line and puts the part count on the left and the actions on the right of the second; its unpack setting is then the first of those actions, a button that is lit while the episode is unpacked when it is downloaded, instead of a switch with its words. A part row is one line: the file name takes what is left, cut in the middle so that the end (".part2.rar") stays, followed by the share that is downloaded and a symbol for the state, a different shape for each so that colour is still not the only sign; the word of the state is its title and its text for a screen reader. The episode preview collapses to fewer columns (it drops its file names), the form's buttons stack at the full width with the download button on top, and notifications take the width of the page. On Decode DLC the two buttons of the result share one row, each taking half of it, and below 30rem they lose their icons like the navbar's. Below 30rem the navbar buttons lose their icons, and "Decode DLC" and "New download" shorten to "DLC" and "New" (the hidden words stay for a screen reader), so that the mark and three labels fit into 320px. Below 30rem of height, a phone held sideways, the navbar is 3rem instead of 4rem. There is no other breakpoint.
 
-On a touch screen (`pointer: coarse`) a target is at least 44px: buttons are 44px high, the icon buttons of an episode 44px square, the label of a switch 44px high and the dismiss button of a notification 44px high. The chevrons that step the season number are hidden, since a number keypad opens for the field, and the link box keeps its small type everywhere except on iOS, where it uses 16px, because iOS zooms into a field with smaller type when it gets focus. When the page becomes visible again after the phone slept, the list of downloads is read anew.
+On a touch screen (`pointer: coarse`) a target is at least 44px: buttons are 44px high, the icon buttons of an episode 44px square, the label of a switch 44px high and the close button of a notification 44px square. The chevrons that step the season number are hidden, since a number keypad opens for the field, and the link box keeps its small type everywhere except on iOS, where it uses 16px, because iOS zooms into a field with smaller type when it gets focus. When the page becomes visible again after the phone slept, the list of downloads is read anew.
 
 ## Elevation & Depth
 
@@ -260,15 +260,15 @@ Depth is tonal. A panel is one step lighter than the page, a row inside it one s
 
 ### Shadow Vocabulary
 - **Raised** (`box-shadow: 0 1px 2px rgb(0 0 0 / 0.4)`): panels, together with the hairline.
-- **Lifted** (`box-shadow: 0 2px 8px rgb(0 0 0 / 0.45)`): defined in the tokens for small floating pieces; no component uses it yet.
-- **Floating** (`box-shadow: 0 8px 24px rgb(0 0 0 / 0.5)`): notifications.
+- **Lifted** (`box-shadow: 0 2px 8px rgb(0 0 0 / 0.45)`): notifications, the small pieces that float above the page.
+- **Floating** (`box-shadow: 0 8px 24px rgb(0 0 0 / 0.5)`): defined in the tokens for larger floating pieces; no component uses it yet.
 
 ### Named Rules
 **The Lift, Not Shadow Rule.** Separate surfaces by tone and a hairline first. A shadow is a finishing touch for things that float above the page, never the thing that makes a card look like a card.
 
 ## Shapes
 
-Generously rounded, with a clear ladder: 8px for small blocks inside a row (errors, part rows), 12px for rows, fields and notifications, 18px for panels, 24px for the largest surfaces (the step Material's large corner maps onto), and a full pill for everything you press, select or read as a label (buttons, chips, the switch, the progress bar). Borders are 1px hairlines, and the only thick stroke is a 4px status bar on the left edge of a notification and a 3px one on an activity entry. Focus is a 2px ring in Tidewater Cyan, offset 2px.
+Generously rounded, with a clear ladder: 8px for small blocks inside a row (errors, part rows), 12px for rows, fields and notifications, 18px for panels, 24px for the largest surfaces (the step Material's large corner maps onto), and a full pill for everything you press, select or read as a label (buttons, chips, the switch, the progress bar). Borders are 1px hairlines, and the only thick stroke is a 3px status bar on the left edge of an activity entry. Focus is a 2px ring in Tidewater Cyan, offset 2px.
 
 ## Components
 
@@ -316,10 +316,12 @@ A 10px pill track on Night Highest with a pill fill. The fill is cyan while work
 Two or three options in a pill with a 1px Steel Outline. The selected option is lit by a 22% cyan pill that slides to it, stretching on the way with a springy curve (360 ms), and its label turns cyan and bold without changing the switch's width.
 
 ### Notifications
-Stacked from the bottom right, on Night Highest with a hairline, a 4px status bar on the left, a Floating shadow and a "Dismiss" button. They enter by sliding from the right (260 ms) and under reduced motion only fade. A message keeps its time while it is hovered or holds focus, and the stack is one live region, so every message is announced.
+Stacked from the bottom right, three at most, on Night Highest with a hairline and the Lifted shadow. A notification is one line of up to three: an 18px status icon in the status colour, whose shape (info, check, warning, error) says the state without the colour, the message, and a round close button with an icon and no word. They rise 8px while they fade in (220 ms) and fade out (120 ms). A message keeps its time while it is hovered or holds focus, and the stack is one live region, so every message is announced. A message of more than three lines is cut, its full text is its title.
+
+Only what the person would otherwise miss is announced: a finished download, a password that is asked for, a failure, and the answer to something done on the page itself. Pausing, resuming, creating links and the like are not announced; they stay in the activity log of the card.
 
 ### Motion
-Two durations (120 ms for what follows the pointer, 220 ms for what the eye follows) and one curve, `cubic-bezier(0.2, 0, 0, 1)`. A view transition fades the page out and drifts it up by 8px (160 ms) while the next fades in from 12px below (280 ms); the navbar stays put. Under `prefers-reduced-motion` the durations collapse to 1 ms, the progress sweep stops, and notifications only fade.
+Two durations (120 ms for what follows the pointer, 220 ms for what the eye follows) and one curve, `cubic-bezier(0.2, 0, 0, 1)`. A view transition fades the page out and drifts it up by 8px (160 ms) while the next fades in from 12px below (280 ms); the navbar stays put. Under `prefers-reduced-motion` the durations collapse to 1 ms, and the progress sweep stops.
 
 ## Do's and Don'ts
 

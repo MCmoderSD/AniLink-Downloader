@@ -8,7 +8,7 @@ const LIFETIME_MS: Record<NotificationKind, number> = {
   failure: 12000
 };
 
-const MAX_VISIBLE: number = 5;
+const MAX_VISIBLE: number = 3;
 
 @Service()
 export class NotificationService {

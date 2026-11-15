@@ -11,9 +11,9 @@ public static class DownloadEvents
         return Serialize(new { type = "job", job = JobResponse.From(job) });
     }
 
-    public static string Notice(DownloadJob job, ActivityEntry entry)
+    public static string Notice(DownloadJob job, ActivityEntry entry, bool announce)
     {
-        return Serialize(new { type = "notice", jobId = job.Id, job = job.Name, at = entry.At, level = entry.Level, text = entry.Text });
+        return Serialize(new { type = "notice", jobId = job.Id, job = job.Name, at = entry.At, level = entry.Level, text = entry.Text, announce });
     }
 
     public static string Removed(Guid jobId)

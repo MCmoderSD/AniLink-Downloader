@@ -372,7 +372,7 @@ public sealed class DownloadPipeline(
 
                     if (password.Outcome is PasswordOutcome.Missing)
                     {
-                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one");
+                        if (item.RequirePassword()) Notify(job, NoticeLevel.Warning, $"{item.Label}: none of the known passwords opens the archive, enter one", announce: true);
 
                         return;
                     }
@@ -474,7 +474,7 @@ public sealed class DownloadPipeline(
         if (cause is ExtractionException { PasswordProblem: true })
         {
             item.RequirePassword();
-            Notify(job, NoticeLevel.Warning, $"{item.Label}: the password was rejected while unpacking, enter another one");
+            Notify(job, NoticeLevel.Warning, $"{item.Label}: the password was rejected while unpacking, enter another one", announce: true);
 
             return;
         }
@@ -482,7 +482,7 @@ public sealed class DownloadPipeline(
         logger.LogWarning(cause, "{Item} failed", item.LogLabel);
 
         item.Fail(cause.Message);
-        Notify(job, NoticeLevel.Error, $"{item.Label} failed: {cause.Message}");
+        Notify(job, NoticeLevel.Error, $"{item.Label} failed: {cause.Message}", announce: true);
     }
 
     private async Task FinishAsync(DownloadJob job, List<Task> tasks)
@@ -525,7 +525,8 @@ public sealed class DownloadPipeline(
                     job,
                     NoticeLevel.Success,
                     $"{job.Name}: downloaded {job.Items.Count} of {job.Items.Count} {(job.Release.Kind is ReleaseKind.Movie ? "files" : "episodes")}" +
-                    (kept ? ", archives and unrecognized files were kept" : ""));
+                    (kept ? ", archives and unrecognized files were kept" : ""),
+                    announce: true);
 
                 return;
 
@@ -536,18 +537,18 @@ public sealed class DownloadPipeline(
 
             case JobStatus.Downloaded:
                 var ready = job.Items.Count(item => item.Stage is ItemStage.Downloaded);
-                Notify(job, NoticeLevel.Info, $"{job.Name}: {ready} of {job.Items.Count} {(job.Release.Kind is ReleaseKind.Movie ? "files" : "episodes")} downloaded, ready to unpack");
+                Notify(job, NoticeLevel.Info, $"{job.Name}: {ready} of {job.Items.Count} {(job.Release.Kind is ReleaseKind.Movie ? "files" : "episodes")} downloaded, ready to unpack", announce: true);
                 break;
         }
 
         await jobs.SaveAsync(job);
     }
 
-    private void Notify(DownloadJob job, NoticeLevel level, string text)
+    private void Notify(DownloadJob job, NoticeLevel level, string text, bool announce = false)
     {
         var entry = job.Log(level, text);
 
-        hub.Publish(DownloadEvents.Notice(job, entry));
+        hub.Publish(DownloadEvents.Notice(job, entry, announce));
         logger.LogInformation("[{Job}] {Text}", LogSafe.OneLine(job.Name), LogSafe.OneLine(text));
     }
 
