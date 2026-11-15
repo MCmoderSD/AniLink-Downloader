@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using AniLink.Api.Exceptions.Archives;
 using AniLink.Api.Helpers;
 
@@ -22,7 +23,7 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
     {
         var first = RequireVolumes(volumes);
 
-        var result = await sevenZip.RunAsync(["l", "-slt", "-y", "-bd", .. PasswordArguments(password), first], null, cancellationToken);
+        var result = await sevenZip.CaptureAsync(["l", "-slt", "-y", "-bd", .. PasswordArguments(password), first], cancellationToken);
 
         if (result.ExitCode is not (0 or 1))
         {
@@ -204,6 +205,13 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
 
     private static string Summarize(ToolResult result, string archive)
     {
+        if (result.Signal is { } signal)
+        {
+            var killed = !OperatingSystem.IsWindows() && signal is PosixSignal.SIGKILL;
+
+            return $"7-Zip was stopped by {signal}" + (killed ? ", most likely because the container ran out of memory" : "");
+        }
+
         var folder = (Path.GetDirectoryName(archive) ?? "") + Path.DirectorySeparatorChar;
 
         var lines = result.Combined

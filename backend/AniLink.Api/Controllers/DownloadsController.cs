@@ -1,5 +1,4 @@
 using AniLink.Api.Data.Downloads;
-using AniLink.Api.Exceptions.Downloads;
 using AniLink.Api.Helpers;
 using AniLink.Api.Services;
 using AniLink.Api.Services.Streaming;
@@ -20,20 +19,12 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDownloadRequest request)
     {
-        try
+        return await downloads.CreateAsync(request) switch
         {
-            var job = await downloads.CreateAsync(request);
-
-            return CreatedAtAction(nameof(Get), new { id = job.Id }, job);
-        }
-        catch (InvalidDownloadException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (DownloadConflictException exception)
-        {
-            return Conflict(exception.Message);
-        }
+            DownloadCreated created => CreatedAtAction(nameof(Get), new { id = created.Job.Id }, created.Job),
+            DownloadInvalid invalid => BadRequest(invalid.Reason),
+            DownloadConflict conflict => Conflict(conflict.Reason)
+        };
     }
 
     [HttpGet]
@@ -51,161 +42,91 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     [HttpPost("{id:guid}/password")]
     public IActionResult SubmitPassword(Guid id, [FromBody] PasswordRequest request)
     {
-        return downloads.SubmitPassword(id, request.Password) switch
-        {
-            null => NotFound(),
-            false => Conflict("No item of this download is waiting for a password."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.SubmitPassword(id, request.Password));
     }
 
     [HttpPost("{id:guid}/cancel")]
     public IActionResult Cancel(Guid id)
     {
-        return downloads.Cancel(id) ? Ok(downloads.Get(id)) : NotFound();
+        return Respond(downloads.Cancel(id));
     }
 
     [HttpPost("{id:guid}/pause")]
     public IActionResult Pause(Guid id)
     {
-        return downloads.Pause(id) switch
-        {
-            null => NotFound(),
-            false => Conflict("Nothing in this download is running that could be paused."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.Pause(id));
     }
 
     [HttpPost("{id:guid}/resume")]
     public IActionResult Resume(Guid id)
     {
-        return downloads.Resume(id) switch
-        {
-            null => NotFound(),
-            false => Conflict("This download is not paused."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.Resume(id));
     }
 
     [HttpPost("{id:guid}/retry")]
     public IActionResult Retry(Guid id)
     {
-        return downloads.Retry(id) switch
-        {
-            null => NotFound(),
-            false => Conflict("Nothing failed or was canceled in this download."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.Retry(id));
     }
 
     [HttpPut("{id:guid}/auto-unpack")]
     public IActionResult SetUnpack(Guid id, [FromBody] UnpackSettingRequest request)
     {
-        return downloads.SetUnpack(id, request.Unpack!.Value) switch
-        {
-            null => NotFound(),
-            false => Conflict("Whether this download is unpacked can only be changed until its download is complete."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.SetUnpack(id, request.Unpack!.Value));
     }
 
     [HttpPost("{id:guid}/unpack")]
     public IActionResult Unpack(Guid id)
     {
-        return downloads.Unpack(id) switch
-        {
-            null => NotFound(),
-            false => Conflict("Nothing in this download is waiting to be unpacked."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.Unpack(id));
     }
 
     [HttpPost("{id:guid}/cancel-unpack")]
     public IActionResult CancelUnpack(Guid id)
     {
-        return downloads.CancelUnpack(id) switch
-        {
-            null => NotFound(),
-            false => Conflict("Nothing in this download is being unpacked."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.CancelUnpack(id));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/cancel")]
     public IActionResult CancelItem(Guid id, int number)
     {
-        return downloads.CancelItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item has already ended."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.CancelItem(id, number));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/pause")]
     public IActionResult PauseItem(Guid id, int number)
     {
-        return downloads.PauseItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item is not running, so it cannot be paused."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.PauseItem(id, number));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/resume")]
     public IActionResult ResumeItem(Guid id, int number)
     {
-        return downloads.ResumeItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item is not paused."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.ResumeItem(id, number));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/retry")]
     public IActionResult RetryItem(Guid id, int number)
     {
-        return downloads.RetryItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item neither failed nor was canceled."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.RetryItem(id, number));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/cancel-unpack")]
     public IActionResult CancelUnpackItem(Guid id, int number)
     {
-        return downloads.CancelUnpackItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item is not being unpacked."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.CancelUnpackItem(id, number));
     }
 
     [HttpPut("{id:guid}/items/{number:int}/auto-unpack")]
     public IActionResult SetItemUnpack(Guid id, int number, [FromBody] UnpackSettingRequest request)
     {
-        return downloads.SetItemUnpack(id, number, request.Unpack!.Value) switch
-        {
-            null => NotFound(),
-            false => Conflict("Whether this item is unpacked can only be changed until its download is complete."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.SetItemUnpack(id, number, request.Unpack!.Value));
     }
 
     [HttpPost("{id:guid}/items/{number:int}/unpack")]
     public IActionResult UnpackItem(Guid id, int number)
     {
-        return downloads.UnpackItem(id, number) switch
-        {
-            null => NotFound(),
-            false => Conflict("This item is not waiting to be unpacked."),
-            true => Ok(downloads.Get(id))
-        };
+        return Respond(downloads.UnpackItem(id, number));
     }
 
     [HttpDelete("{id:guid}/items/{number:int}")]
@@ -226,5 +147,15 @@ public sealed class DownloadsController(DownloadService downloads, ProgressHub h
     {
         using var subscription = hub.Subscribe();
         await Response.StreamAsync(subscription, cancellationToken);
+    }
+
+    private IActionResult Respond(ActionOutcome outcome)
+    {
+        return outcome switch
+        {
+            ActionDone done => Ok(done.Job),
+            ActionRejected rejected => Conflict(rejected.Reason),
+            ActionMissing => NotFound()
+        };
     }
 }

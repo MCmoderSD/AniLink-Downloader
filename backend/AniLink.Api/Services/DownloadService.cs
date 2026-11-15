@@ -1,6 +1,5 @@
 using AniLink.Api.Archives;
 using AniLink.Api.Data.Downloads;
-using AniLink.Api.Exceptions.Downloads;
 using AniLink.Api.Helpers;
 using AniLink.Api.Repositories;
 using AniLink.Api.Services.Streaming;
@@ -35,25 +34,25 @@ public sealed class DownloadService(
         return jobs.Get(id) is { } job ? JobResponse.From(job) : null;
     }
 
-    public async Task<JobResponse> CreateAsync(CreateDownloadRequest request)
+    public async Task<CreateOutcome> CreateAsync(CreateDownloadRequest request)
     {
         var name = request.Name.Trim();
-        if (FileNames.Sanitize(name).Length == 0) throw new InvalidDownloadException("The name has no characters that can be used for a folder.");
+        if (FileNames.Sanitize(name).Length == 0) return new DownloadInvalid("The name has no characters that can be used for a folder.");
 
         if (request.Passwords?.Any(password => password is { Length: > DownloadLimits.MaxPasswordLength }) is true)
         {
-            throw new InvalidDownloadException($"A password may have at most {DownloadLimits.MaxPasswordLength} characters.");
+            return new DownloadInvalid($"A password may have at most {DownloadLimits.MaxPasswordLength} characters.");
         }
 
         var analysis = LinkAnalyzer.Analyze(request.Links, request.Kind, request.Format);
 
-        if (analysis.Episodes.Count == 0) throw new InvalidDownloadException(analysis.Unmatched.Count > 0
+        if (analysis.Episodes.Count == 0) return new DownloadInvalid(analysis.Unmatched.Count > 0
             ? "None of the links could be assigned. Enter a season format that appears in the file names."
             : "There are no links.");
 
         if (analysis.Unmatched.Count > 0)
         {
-            throw new InvalidDownloadException($"{analysis.Unmatched.Count} of {analysis.Links.Count} links could not be assigned to an episode, for example {LogSafe.OneLine(analysis.Unmatched[0])}.");
+            return new DownloadInvalid($"{analysis.Unmatched.Count} of {analysis.Links.Count} links could not be assigned to an episode, for example {LogSafe.OneLine(analysis.Unmatched[0])}.");
         }
 
         int? season = request.Kind is ReleaseKind.Season ? request.Season ?? analysis.Season ?? 1 : null;
@@ -61,7 +60,7 @@ public sealed class DownloadService(
 
         if (jobs.FindActive(workspace.Root) is not null)
         {
-            throw new DownloadConflictException($"{name} is already being downloaded into {workspace.Root}.");
+            return new DownloadConflict($"{name} is already being downloaded into {workspace.Root}.");
         }
 
         var passwords = new PasswordBook(archive.Passwords);
@@ -84,7 +83,7 @@ public sealed class DownloadService(
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            throw new InvalidDownloadException($"The folder {workspace.Root} could not be prepared: {exception.Message}");
+            return new DownloadInvalid($"The folder {workspace.Root} could not be prepared: {exception.Message}");
         }
 
         jobs.Add(job);
@@ -99,81 +98,86 @@ public sealed class DownloadService(
 
         pipeline.Start(job);
 
-        return JobResponse.From(job);
+        return new DownloadCreated(JobResponse.From(job));
     }
 
-    public bool Cancel(Guid id)
+    public ActionOutcome Cancel(Guid id)
     {
-        if (jobs.Get(id) is not { } job) return false;
+        if (jobs.Get(id) is not { } job) return new ActionMissing();
 
         pipeline.Cancel(job);
 
-        return true;
+        return new ActionDone(JobResponse.From(job));
     }
 
-    public bool? Pause(Guid id)
+    public ActionOutcome Pause(Guid id)
     {
-        return jobs.Get(id) is { } job ? pipeline.Pause(job) : null;
+        return Apply(id, pipeline.Pause, "Nothing in this download is running that could be paused.");
     }
 
-    public bool? Resume(Guid id)
+    public ActionOutcome Resume(Guid id)
     {
-        return jobs.Get(id) is { } job ? pipeline.Resume(job) : null;
+        return Apply(id, pipeline.Resume, "This download is not paused.");
     }
 
-    public bool? Retry(Guid id)
+    public ActionOutcome Retry(Guid id)
     {
-        return jobs.Get(id) is { } job ? pipeline.Retry(job) : null;
+        return Apply(id, pipeline.Retry, "Nothing failed or was canceled in this download.");
     }
 
-    public bool? SetUnpack(Guid id, bool wanted)
+    public ActionOutcome SetUnpack(Guid id, bool wanted)
     {
-        return jobs.Get(id) is { } job ? pipeline.SetUnpack(job, wanted) : null;
+        return Apply(id, job => pipeline.SetUnpack(job, wanted), "Whether this download is unpacked can only be changed until its download is complete.");
     }
 
-    public bool? SetItemUnpack(Guid id, int number, bool wanted)
+    public ActionOutcome Unpack(Guid id)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.SetItemUnpack(item, wanted) : null;
+        return Apply(id, pipeline.Unpack, "Nothing in this download is waiting to be unpacked.");
     }
 
-    public bool? Unpack(Guid id)
+    public ActionOutcome CancelUnpack(Guid id)
     {
-        return jobs.Get(id) is { } job ? pipeline.Unpack(job) : null;
+        return Apply(id, pipeline.CancelUnpack, "Nothing in this download is being unpacked.");
     }
 
-    public bool? CancelUnpack(Guid id)
+    public ActionOutcome SubmitPassword(Guid id, string password)
     {
-        return jobs.Get(id) is { } job ? pipeline.CancelUnpack(job) : null;
+        return Apply(id, job => pipeline.SubmitPassword(job, password), "No item of this download is waiting for a password.");
     }
 
-    public bool? CancelUnpackItem(Guid id, int number)
+    public ActionOutcome SetItemUnpack(Guid id, int number, bool wanted)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.CancelUnpackItem(item) : null;
+        return ApplyToItem(id, number, item => pipeline.SetItemUnpack(item, wanted), "Whether this item is unpacked can only be changed until its download is complete.");
     }
 
-    public bool? UnpackItem(Guid id, int number)
+    public ActionOutcome UnpackItem(Guid id, int number)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.UnpackItem(item) : null;
+        return ApplyToItem(id, number, pipeline.UnpackItem, "This item is not waiting to be unpacked.");
     }
 
-    public bool? CancelItem(Guid id, int number)
+    public ActionOutcome CancelUnpackItem(Guid id, int number)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.CancelItem(item) : null;
+        return ApplyToItem(id, number, pipeline.CancelUnpackItem, "This item is not being unpacked.");
     }
 
-    public bool? PauseItem(Guid id, int number)
+    public ActionOutcome CancelItem(Guid id, int number)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.PauseItem(item) : null;
+        return ApplyToItem(id, number, pipeline.CancelItem, "This item has already ended.");
     }
 
-    public bool? ResumeItem(Guid id, int number)
+    public ActionOutcome PauseItem(Guid id, int number)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.ResumeItem(item) : null;
+        return ApplyToItem(id, number, pipeline.PauseItem, "This item is not running, so it cannot be paused.");
     }
 
-    public bool? RetryItem(Guid id, int number)
+    public ActionOutcome ResumeItem(Guid id, int number)
     {
-        return jobs.Get(id)?.FindItem(number) is { } item ? pipeline.RetryItem(item) : null;
+        return ApplyToItem(id, number, pipeline.ResumeItem, "This item is not paused.");
+    }
+
+    public ActionOutcome RetryItem(Guid id, int number)
+    {
+        return ApplyToItem(id, number, pipeline.RetryItem, "This item neither failed nor was canceled.");
     }
 
     public bool RemoveItem(Guid id, int number)
@@ -190,11 +194,6 @@ public sealed class DownloadService(
         return true;
     }
 
-    public bool? SubmitPassword(Guid id, string password)
-    {
-        return jobs.Get(id) is { } job ? pipeline.SubmitPassword(job, password) : null;
-    }
-
     public bool Remove(Guid id)
     {
         if (jobs.Get(id) is not { } job) return false;
@@ -205,5 +204,19 @@ public sealed class DownloadService(
         hub.Publish(DownloadEvents.Removed(id));
 
         return true;
+    }
+
+    private ActionOutcome Apply(Guid id, Func<DownloadJob, bool> action, string rejection)
+    {
+        if (jobs.Get(id) is not { } job) return new ActionMissing();
+
+        return action(job) ? new ActionDone(JobResponse.From(job)) : new ActionRejected(rejection);
+    }
+
+    private ActionOutcome ApplyToItem(Guid id, int number, Func<MediaItem, bool> action, string rejection)
+    {
+        if (jobs.Get(id)?.FindItem(number) is not { } item) return new ActionMissing();
+
+        return action(item) ? new ActionDone(JobResponse.From(item.Job)) : new ActionRejected(rejection);
     }
 }

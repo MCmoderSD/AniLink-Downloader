@@ -13,7 +13,7 @@ public sealed partial class SevenZipHealthCheck(SevenZipProcess sevenZip) : IHea
     {
         try
         {
-            var result = await sevenZip.RunAsync([], null, cancellationToken);
+            var result = await sevenZip.CaptureAsync([], cancellationToken);
             var banner = Banner().Match(result.Combined);
 
             return banner.Success
