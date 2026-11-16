@@ -88,7 +88,7 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
 
         try
         {
-            result = await sevenZip.RunAsync(arguments, onProgress, cancellationToken, activity);
+            result = await sevenZip.RunAsync(arguments, onProgress, activity, cancellationToken);
         }
         finally
         {
