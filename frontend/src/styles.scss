@@ -410,6 +410,7 @@ html {
   scroll-padding-block-start: var(--app-navbar-block);
 
   // The warning under the navbar stands in the way as well while it is shown
+  //noinspection CssUnusedSymbol
   &:has(.navbar-offline) {
     scroll-padding-block-start: calc(var(--app-navbar-block) + var(--app-offline-height));
   }
