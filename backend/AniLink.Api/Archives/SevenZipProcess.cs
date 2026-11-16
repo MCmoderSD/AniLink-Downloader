@@ -160,7 +160,7 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
 
     private static double? LatestPercent(string window, bool cut)
     {
-        var segments = window.Split(['\b', '\r', '\n']);
+        var segments = window.Split('\b', '\r', '\n');
 
         for (var index = segments.Length - 1; index >= (cut ? 1 : 0); index--)
         {

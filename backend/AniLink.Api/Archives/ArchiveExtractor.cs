@@ -159,9 +159,12 @@ public sealed class ArchiveExtractor(SevenZipProcess sevenZip, ILogger<ArchiveEx
 
     private string Describe(IEnumerable<string> options, bool withPassword, string archive)
     {
-        var parts = new List<string> { sevenZip.Executable };
+        List<string> parts =
+        [
+            sevenZip.Executable,
+            .. options.Select(LogSafe.OneLine)
+        ];
 
-        parts.AddRange(options.Select(LogSafe.OneLine));
         if (withPassword) parts.Add("-p***");
         parts.Add(LogSafe.OneLine(archive));
 
