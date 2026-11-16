@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using AniLink.Api.Archives;
 using AniLink.Api.DebridLink;
 using AniLink.Api.Helpers;
@@ -49,7 +48,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         PrecompressedFilesExtensions.RestoreContentType(context.Context);
 
-        var hashed = Regex.IsMatch(context.File.Name, @"-[A-Za-z0-9]{8}\.(js|css)(\.br|\.gz)?$");
+        var hashed = PrecompressedFilesExtensions.IsHashed(context.File.Name);
         context.Context.Response.Headers.CacheControl = hashed ? "public, max-age=31536000, immutable" : "no-cache";
     }
 });
@@ -57,7 +56,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapAniLinkHealthChecks();
 app.MapControllers();
 
-app.MapFallback("/api/{**path}", () => Results.NotFound());
+app.MapFallback("/api/{**path}", (string? path) => Results.NotFound());
 app.MapFallbackToFile("index.html");
 
 app.Run();

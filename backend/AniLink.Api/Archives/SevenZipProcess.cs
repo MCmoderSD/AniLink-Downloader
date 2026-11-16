@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -120,7 +121,7 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         }
     }
 
-    public async Task<ToolResult> RunAsync(IEnumerable<string> arguments, Action<double> onProgress, CancellationToken cancellationToken, ToolActivity activity)
+    public async Task<ToolResult> RunAsync(IEnumerable<string> arguments, Action<double> onProgress, ToolActivity activity, CancellationToken cancellationToken)
     {
         using var process = Start(arguments);
 
@@ -164,7 +165,7 @@ public sealed partial class SevenZipProcess(ArchiveOptions options)
         for (var index = segments.Length - 1; index >= (cut ? 1 : 0); index--)
         {
             var match = ProgressPattern().Match(segments[index]);
-            if (match.Success && double.TryParse(match.Groups[1].ValueSpan, out var percent)) return Math.Min(percent, 100);
+            if (match.Success && double.TryParse(match.Groups[1].ValueSpan, NumberStyles.None, CultureInfo.InvariantCulture, out var percent)) return Math.Min(percent, 100);
         }
 
         return null;

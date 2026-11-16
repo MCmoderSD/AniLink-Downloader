@@ -1,15 +1,24 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Net.Http.Headers;
 
 namespace AniLink.Api.Helpers;
 
-public static class PrecompressedFilesExtensions
+public static partial class PrecompressedFilesExtensions
 {
     private const string TypeKey = "AniLink.PrecompressedFileType";
 
     private static readonly (string Encoding, string Extension)[] Variants = [("br", ".br"), ("gzip", ".gz")];
 
+    [GeneratedRegex(@"-[A-Za-z0-9]{8}\.(js|css)(\.br|\.gz)?$")]
+    private static partial Regex HashedFilePattern();
+
     public static IContentTypeProvider ContentTypes { get; } = CreateContentTypes();
+
+    public static bool IsHashed(string fileName)
+    {
+        return HashedFilePattern().IsMatch(fileName);
+    }
 
     public static void RestoreContentType(HttpContext context)
     {
