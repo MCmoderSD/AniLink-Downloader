@@ -56,7 +56,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapAniLinkHealthChecks();
 app.MapControllers();
 
-app.MapFallback("/api/{**path}", (string? path) => Results.NotFound());
+app.MapFallback("/api/{**path}", context => Results.NotFound().ExecuteAsync(context));
 app.MapFallbackToFile("index.html");
 
 app.Run();
