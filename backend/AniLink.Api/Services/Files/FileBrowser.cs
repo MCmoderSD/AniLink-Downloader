@@ -8,6 +8,7 @@ namespace AniLink.Api.Services.Files;
 public sealed class FileBrowser(
     FilePaths paths,
     FolderTotals totals,
+    FileChanges changes,
     JobRepository jobs,
     WorkspaceGate gate,
     ILogger<FileBrowser> logger
@@ -86,6 +87,7 @@ public sealed class FileBrowser(
 
         deleted.Add(resolved.Full);
         totals.Invalidate(resolved.Full);
+        changes.Report(resolved.Full);
 
         logger.LogInformation("Deleted {Path}", LogSafe.OneLine(resolved.Relative));
 

@@ -12,7 +12,9 @@ public static class RequestLoggingExtensions
 
         app.Use(async (context, next) =>
         {
-            if (context.Request.Path.StartsWithSegments("/health") || context.Request.Path.StartsWithSegments("/api/downloads/stream"))
+            if (context.Request.Path.StartsWithSegments("/health")
+                || context.Request.Path.StartsWithSegments("/api/downloads/stream")
+                || context.Request.Path.StartsWithSegments("/api/files/stream"))
             {
                 await next(context);
                 return;
@@ -32,6 +34,7 @@ public static class RequestLoggingExtensions
                 {
                     >= StatusCodes.Status500InternalServerError => LogLevel.Error,
                     StatusCodes.Status404NotFound when context.GetEndpoint() is null => LogLevel.Debug,
+                    StatusCodes.Status200OK when HttpMethods.IsGet(context.Request.Method) && context.Request.Path.Equals("/api/files", StringComparison.OrdinalIgnoreCase) => LogLevel.Debug,
                     _ => LogLevel.Information
                 };
 

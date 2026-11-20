@@ -1,12 +1,14 @@
 using AniLink.Api.Data.Files;
+using AniLink.Api.Helpers;
 using AniLink.Api.Services.Files;
+using AniLink.Api.Services.Streaming;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AniLink.Api.Controllers;
 
 [ApiController]
 [Route("api/files")]
-public sealed class FilesController(FileBrowser files) : ControllerBase
+public sealed class FilesController(FileBrowser files, FileHub hub) : ControllerBase
 {
     [HttpGet]
     public IActionResult List([FromQuery] string? path)
@@ -21,7 +23,6 @@ public sealed class FilesController(FileBrowser files) : ControllerBase
     }
 
     [HttpPost("delete")]
-    [Consumes("application/json")]
     public IActionResult Delete([FromBody] DeleteFilesRequest request)
     {
         if (Request.Headers["Sec-Fetch-Site"].ToString() is "cross-site" or "same-site")
@@ -30,5 +31,12 @@ public sealed class FilesController(FileBrowser files) : ControllerBase
         }
 
         return Ok(files.Delete(request.Paths));
+    }
+
+    [HttpGet("stream")]
+    public async Task Stream(CancellationToken cancellationToken)
+    {
+        using var subscription = hub.Subscribe();
+        await Response.StreamAsync(subscription, cancellationToken);
     }
 }
