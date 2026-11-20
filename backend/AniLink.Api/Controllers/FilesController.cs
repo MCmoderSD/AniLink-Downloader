@@ -19,4 +19,16 @@ public sealed class FilesController(FileBrowser files) : ControllerBase
             ListingUnavailable unavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, unavailable.Reason)
         };
     }
+
+    [HttpPost("delete")]
+    [Consumes("application/json")]
+    public IActionResult Delete([FromBody] DeleteFilesRequest request)
+    {
+        if (Request.Headers["Sec-Fetch-Site"].ToString() is "cross-site" or "same-site")
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "Files can only be deleted from the page of this server.");
+        }
+
+        return Ok(files.Delete(request.Paths));
+    }
 }

@@ -4,4 +4,5 @@ public static class FileLimits
 {
     public const int MaxPathLength = 4096;
     public const int MaxDepth = 64;
+    public const int MaxBatch = 500;
 }

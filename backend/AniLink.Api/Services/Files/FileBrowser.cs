@@ -9,6 +9,7 @@ public sealed class FileBrowser(
     FilePaths paths,
     FolderTotals totals,
     JobRepository jobs,
+    WorkspaceGate gate,
     ILogger<FileBrowser> logger
 ) {
     private static readonly EnumerationOptions Everything = new()
@@ -25,6 +26,121 @@ public sealed class FileBrowser(
             PathMissing => new ListingMissing(),
             PathResolved resolved => Read(resolved)
         };
+    }
+
+    public FileBatchResponse Delete(IReadOnlyList<string> requested)
+    {
+        var deleted = new List<string>();
+        var results = requested.Distinct(StringComparer.Ordinal).Select(relative => Delete(relative, deleted)).ToList();
+
+        logger.LogInformation(
+            "Deleted {Done} of {Total} items of the downloads folder, {Locked} in use, {Failed} failed",
+            results.Count(result => result.Outcome is FileOutcome.Done),
+            results.Count,
+            results.Count(result => result.Outcome is FileOutcome.Locked),
+            results.Count(result => result.Outcome is FileOutcome.Failed));
+
+        return new FileBatchResponse(results);
+    }
+
+    private FileResultResponse Delete(string relative, List<string> deleted)
+    {
+        return paths.Resolve(relative, true) switch
+        {
+            PathInvalid invalid => Result(relative, FileOutcome.Invalid, invalid.Reason),
+            PathMissing => Result(relative, FileOutcome.Missing, "It is no longer there."),
+            PathResolved resolved => Remove(resolved, deleted)
+        };
+    }
+
+    private FileResultResponse Remove(PathResolved resolved, List<string> deleted)
+    {
+        if (deleted.Any(parent => PathScope.IsInside(resolved.Full, parent))) return Result(resolved.Relative, FileOutcome.Done);
+
+        using var claim = gate.TryClaim(resolved.Full, out var blockers);
+
+        if (claim is null)
+        {
+            if (blockers.Count == 0) return Result(resolved.Relative, FileOutcome.Failed, "It is being deleted already.");
+
+            var locks = blockers.Select(job => new FileLockResponse(job.Id, job.Name, job.Release.Season, job.Status)).ToList();
+            var names = string.Join(", ", blockers.Select(job => job.Release.Season is { } season ? $"{job.Name} (season {season})" : job.Name));
+
+            return new FileResultResponse(resolved.Relative, FileOutcome.Locked, $"It is in use by {names}.", locks);
+        }
+
+        try
+        {
+            Erase(resolved.Full);
+        }
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return Result(resolved.Relative, FileOutcome.Missing, "It is no longer there.");
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(exception, "{Path} could not be deleted", LogSafe.OneLine(resolved.Relative));
+
+            return Result(resolved.Relative, FileOutcome.Failed, exception is UnauthorizedAccessException ? "It cannot be deleted: access is denied." : "It cannot be deleted: another program is using it.");
+        }
+
+        deleted.Add(resolved.Full);
+        totals.Invalidate(resolved.Full);
+
+        logger.LogInformation("Deleted {Path}", LogSafe.OneLine(resolved.Relative));
+
+        return Result(resolved.Relative, FileOutcome.Done);
+    }
+
+    private static void Erase(string full)
+    {
+        var attributes = File.GetAttributes(full);
+
+        if (attributes.HasFlag(FileAttributes.ReparsePoint))
+        {
+            if (OperatingSystem.IsWindows() && attributes.HasFlag(FileAttributes.Directory)) Directory.Delete(full, false);
+            else File.Delete(full);
+
+            return;
+        }
+
+        try
+        {
+            EraseTree(full, attributes.HasFlag(FileAttributes.Directory));
+        }
+        catch (UnauthorizedAccessException) when (OperatingSystem.IsWindows())
+        {
+            ClearReadOnly(full);
+            EraseTree(full, attributes.HasFlag(FileAttributes.Directory));
+        }
+    }
+
+    private static void EraseTree(string full, bool directory)
+    {
+        if (directory) Directory.Delete(full, true);
+        else File.Delete(full);
+    }
+
+    private static void ClearReadOnly(string full)
+    {
+        if (File.Exists(full))
+        {
+            File.SetAttributes(full, File.GetAttributes(full) & ~FileAttributes.ReadOnly);
+            return;
+        }
+
+        var options = new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.ReparsePoint };
+
+        foreach (var path in Directory.EnumerateFileSystemEntries(full, "*", options))
+        {
+            var attributes = File.GetAttributes(path);
+            if (attributes.HasFlag(FileAttributes.ReadOnly)) File.SetAttributes(path, attributes & ~FileAttributes.ReadOnly);
+        }
+    }
+
+    private static FileResultResponse Result(string path, FileOutcome outcome, string? reason = null)
+    {
+        return new FileResultResponse(path, outcome, reason, []);
     }
 
     private ListingOutcome Read(PathResolved resolved)
