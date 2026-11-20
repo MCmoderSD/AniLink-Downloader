@@ -16,7 +16,7 @@ The owner also wants to reach the page from a phone on the same network, to chec
 
 AniLink-Downloader turns hoster links into finished files. It creates direct links with Debrid-Link, downloads the archive parts (mostly `.rar`, possibly multipart and password protected), unpacks them with 7-Zip, and renames the video and its `.nfo` into a folder named after the show.
 
-Success is a clean, correctly named result in the `downloads/` folder. What happens to it afterwards (a media library, a player) is the user's own business and is not part of the product.
+Success is a clean, correctly named result in the `downloads/` folder. What happens to it afterwards (a media library, a player) is the user's own business and is not part of the product. The page does show that folder, though, as a file browser that updates by itself, and it can delete from it, which is what a person does after a download anyway. Moving, copying, renaming, searching and downloading from it are planned, not built.
 
 ## Positioning
 
