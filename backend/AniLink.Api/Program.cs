@@ -2,6 +2,7 @@ using AniLink.Api.Archives;
 using AniLink.Api.DebridLink;
 using AniLink.Api.Helpers;
 using AniLink.Api.Services;
+using AniLink.Api.Services.Files;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ var archives = ArchiveOptions.From(builder.Configuration);
 
 builder.Services.AddAniLinkDebridLink(debridLink);
 builder.Services.AddAniLinkDownloads(downloads, archives);
+builder.Services.AddAniLinkFiles();
 builder.Services.AddSingleton<DlcService>();
 builder.Services.AddControllers();
 builder.Services.AddResponseCompression();
