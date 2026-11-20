@@ -168,7 +168,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         try
         {
             var path = job.Workspace.Manifest;
-            var temporary = path + ".tmp";
+            var temporary = Path.Combine(job.Workspace.Root, Workspace.ManifestTemporaryName);
 
             Directory.CreateDirectory(job.Workspace.Root);
             await File.WriteAllTextAsync(temporary, JsonSerializer.Serialize(JobManifest.From(job), Options));

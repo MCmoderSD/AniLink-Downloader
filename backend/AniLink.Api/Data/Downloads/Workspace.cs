@@ -5,6 +5,7 @@ namespace AniLink.Api.Data.Downloads;
 public sealed class Workspace(string root)
 {
     public const string ManifestName = ".anilink.json";
+    public const string ManifestTemporaryName = ManifestName + ".tmp";
     public const string ArchivesFolder = "archives";
     public const string OutputFolder = "output";
 
