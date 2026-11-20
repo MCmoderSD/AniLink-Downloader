@@ -1,0 +1,72 @@
+<table class="files" role="table">
+  <caption class="files-hidden">{{ caption() }}</caption>
+
+  <thead role="rowgroup">
+    <tr class="files-head" role="row">
+      <th class="files-check" role="columnheader" scope="col">
+        <mat-checkbox
+          aria-label="Select all"
+          [checked]="allChosen()"
+          [indeterminate]="someChosen()"
+          [disabled]="nothingToChoose() || busy()"
+          (change)="toggledAll.emit($event.checked)"
+        />
+      </th>
+      <th class="files-name" role="columnheader" scope="col">Name</th>
+      <th class="files-size" role="columnheader" scope="col">Size</th>
+      <th class="files-count" role="columnheader" scope="col">Files</th>
+      <th class="files-time" role="columnheader" scope="col">Modified</th>
+    </tr>
+  </thead>
+
+  <tbody role="rowgroup">
+    @for (row of rows(); track row.entry.path; let index = $index) {
+      <tr class="files-row" role="row" [class.files-row-selected]="selected().has(row.entry.path)" [class.files-row-locked]="row.locked">
+        <td class="files-check" role="cell">
+          <mat-checkbox
+            [aria-label]="'Select ' + row.entry.name"
+            [aria-describedby]="row.locked ? 'file-lock-' + index : ''"
+            [checked]="selected().has(row.entry.path)"
+            [disabled]="row.locked || busy()"
+            (change)="toggled.emit({ path: row.entry.path, checked: $event.checked })"
+          />
+        </td>
+
+        <td class="files-name" role="cell">
+          <div class="files-name-box">
+            <mat-icon class="files-icon" aria-hidden="true">{{ row.icon }}</mat-icon>
+
+            <span class="files-name-text">
+              @if (row.entry.kind === 'Folder') {
+                <a class="files-link" routerLink="/files" [queryParams]="{ path: row.entry.path }" [attr.title]="row.entry.name">
+                  <span class="files-hidden">{{ row.kind }}: </span>{{ row.head }}
+                </a>
+              } @else {
+                <span class="files-label" [attr.title]="row.entry.name">
+                  <span class="files-hidden">{{ row.kind }}: </span><span class="files-head-part">{{ row.head }}</span><span class="files-tail-part">{{ row.tail }}</span>
+                </span>
+              }
+
+              @if (row.locked) {
+                <span class="files-lock" [id]="'file-lock-' + index">
+                  <mat-icon class="files-lock-icon" aria-hidden="true">lock</mat-icon>
+                  {{ row.lock }}
+                </span>
+              }
+            </span>
+          </div>
+        </td>
+
+        <td class="files-size" role="cell" [attr.title]="(row.entry.size | number) + ' bytes'">{{ row.size }}</td>
+        <td class="files-count" role="cell">
+          @if (row.entry.files !== null) {
+            {{ row.entry.files | number }}<span class="files-unit"> {{ row.entry.files === 1 ? 'file' : 'files' }}</span>
+          }
+        </td>
+        <td class="files-time" role="cell">
+          <time [attr.datetime]="row.entry.modifiedAt">{{ row.entry.modifiedAt | date: 'd MMM y, HH:mm' }}</time>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,14 @@
+<div class="toolbar" role="group" aria-label="Selected items">
+  <p class="toolbar-summary">{{ summary() }}</p>
+
+  <div class="toolbar-actions">
+    <button mat-button type="button" disabledInteractive [disabled]="count() === 0 || busy()" (click)="cleared.emit()">
+      Clear
+    </button>
+
+    <button mat-stroked-button type="button" disabledInteractive [disabled]="count() === 0 || busy()" (click)="deleteRequested.emit()">
+      <mat-icon aria-hidden="true">delete_outline</mat-icon>
+      Delete
+    </button>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.toolbar-summary {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 40rem) {
+  .toolbar-summary {
+    flex: 1 1 100%;
+  }
+
+  .toolbar-actions {
+    flex: 1 1 100%;
+
+    //noinspection CssUnusedSymbol
+    > .mat-mdc-button-base {
+      flex: 1 1 auto;
+    }
+  }
+}

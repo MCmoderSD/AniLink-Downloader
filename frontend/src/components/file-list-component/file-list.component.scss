@@ -1,0 +1,257 @@
+:host {
+  display: block;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.files-hidden {
+  @include visually-hidden;
+}
+
+.files {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem;
+  font: var(--mat-sys-body-medium);
+  table-layout: fixed;
+}
+
+:where(.files) :where(th, td) {
+  padding: 0.25rem 0.75rem;
+  text-align: start;
+  vertical-align: middle;
+}
+
+.files-head th {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+  font-weight: 500;
+}
+
+.files-row > td {
+  background: var(--mat-sys-surface-container);
+  transition: background-color var(--app-timing-fast);
+
+  &:first-child {
+    border-start-start-radius: var(--app-radius-md);
+    border-end-start-radius: var(--app-radius-md);
+  }
+
+  &:last-child {
+    border-start-end-radius: var(--app-radius-md);
+    border-end-end-radius: var(--app-radius-md);
+  }
+}
+
+.files-row:hover > td {
+  background: color-mix(in srgb, var(--mat-sys-surface-container) 100%, white 4%);
+}
+
+//noinspection CssUnusedSymbol
+.files-row-selected > td,
+//noinspection CssUnusedSymbol
+.files-row-selected:hover > td {
+  background: color-mix(in srgb, var(--mat-sys-primary) 14%, var(--mat-sys-surface-container));
+}
+
+.files-check {
+  width: 3.25rem;
+  padding-inline: 0.25rem;
+}
+
+.files-size {
+  width: 6.5rem;
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.files-count {
+  width: 5.5rem;
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.files-unit {
+  display: none;
+}
+
+.files-time {
+  width: 10.5rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.files-head .files-size,
+.files-head .files-count {
+  text-align: end;
+}
+
+.files-name-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.files-icon {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--mat-sys-primary);
+  font-size: 1.5rem;
+}
+
+.files-name-text {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.files-link {
+  display: block;
+  overflow: hidden;
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--mat-sys-primary);
+    text-decoration: underline;
+  }
+}
+
+.files-label {
+  display: flex;
+  min-width: 0;
+}
+
+.files-head-part {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.files-tail-part {
+  flex: none;
+  white-space: pre;
+}
+
+.files-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.files-lock-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--app-warning);
+  font-size: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .files,
+  .files thead,
+  .files tbody {
+    display: block;
+  }
+
+  .files {
+    border-spacing: 0;
+  }
+
+  .files-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    padding-inline: 0.5rem;
+
+    .files-size,
+    .files-count,
+    .files-time {
+      @include visually-hidden;
+    }
+  }
+
+  .files-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'check name name name'
+      '. size count time';
+    gap: 0 0.5rem;
+    align-items: center;
+    margin-block-end: 0.25rem;
+    padding: 0.25rem 0.5rem 0.625rem;
+    border-radius: var(--app-radius-md);
+    background: var(--mat-sys-surface-container);
+  }
+
+  //noinspection CssUnusedSymbol
+  .files-row-selected {
+    background: color-mix(in srgb, var(--mat-sys-primary) 14%, var(--mat-sys-surface-container));
+  }
+
+  .files-row > td {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .files-row:hover > td,
+  .files-row-selected > td,
+  .files-row-selected:hover > td {
+    background: none;
+  }
+
+  .files-row > .files-check {
+    grid-area: check;
+    width: auto;
+  }
+
+  .files-row > .files-name {
+    grid-area: name;
+    width: auto;
+  }
+
+  .files-row > .files-size {
+    grid-area: size;
+    width: auto;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+    text-align: start;
+  }
+
+  .files-row > .files-count {
+    grid-area: count;
+    width: auto;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+  }
+
+  .files-row > .files-time {
+    grid-area: time;
+    width: auto;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+  }
+
+  .files-unit {
+    display: inline;
+  }
+}

@@ -12,6 +12,10 @@ export const routes: Routes = [
     component: DownloadsPageComponent
   },
   {
+    path: 'files',
+    loadComponent: () => import('../pages/files-page/files-page.component').then((module): typeof module.FilesPageComponent => module.FilesPageComponent)
+  },
+  {
     path: 'add-download',
     loadComponent: () => import('../pages/new-download-page/new-download-page.component').then((module): typeof module.NewDownloadPageComponent => module.NewDownloadPageComponent)
   },
