@@ -238,8 +238,16 @@ export const NOTICE_TONES: Record<NoticeLevel, Tone> = {
 export function jobSubtitle(job: Job): string {
   if (job.kind === 'Movie') return 'Movie or single episode';
 
-  const season: string = job.season === null ? '' : `Season ${job.season} · `;
   const count: number = job.items.length;
+  const ready: number = job.items.filter((item: Item): boolean => item.stage === 'Downloaded').length;
+  const failed: number = job.items.filter((item: Item): boolean => item.stage === 'Failed').length;
 
-  return `${season}${count} ${count === 1 ? 'episode' : 'episodes'}`;
+  const parts: string[] = [];
+
+  if (job.season !== null) parts.push(`Season ${job.season}`);
+  parts.push(`${job.itemsCompleted} of ${count} ${count === 1 ? 'episode' : 'episodes'} done`);
+  if (ready > 0) parts.push(`${ready} ready to unpack`);
+  if (failed > 0) parts.push(`${failed} failed`);
+
+  return parts.join(' · ');
 }

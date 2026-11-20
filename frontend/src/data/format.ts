@@ -47,3 +47,11 @@ export function splitFileName(name: string): { head: string; tail: string } {
 
   return start > 0 ? { head: name.slice(0, start), tail: name.slice(start) } : { head: name, tail: '' };
 }
+
+export function splitPath(path: string): { head: string; tail: string } {
+  const trimmed: string = path.replace(/[\\/]+$/, '');
+  const cuts: number[] = [...trimmed.matchAll(/[\\/]/g)].map((match: RegExpExecArray): number => match.index);
+  const cut: number | undefined = cuts.at(-2);
+
+  return cut === undefined ? { head: trimmed, tail: '' } : { head: trimmed.slice(0, cut), tail: trimmed.slice(cut) };
+}

@@ -3,13 +3,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Item, Job, jobSubtitle, STATUS_LABELS, STATUS_TONES, Tone } from '../../data/download';
-import { formatBytes, formatEta, formatLeft, formatSpeed } from '../../data/format';
+import { splitPath } from '../../data/format';
+import { jobPhases, JobPhases } from '../../data/job-phases';
 import { DownloadService } from '../../services/download.service';
 import { DownloadSyncService } from '../../services/download-sync.service';
 import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
 import { ActivityLogComponent } from '../activity-log-component/activity-log.component';
 import { ConfirmActionDialogComponent } from '../confirm-action-dialog-component/confirm-action-dialog.component';
+import { EpisodeStripComponent } from '../episode-strip-component/episode-strip.component';
 import { ItemRowComponent } from '../item-row-component/item-row.component';
 import { PasswordPromptDialogComponent } from '../password-prompt-dialog-component/password-prompt-dialog.component';
 import { ProgressBarComponent } from '../progress-bar-component/progress-bar.component';
@@ -21,7 +23,7 @@ let nextCardId: number = 0;
   selector: 'app-job-card',
   templateUrl: './job-card.component.html',
   styleUrls: ['./job-card.component.scss'],
-  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, ItemRowComponent, ActivityLogComponent, SwitchComponent]
+  imports: [MatButtonModule, MatIconModule, ProgressBarComponent, EpisodeStripComponent, ItemRowComponent, ActivityLogComponent, SwitchComponent]
 })
 export class JobCardComponent {
 
@@ -85,47 +87,9 @@ export class JobCardComponent {
 
   protected readonly unpackLabel: Signal<string> = computed((): string => this.ready() > 1 ? 'Unpack all' : 'Unpack');
 
-  protected readonly linksTone: Signal<Tone> = computed((): Tone =>
-    this.job().links.total > 0 && this.job().links.done >= this.job().links.total ? 'success' : this.job().status === 'Failed' ? 'danger' : 'info');
+  protected readonly phases: Signal<JobPhases> = computed((): JobPhases => jobPhases(this.job()));
 
-  protected readonly downloadTone: Signal<Tone> = computed((): Tone => {
-    const status: Job['status'] = this.job().status;
-    return status === 'Completed' || status === 'Downloaded' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
-  });
-
-  protected readonly linksDetail: Signal<string> = computed((): string => {
-    const job: Job = this.job();
-    const text: string = `${job.links.done} of ${job.links.total} links`;
-    const remaining: number = job.links.total - job.links.done;
-
-    const waiting: number = Math.max(job.linksAhead, remaining);
-
-    return this.running() && remaining > 0 && job.linkSecondsEach > 0 ? `${text} · ${formatLeft(Math.ceil(waiting * job.linkSecondsEach))}` : text;
-  });
-
-  protected readonly downloadDetail: Signal<string> = computed((): string => {
-    const progress: Job['download'] = this.job().download;
-    if (progress.total <= 0) return 'waiting for the first links';
-
-    const parts: string[] = [`${formatBytes(progress.done)} of ${formatBytes(progress.total, progress.estimated)}`];
-
-    if (this.running() && this.job().speedBytesPerSecond > 0) {
-      parts.push(formatSpeed(this.job().speedBytesPerSecond));
-
-      const eta: string | null = formatEta(progress.total - progress.done, this.job().speedBytesPerSecond, progress.estimated);
-      if (eta) parts.push(eta);
-    }
-
-    return parts.join(' · ');
-  });
-
-  protected readonly summary: Signal<string> = computed((): string => {
-    const job: Job = this.job();
-    const noun: string = job.kind === 'Movie' ? 'file' : job.items.length === 1 ? 'episode' : 'episodes';
-    const failed: number = job.items.filter((item: Item): boolean => item.stage === 'Failed').length;
-
-    return `${job.itemsCompleted} of ${job.items.length} ${noun} done${this.ready() > 0 ? ` · ${this.ready()} ready to unpack` : ''}${failed > 0 ? ` · ${failed} failed` : ''}`;
-  });
+  protected readonly directory: Signal<{ head: string; tail: string }> = computed((): { head: string; tail: string } => splitPath(this.job().directory));
 
   protected toggleDetails(): void {
     this.detailsShown.update((value: boolean): boolean => !value);

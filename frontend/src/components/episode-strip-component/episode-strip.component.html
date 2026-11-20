@@ -1,0 +1,7 @@
+<div class="strip-cells" aria-hidden="true">
+  @for (cell of cells(); track cell.number) {
+    <span class="strip-cell" [attr.data-kind]="cell.kind" [attr.title]="cell.title"></span>
+  }
+</div>
+
+<p class="strip-legend">{{ legend() }}</p>

@@ -15,6 +15,9 @@
 
 .downloads-list {
   display: grid;
+
+  // Not 1fr: its minimum is the width of the longest line, and a folder path that does not wrap would stretch every card
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   margin: 0;
   padding: 0;

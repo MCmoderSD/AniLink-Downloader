@@ -8,27 +8,26 @@
     <span class="app-chip" [attr.data-tone]="statusTone()">{{ statusLabel() }}</span>
   </header>
 
-  <div class="job-bars">
-    <app-progress-bar
-      label="Debrid links"
-      [detail]="linksDetail()"
-      [fraction]="job().links.fraction"
-      [tone]="linksTone()"
-      [active]="running() && job().links.fraction < 1"
-    />
+  <div class="job-phases">
+    @if (phases().finished) {
+      <p class="job-finished">
+        <mat-icon class="job-finished-icon" aria-hidden="true">check_circle</mat-icon>
+        {{ phases().finished }}
+      </p>
+    }
 
-    <app-progress-bar
-      label="Download"
-      [detail]="downloadDetail()"
-      [fraction]="job().download.fraction"
-      [tone]="downloadTone()"
-      [active]="running() && job().speedBytesPerSecond > 0"
-    />
+    @for (bar of phases().bars; track bar.label) {
+      <app-progress-bar [label]="bar.label" [detail]="bar.detail" [fraction]="bar.fraction" [tone]="bar.tone" [active]="bar.active"/>
+    }
+
+    @if (job().items.length > 1) {
+      <app-episode-strip [items]="job().items"/>
+    }
   </div>
 
-  <p class="job-meta">
-    <span>{{ summary() }}</span>
-    <span class="job-directory app-mono" title="Saved to this folder">{{ job().directory }}</span>
+  <p class="job-directory app-mono" [attr.title]="'Saved to ' + job().directory">
+    <mat-icon class="job-directory-icon" aria-hidden="true">folder_open</mat-icon>
+    <span class="job-directory-path"><span class="job-directory-head">{{ directory().head }}</span><span class="job-directory-tail">{{ directory().tail }}</span></span>
   </p>
 
   <div class="job-actions">

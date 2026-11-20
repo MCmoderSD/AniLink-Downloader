@@ -1,0 +1,57 @@
+:host {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.strip-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1875rem;
+}
+
+.strip-cell {
+  width: 0.625rem;
+  height: 0.875rem;
+  border-radius: 0.1875rem;
+  background: var(--mat-sys-surface-container-highest);
+  transition: background-color var(--app-timing-base);
+
+  &[data-kind='queued'] {
+    background: var(--mat-sys-primary-container);
+  }
+
+  &[data-kind='downloading'] {
+    background: var(--mat-sys-primary);
+  }
+
+  &[data-kind='unpacking'] {
+    background: var(--mat-sys-on-primary-container);
+  }
+
+  &[data-kind='ready'] {
+    background: color-mix(in srgb, var(--app-success) 45%, transparent);
+  }
+
+  &[data-kind='done'] {
+    background: var(--app-success);
+  }
+
+  &[data-kind='paused'],
+  &[data-kind='password'] {
+    background: var(--app-warning);
+  }
+
+  &[data-kind='failed'] {
+    background: var(--app-danger);
+  }
+
+  &[data-kind='cancelled'] {
+    background: var(--mat-sys-outline);
+  }
+}
+
+.strip-legend {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
