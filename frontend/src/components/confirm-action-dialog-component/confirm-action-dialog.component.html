@@ -3,6 +3,14 @@
 <mat-dialog-content class="confirm-action" #content>
   <p class="confirm-action-message">{{ data.message }}</p>
 
+  @if (data.items?.length) {
+    <ul class="confirm-action-items">
+      @for (item of data.items; track $index) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  }
+
   <app-scroll-bar [target]="content" />
 </mat-dialog-content>
 
@@ -11,7 +19,7 @@
     {{ data.cancelLabel ?? 'Cancel' }}
   </button>
 
-  <button mat-flat-button type="button" (click)="confirm()">
+  <button mat-flat-button type="button" [class.confirm-action-danger]="data.tone === 'danger'" (click)="confirm()">
     {{ data.confirmLabel ?? 'Confirm' }}
   </button>
 </mat-dialog-actions>

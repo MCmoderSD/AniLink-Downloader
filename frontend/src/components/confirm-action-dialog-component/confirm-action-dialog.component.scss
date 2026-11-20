@@ -9,3 +9,21 @@
   // A confirmation spells out what is about to happen, so a long path has to stay readable.
   overflow-wrap: anywhere;
 }
+
+.confirm-action-items {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem 0.5rem 1.75rem;
+  border-radius: var(--app-radius-sm);
+  background: var(--mat-sys-surface-container);
+  font: var(--mat-sys-body-small);
+  overflow-wrap: anywhere;
+}
+
+// The one filled button of the dialog says that what it confirms cannot be taken back.
+//noinspection CssUnusedSymbol
+.confirm-action-danger {
+  --mat-button-filled-container-color: var(--app-danger-container);
+  --mat-button-filled-label-text-color: var(--app-danger);
+}
