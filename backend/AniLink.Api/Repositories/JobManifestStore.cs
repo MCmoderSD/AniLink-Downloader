@@ -85,9 +85,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 
         if (!name.Equals(Workspace.ArchivesFolder, StringComparison.Ordinal) && !name.Equals(Workspace.OutputFolder, StringComparison.Ordinal)) return false;
 
-        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-
-        return !Path.TrimEndingDirectorySeparator(entry.Directory).Equals(Path.TrimEndingDirectorySeparator(entry.RootDirectory), comparison);
+        return !Path.TrimEndingDirectorySeparator(entry.Directory).Equals(Path.TrimEndingDirectorySeparator(entry.RootDirectory), PathScope.Comparison);
     }
 
     public async Task<JobManifest?> ReadAsync(string path)
