@@ -85,13 +85,13 @@ export class JobCardComponent {
 
   protected readonly unpackLabel: Signal<string> = computed((): string => this.ready() > 1 ? 'Unpack all' : 'Unpack');
 
-  protected readonly linksTone: Signal<Tone> = computed((): Tone =>
-    this.job().links.total > 0 && this.job().links.done >= this.job().links.total ? 'success' : this.job().status === 'Failed' ? 'danger' : 'info');
-
   protected readonly downloadTone: Signal<Tone> = computed((): Tone => {
     const status: Job['status'] = this.job().status;
     return status === 'Completed' || status === 'Downloaded' ? 'success' : status === 'Failed' ? 'danger' : status === 'Cancelled' ? 'neutral' : status === 'Paused' ? 'warning' : 'info';
   });
+
+  protected readonly linksTone: Signal<Tone> = computed((): Tone =>
+    this.job().links.total > 0 && this.job().links.done >= this.job().links.total ? 'success' : this.downloadTone());
 
   protected readonly linksDetail: Signal<string> = computed((): string => {
     const job: Job = this.job();
