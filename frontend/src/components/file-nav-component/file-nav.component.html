@@ -1,4 +1,17 @@
 <div class="nav" role="group" aria-label="Navigation">
+  <button
+    mat-icon-button
+    type="button"
+    class="nav-tree"
+    aria-label="Folder tree"
+    title="Folder tree"
+    [attr.aria-pressed]="treeOpen()"
+    [class.nav-tree-on]="treeOpen()"
+    (click)="treeToggled.emit()"
+  >
+    <mat-icon aria-hidden="true">account_tree</mat-icon>
+  </button>
+
   <button mat-icon-button type="button" aria-label="Back" title="Back" [disabled]="!canBack()" (click)="back.emit()">
     <mat-icon aria-hidden="true">arrow_back</mat-icon>
   </button>
@@ -17,18 +30,5 @@
 
   <button mat-icon-button type="button" aria-label="Refresh" title="Refresh" (click)="refresh.emit()">
     <mat-icon aria-hidden="true">refresh</mat-icon>
-  </button>
-
-  <button
-    mat-icon-button
-    type="button"
-    class="nav-tree"
-    aria-label="Folder tree"
-    title="Folder tree"
-    [attr.aria-pressed]="treeOpen()"
-    [class.nav-tree-on]="treeOpen()"
-    (click)="treeToggled.emit()"
-  >
-    <mat-icon aria-hidden="true">account_tree</mat-icon>
   </button>
 </div>

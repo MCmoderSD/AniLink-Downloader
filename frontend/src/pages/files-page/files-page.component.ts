@@ -38,7 +38,7 @@ export class FilesPageComponent {
 
   private readonly working: WritableSignal<boolean> = signal(false);
 
-  private readonly shown: WritableSignal<boolean> = signal(inject(DOCUMENT).defaultView?.matchMedia('(min-width: 60rem)').matches ?? false);
+  private readonly shown: WritableSignal<boolean> = signal(inject(DOCUMENT).defaultView?.matchMedia('(min-width: 40rem)').matches ?? false);
 
   protected readonly trail: FileTrail = new FileTrail();
   protected readonly treeShown: Signal<boolean> = this.shown.asReadonly();
