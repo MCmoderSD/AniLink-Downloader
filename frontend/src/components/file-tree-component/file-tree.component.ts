@@ -1,5 +1,6 @@
 import { Component, computed, effect, ElementRef, inject, input, InputSignal, output, OutputEmitterRef, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { fileType } from '../../data/file-types';
 import { EntryKind, parentPath, TreeRow } from '../../data/files';
 import { FileTreeService } from '../../services/file-tree.service';
 
@@ -48,7 +49,7 @@ export class FileTreeComponent {
         expandable: row.node.kind === 'Folder' && row.node.hasChildren,
         open: row.open,
         current: row.node.path === current,
-        icon: row.node.kind === 'Folder' ? (row.open ? 'folder_open' : 'folder') : row.node.kind === 'Link' ? 'link' : 'description'
+        icon: row.node.kind === 'Folder' ? (row.open ? 'folder_open' : 'folder') : fileType(row.node.kind, row.node.name).icon
       }))
     ];
   });

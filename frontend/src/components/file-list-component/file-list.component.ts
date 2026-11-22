@@ -3,7 +3,8 @@ import { Component, computed, input, InputSignal, output, OutputEmitterRef, Sign
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { EntryKind, FileEntry, isLocked, lockText } from '../../data/files';
+import { fileType, FileType } from '../../data/file-types';
+import { FileEntry, isLocked, lockText } from '../../data/files';
 import { formatBytes, splitFileName } from '../../data/format';
 
 export interface FileToggle {
@@ -21,18 +22,6 @@ interface Row {
   lock: string;
   locked: boolean;
 }
-
-const ICONS: Record<EntryKind, string> = {
-  Folder: 'folder',
-  File: 'description',
-  Link: 'link'
-};
-
-const KINDS: Record<EntryKind, string> = {
-  Folder: 'Folder',
-  File: 'File',
-  Link: 'Link'
-};
 
 @Component({
   selector: 'app-file-list',
@@ -53,14 +42,15 @@ export class FileListComponent {
   protected readonly rows: Signal<Row[]> = computed((): Row[] =>
     this.entries().map((entry: FileEntry): Row => {
       const name: { head: string; tail: string } = entry.kind === 'File' ? splitFileName(entry.name) : { head: entry.name, tail: '' };
+      const type: FileType = fileType(entry.kind, entry.name);
 
       return {
         entry,
         head: name.head,
         tail: name.tail,
         size: formatBytes(entry.size),
-        icon: ICONS[entry.kind],
-        kind: KINDS[entry.kind],
+        icon: type.icon,
+        kind: type.label,
         lock: isLocked(entry) ? lockText(entry.lockedBy) : '',
         locked: isLocked(entry)
       };
