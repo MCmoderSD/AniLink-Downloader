@@ -22,6 +22,18 @@ public sealed class FilesController(FileBrowser files, FileHub hub) : Controller
         };
     }
 
+    [HttpGet("tree")]
+    public IActionResult Tree([FromQuery] string? path)
+    {
+        return files.Tree(path) switch
+        {
+            TreeFound found => Ok(found.Tree),
+            ListingInvalid invalid => BadRequest(invalid.Reason),
+            ListingMissing => NotFound(),
+            ListingUnavailable unavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, unavailable.Reason)
+        };
+    }
+
     [HttpPost("delete")]
     public IActionResult Delete([FromBody] DeleteFilesRequest request)
     {

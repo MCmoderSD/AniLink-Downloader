@@ -34,7 +34,7 @@ public static class RequestLoggingExtensions
                 {
                     >= StatusCodes.Status500InternalServerError => LogLevel.Error,
                     StatusCodes.Status404NotFound when context.GetEndpoint() is null => LogLevel.Debug,
-                    StatusCodes.Status200OK when HttpMethods.IsGet(context.Request.Method) && context.Request.Path.Equals("/api/files", StringComparison.OrdinalIgnoreCase) => LogLevel.Debug,
+                    StatusCodes.Status200OK when HttpMethods.IsGet(context.Request.Method) && context.Request.Path.StartsWithSegments("/api/files") => LogLevel.Debug,
                     _ => LogLevel.Information
                 };
 

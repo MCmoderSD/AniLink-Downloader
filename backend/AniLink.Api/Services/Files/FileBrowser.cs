@@ -29,6 +29,16 @@ public sealed class FileBrowser(
         };
     }
 
+    public TreeOutcome Tree(string? relative)
+    {
+        return paths.Resolve(relative, false) switch
+        {
+            PathInvalid invalid => new ListingInvalid(invalid.Reason),
+            PathMissing => new ListingMissing(),
+            PathResolved resolved => ReadTree(resolved)
+        };
+    }
+
     public FileBatchResponse Delete(IReadOnlyList<string> requested)
     {
         var deleted = new List<string>();
@@ -180,6 +190,57 @@ public sealed class FileBrowser(
             logger.LogWarning(exception, "The folder {Path} could not be read", LogSafe.OneLine(resolved.Relative));
 
             return new ListingUnavailable("The folder cannot be read.");
+        }
+    }
+
+    private TreeOutcome ReadTree(PathResolved resolved)
+    {
+        if (!Directory.Exists(resolved.Full))
+        {
+            return File.Exists(resolved.Full) ? new ListingInvalid("The path is a file, not a folder.") : new ListingMissing();
+        }
+
+        try
+        {
+            var nodes = new DirectoryInfo(resolved.Full)
+                .EnumerateFileSystemInfos("*", Everything)
+                .Where(entry => !FilePaths.IsInternal(entry.Name))
+                .Select(entry => Node(entry, resolved.Relative))
+                .ToList();
+
+            return new TreeFound(new TreeResponse(resolved.Relative, nodes));
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return new ListingMissing();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(exception, "The folder {Path} could not be read", LogSafe.OneLine(resolved.Relative));
+
+            return new ListingUnavailable("The folder cannot be read.");
+        }
+    }
+
+    private static TreeNodeResponse Node(FileSystemInfo entry, string parent)
+    {
+        var path = parent.Length == 0 ? entry.Name : $"{parent}/{entry.Name}";
+
+        if (entry.Attributes.HasFlag(FileAttributes.ReparsePoint)) return new TreeNodeResponse(entry.Name, path, FileEntryKind.Link, false);
+        if (entry is FileInfo) return new TreeNodeResponse(entry.Name, path, FileEntryKind.File, false);
+
+        return new TreeNodeResponse(entry.Name, path, FileEntryKind.Folder, HasChildren(entry.FullName));
+    }
+
+    private static bool HasChildren(string directory)
+    {
+        try
+        {
+            return Directory.EnumerateFileSystemEntries(directory, "*", Everything).Any(entry => !FilePaths.IsInternal(Path.GetFileName(entry)));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
         }
     }
 
