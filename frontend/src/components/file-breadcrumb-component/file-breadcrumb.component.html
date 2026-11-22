@@ -4,12 +4,14 @@
       @if (crumbs().length === 0) {
         <span class="crumb crumb-current" aria-current="page">
           <mat-icon class="crumb-icon" aria-hidden="true">folder_open</mat-icon>
-          {{ rootName() }}
+          <span class="crumb-hidden">Root folder</span>
+          <span aria-hidden="true">{{ root }}</span>
         </span>
       } @else {
         <a class="crumb" routerLink="/files">
           <mat-icon class="crumb-icon" aria-hidden="true">folder_open</mat-icon>
-          {{ rootName() }}
+          <span class="crumb-hidden">Root folder</span>
+          <span aria-hidden="true">{{ root }}</span>
         </a>
       }
     </li>

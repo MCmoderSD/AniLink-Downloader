@@ -11,22 +11,24 @@
       [canBack]="trail.canBack()"
       [canForward]="trail.canForward()"
       [canUp]="folder() !== ''"
+      [canHome]="folder() !== ''"
       [treeOpen]="treeShown()"
       (back)="back()"
       (forward)="forward()"
       (up)="up()"
+      (home)="home()"
       (refresh)="refresh()"
       (treeToggled)="toggleTree()"
     />
 
-    <app-file-breadcrumb class="files-crumbs" [path]="folder()" [rootName]="rootName()"/>
+    <app-file-breadcrumb class="files-crumbs" [path]="folder()"/>
   </div>
 
   <div class="files-layout" [class.files-layout-tree]="treeShown()">
     @if (treeShown()) {
       <aside class="files-tree app-panel" aria-label="Folder tree">
         <div class="files-tree-scroll">
-          <app-file-tree [current]="folder()" [rootName]="rootName()" (opened)="open($event)"/>
+          <app-file-tree [current]="folder()" (opened)="open($event)"/>
         </div>
       </aside>
     }
@@ -40,7 +42,7 @@
         @if (entries().length === 0) {
           <section class="files-empty app-panel" aria-labelledby="files-empty-title">
             <mat-icon class="files-empty-icon" aria-hidden="true">folder_open</mat-icon>
-            <h2 class="files-empty-title" id="files-empty-title">{{ folder() === '' ? 'The downloads folder is empty' : 'This folder is empty' }}</h2>
+            <h2 class="files-empty-title" id="files-empty-title">This folder is empty</h2>
 
             @if (folder() === '') {
               <p class="app-hint">Finished downloads appear here.</p>
@@ -75,12 +77,12 @@
           @case ('invalid') {
             <p class="files-callout" role="alert">
               {{ problem() }}
-              <a routerLink="/files">Back to the downloads folder</a>
+              <a routerLink="/files">Back to the root folder</a>
             </p>
           }
 
           @case ('missing') {
-            <p class="files-callout" role="alert">The downloads folder does not exist.</p>
+            <p class="files-callout" role="alert">The root folder does not exist.</p>
           }
 
           @case ('unreachable') {

@@ -5,6 +5,7 @@
       role="treeitem"
       [class.tree-item-current]="item.current"
       [attr.data-index]="index"
+      [attr.aria-label]="item.label"
       [attr.aria-level]="item.level"
       [attr.aria-expanded]="item.expandable ? item.open : null"
       [attr.aria-selected]="item.current"

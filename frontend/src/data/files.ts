@@ -1,6 +1,8 @@
 import { JobStatus, STATUS_LABELS } from './download';
 import { NotificationKind } from './notification';
 
+export const ROOT_NAME: string = '/';
+
 export type EntryKind = 'Folder' | 'File' | 'Link';
 
 export interface FileLock {

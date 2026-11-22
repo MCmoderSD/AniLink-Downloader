@@ -1,12 +1,13 @@
 import { Component, computed, effect, ElementRef, inject, input, InputSignal, output, OutputEmitterRef, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { fileType } from '../../data/file-types';
-import { EntryKind, parentPath, TreeRow } from '../../data/files';
+import { EntryKind, parentPath, ROOT_NAME, TreeRow } from '../../data/files';
 import { FileTreeService } from '../../services/file-tree.service';
 
 interface TreeItem {
   path: string;
   name: string;
+  label: string | null;
   kind: EntryKind;
   level: number;
   expandable: boolean;
@@ -27,7 +28,6 @@ export class FileTreeComponent {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef<HTMLElement>);
 
   readonly current: InputSignal<string> = input.required<string>();
-  readonly rootName: InputSignal<string> = input.required<string>();
 
   readonly opened: OutputEmitterRef<string> = output<string>();
 
@@ -37,13 +37,14 @@ export class FileTreeComponent {
     const current: string = this.current();
     const open: boolean = this.tree.rootOpen();
 
-    const root: TreeItem = { path: '', name: this.rootName(), kind: 'Folder', level: 1, expandable: true, open, current: current === '', icon: open ? 'folder_open' : 'folder' };
+    const root: TreeItem = { path: '', name: ROOT_NAME, label: 'Root folder', kind: 'Folder', level: 1, expandable: true, open, current: current === '', icon: open ? 'folder_open' : 'folder' };
 
     return [
       root,
       ...this.tree.rows().map((row: TreeRow): TreeItem => ({
         path: row.node.path,
         name: row.node.name,
+        label: null,
         kind: row.node.kind,
         level: row.depth + 2,
         expandable: row.node.kind === 'Folder' && row.node.hasChildren,

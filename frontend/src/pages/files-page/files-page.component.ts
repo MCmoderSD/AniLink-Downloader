@@ -55,11 +55,8 @@ export class FilesPageComponent {
 
   protected readonly entries: Signal<FileEntry[]> = computed((): FileEntry[] => [...(this.listing()?.entries ?? [])].sort(compareEntries));
 
-  protected readonly rootName: Signal<string> = computed((): string =>
-    (this.listing()?.root ?? '').split(/[\\/]/).filter((part: string): boolean => part.length > 0).at(-1) ?? 'downloads');
-
   protected readonly caption: Signal<string> = computed((): string =>
-    `Contents of ${this.folder() === '' ? this.rootName() : lastName(this.folder())}`);
+    `Contents of ${this.folder() === '' ? 'the root folder' : lastName(this.folder())}`);
 
   protected readonly subtitle: Signal<string> = computed((): string => {
     if (!this.listing()) return '';
@@ -128,6 +125,10 @@ export class FilesPageComponent {
 
   protected up(): void {
     if (this.folder() !== '') this.go(this.parent());
+  }
+
+  protected home(): void {
+    if (this.folder() !== '') this.go('');
   }
 
   protected refresh(): void {
