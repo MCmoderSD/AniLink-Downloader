@@ -35,6 +35,10 @@
   font-weight: 500;
 }
 
+.files-row {
+  position: relative;
+}
+
 .files-row > td {
   background: var(--mat-sys-surface-container);
   transition: background-color var(--app-timing-fast);
@@ -61,13 +65,26 @@
   background: color-mix(in srgb, var(--mat-sys-primary) 14%, var(--mat-sys-surface-container));
 }
 
+.files-row:has(.files-link) {
+  cursor: pointer;
+}
+
 .files-check {
-  width: 3.25rem;
+  width: 2.5rem;
   padding-inline: 0.25rem;
 }
 
+.files-check mat-checkbox {
+  position: relative;
+  z-index: 1;
+}
+
+.files-name {
+  padding-inline-start: 0.25rem;
+}
+
 .files-size {
-  width: 5.25rem;
+  width: 3.75rem;
   padding-inline: 0.5rem;
   text-align: end;
   white-space: nowrap;
@@ -87,7 +104,8 @@
 }
 
 .files-time {
-  width: 10.5rem;
+  width: 8rem;
+  padding-inline: 0.5rem 0.75rem;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -130,6 +148,23 @@
   &:hover {
     color: var(--mat-sys-primary);
     text-decoration: underline;
+  }
+
+  // The link covers its whole row, so the row opens the folder; the checkbox cell sits above it.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    border-radius: var(--app-radius-md);
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
   }
 }
 
