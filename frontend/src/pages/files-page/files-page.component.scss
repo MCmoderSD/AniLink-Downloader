@@ -18,19 +18,39 @@
   min-width: 0;
 }
 
+// The cards of the page, the tree and the list, are never lower than this, so that they do not jump in height while
+// one moves between a folder with a few entries and one with many.
 .files-layout {
+  --files-min-height: 18rem;
+
   display: grid;
   gap: 1.25rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .files-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   min-width: 0;
 }
 
+.files-main > .app-hint {
+  margin: 0;
+}
+
 .files-tree {
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  max-height: 18rem;
+  min-height: var(--files-min-height);
+  max-height: var(--files-min-height);
+}
+
+.files-tree-scroll {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  min-height: 0;
   padding: 0.5rem;
   overflow: auto;
   scrollbar-width: thin;
@@ -42,22 +62,41 @@
     grid-template-columns: 15rem minmax(0, 1fr);
   }
 
+  .files-layout {
+    --files-min-height: clamp(18rem, calc(100vh - 13rem), 36rem);
+  }
+
+  // Beside the list the tree is as high as the list and scrolls inside, so it never makes the row higher.
   .files-tree {
-    max-height: calc(100vh - 13rem);
+    position: relative;
+    max-height: none;
+  }
+
+  .files-tree-scroll {
+    position: absolute;
+    inset: 0;
   }
 }
 
 .files-panel {
   display: grid;
+  flex: 1 1 auto;
   gap: 0.75rem;
+  align-content: start;
+  box-sizing: border-box;
+  min-height: var(--files-min-height);
   padding: 1rem;
 }
 
 .files-empty {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
+  box-sizing: border-box;
+  min-height: var(--files-min-height);
   padding: 3rem 1.5rem;
   text-align: center;
 

@@ -25,7 +25,9 @@
   <div class="files-layout" [class.files-layout-tree]="treeShown()">
     @if (treeShown()) {
       <aside class="files-tree app-panel" aria-label="Folder tree">
-        <app-file-tree [current]="folder()" [rootName]="rootName()" (opened)="open($event)"/>
+        <div class="files-tree-scroll">
+          <app-file-tree [current]="folder()" [rootName]="rootName()" (opened)="open($event)"/>
+        </div>
       </aside>
     }
 
