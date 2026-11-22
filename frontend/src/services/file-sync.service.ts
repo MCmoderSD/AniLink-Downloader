@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
-import { computed, DestroyRef, effect, inject, Service, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Service, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { Job, JobStatus } from '../data/download';
 import { affects, FileStreamMessage, FilesPhase, FolderListing } from '../data/files';
 import { DownloadSyncService } from './download-sync.service';
@@ -24,6 +24,7 @@ export class FileSyncService {
   private readonly state: WritableSignal<FilesPhase> = signal<FilesPhase>('loading');
   private readonly reason: WritableSignal<string> = signal('');
 
+  private listener: StreamListener | null = null;
   private folder: string = '';
   private started: boolean = false;
   private generation: number = 0;
@@ -42,29 +43,31 @@ export class FileSyncService {
   readonly problem: Signal<string> = this.reason.asReadonly();
 
   constructor() {
-    const listener: StreamListener = this.sse.open<FileStreamMessage>(
-      'files/stream',
-      (message: FileStreamMessage): void => this.receive(message),
-      (): void => void this.refresh(),
-      (): void => this.state.update((phase: FilesPhase): FilesPhase => phase === 'ready' ? 'unreachable' : phase)
-    );
+    const visibility: () => void = (): void => {
+      if (this.document.visibilityState !== 'visible') this.close();
+      else if (this.listener) void this.refresh();
+      else this.open();
+    };
 
-    const visible: () => void = (): void => {
+    const poll: () => void = (): void => {
       if (this.document.visibilityState === 'visible') void this.refresh();
     };
 
-    this.document.addEventListener('visibilitychange', visible);
+    this.document.addEventListener('visibilitychange', visibility);
 
-    const timer: ReturnType<typeof setInterval> = setInterval(visible, POLL_MS);
+    const timer: ReturnType<typeof setInterval> = setInterval(poll, POLL_MS);
+
+    visibility();
 
     effect((): void => {
       this.locks();
-      void this.refresh();
+
+      untracked((): void => void this.refresh());
     });
 
     inject(DestroyRef).onDestroy((): void => {
-      listener.close();
-      this.document.removeEventListener('visibilitychange', visible);
+      this.close();
+      this.document.removeEventListener('visibilitychange', visibility);
       clearInterval(timer);
     });
   }
@@ -101,6 +104,20 @@ export class FileSyncService {
     } finally {
       this.running = false;
     }
+  }
+
+  private open(): void {
+    this.listener = this.sse.open<FileStreamMessage>(
+      'files/stream',
+      (message: FileStreamMessage): void => this.receive(message),
+      (): void => void this.refresh(),
+      (): void => this.state.update((phase: FilesPhase): FilesPhase => phase === 'ready' ? 'unreachable' : phase)
+    );
+  }
+
+  private close(): void {
+    this.listener?.close();
+    this.listener = null;
   }
 
   private async load(): Promise<void> {

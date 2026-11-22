@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, InputSignal, linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, input, InputSignal, linkedSignal, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -85,13 +85,22 @@ export class FilesPageComponent {
     this.chosen().reduce((sum: number, entry: FileEntry): number => sum + fileCount(entry), 0));
 
   constructor() {
-    effect((): void => this.sync.show(this.folder()));
+    effect((): void => {
+      const folder: string = this.folder();
+
+      untracked((): void => this.sync.show(folder));
+    });
 
     effect((): void => {
-      if (this.phase() !== 'missing' || this.folder() === '') return;
+      const folder: string = this.folder();
+      if (this.phase() !== 'missing' || folder === '') return;
 
-      this.notifications.info(`“${lastName(this.folder())}” is no longer there.`);
-      void this.router.navigate(['/files'], { queryParams: { path: this.parent() || null }, replaceUrl: true });
+      const parent: string = this.parent();
+
+      untracked((): void => {
+        this.notifications.info(`“${lastName(folder)}” is no longer there.`);
+        void this.router.navigate(['/files'], { queryParams: { path: parent || null }, replaceUrl: true });
+      });
     });
   }
 
