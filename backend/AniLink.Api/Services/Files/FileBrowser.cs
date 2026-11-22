@@ -70,6 +70,13 @@ public sealed class FileBrowser(
             return new FileResultResponse(resolved.Relative, FileOutcome.Locked, $"It is in use by {names}.", locks);
         }
 
+        // The checks of the path ran before the claim. Running them again narrows the time in which a folder could be
+        // replaced by a link, but cannot close it: only the app is supposed to write into the downloads folder.
+        if (paths.Resolve(resolved.Relative, true) is not PathResolved again || !string.Equals(again.Full, resolved.Full, StringComparison.Ordinal))
+        {
+            return Result(resolved.Relative, FileOutcome.Invalid, "The path changed while it was being checked.");
+        }
+
         try
         {
             Erase(resolved.Full);
@@ -179,7 +186,7 @@ public sealed class FileBrowser(
     private FileEntryResponse Describe(FileSystemInfo entry, string parent, List<(DownloadJob Job, string Root)> active)
     {
         var locks = active
-            .Where(candidate => PathScope.Overlaps(entry.FullName, candidate.Root, StringComparison.OrdinalIgnoreCase))
+            .Where(candidate => PathScope.Overlaps(entry.FullName, candidate.Root, WorkspaceGate.Comparison))
             .Select(candidate => new FileLockResponse(candidate.Job.Id, candidate.Job.Name, candidate.Job.Release.Season, candidate.Job.Status))
             .ToList();
 
