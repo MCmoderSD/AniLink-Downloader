@@ -6,7 +6,19 @@
     </div>
   </div>
 
-  <app-file-breadcrumb class="files-crumbs" [path]="folder()" [rootName]="rootName()"/>
+  <div class="files-bar">
+    <app-file-nav
+      [canBack]="trail.canBack()"
+      [canForward]="trail.canForward()"
+      [canUp]="folder() !== ''"
+      (back)="back()"
+      (forward)="forward()"
+      (up)="up()"
+      (refresh)="refresh()"
+    />
+
+    <app-file-breadcrumb class="files-crumbs" [path]="folder()" [rootName]="rootName()"/>
+  </div>
 
   @if (listing()) {
     @if (phase() === 'unreachable') {

@@ -6,10 +6,12 @@ import { Router, RouterLink } from '@angular/router';
 import { ConfirmActionDialogComponent } from '../../components/confirm-action-dialog-component/confirm-action-dialog.component';
 import { FileBreadcrumbComponent } from '../../components/file-breadcrumb-component/file-breadcrumb.component';
 import { FileListComponent, FileToggle } from '../../components/file-list-component/file-list.component';
+import { FileNavComponent } from '../../components/file-nav-component/file-nav.component';
 import { FileToolbarComponent } from '../../components/file-toolbar-component/file-toolbar.component';
 import { compareEntries, fileCount, FileBatch, FileEntry, FilesPhase, FolderListing, isLocked, lastName, parentPath, summarizeDeletion, Summary } from '../../data/files';
 import { formatBytes } from '../../data/format';
 import { FileSyncService } from '../../services/file-sync.service';
+import { FileTrail } from '../../services/file-trail';
 import { FilesService } from '../../services/files.service';
 import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
@@ -20,7 +22,7 @@ const LISTED_NAMES: number = 10;
   selector: 'app-files-page',
   templateUrl: './files-page.component.html',
   styleUrls: ['./files-page.component.scss'],
-  imports: [MatButtonModule, MatIconModule, RouterLink, FileBreadcrumbComponent, FileListComponent, FileToolbarComponent],
+  imports: [MatButtonModule, MatIconModule, RouterLink, FileBreadcrumbComponent, FileListComponent, FileNavComponent, FileToolbarComponent],
   providers: [FileSyncService]
 })
 export class FilesPageComponent {
@@ -32,6 +34,8 @@ export class FilesPageComponent {
   private readonly router: Router = inject(Router);
 
   private readonly working: WritableSignal<boolean> = signal(false);
+
+  protected readonly trail: FileTrail = new FileTrail();
 
   readonly path: InputSignal<string | undefined> = input<string>();
 
@@ -88,7 +92,10 @@ export class FilesPageComponent {
     effect((): void => {
       const folder: string = this.folder();
 
-      untracked((): void => this.sync.show(folder));
+      untracked((): void => {
+        this.trail.visit(folder);
+        this.sync.show(folder);
+      });
     });
 
     effect((): void => {
@@ -99,9 +106,30 @@ export class FilesPageComponent {
 
       untracked((): void => {
         this.notifications.info(`“${lastName(folder)}” is no longer there.`);
+        this.trail.replace(parent);
         void this.router.navigate(['/files'], { queryParams: { path: parent || null }, replaceUrl: true });
       });
     });
+  }
+
+  protected back(): void {
+    this.go(this.trail.back());
+  }
+
+  protected forward(): void {
+    this.go(this.trail.forward());
+  }
+
+  protected up(): void {
+    if (this.folder() !== '') this.go(this.parent());
+  }
+
+  protected refresh(): void {
+    void this.sync.refresh();
+  }
+
+  private go(folder: string | null): void {
+    if (folder !== null) void this.router.navigate(['/files'], { queryParams: { path: folder || null } });
   }
 
   protected toggle(change: FileToggle): void {

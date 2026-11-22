@@ -5,8 +5,17 @@
   min-height: 1rem;
 }
 
-.files-crumbs {
+.files-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
   margin-block-end: 1rem;
+}
+
+.files-crumbs {
+  flex: 1 1 14rem;
+  min-width: 0;
 }
 
 .files-panel {

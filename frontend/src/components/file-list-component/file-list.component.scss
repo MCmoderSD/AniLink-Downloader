@@ -67,14 +67,16 @@
 }
 
 .files-size {
-  width: 6.5rem;
+  width: 5.25rem;
+  padding-inline: 0.5rem;
   text-align: end;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .files-count {
-  width: 5.5rem;
+  width: 2.5rem;
+  padding-inline: 0.5rem;
   text-align: end;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
