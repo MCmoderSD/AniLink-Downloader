@@ -1,4 +1,4 @@
-const UNITS: readonly string[] = ['B', 'KB', 'MB', 'GB', 'TB'];
+const UNITS: readonly string[] = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 
 export function formatBytes(bytes: number, estimated = false): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';

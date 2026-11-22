@@ -4,7 +4,7 @@ namespace AniLink.Api.Helpers;
 
 public static class ByteSize
 {
-    private static readonly string[] Units = ["B", "KB", "MB", "GB", "TB"];
+    private static readonly string[] Units = ["B", "KiB", "MiB", "GiB", "TiB"];
 
     public static string Format(long bytes)
     {

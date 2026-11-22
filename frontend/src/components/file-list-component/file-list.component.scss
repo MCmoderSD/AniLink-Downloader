@@ -195,7 +195,7 @@
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
       'check name name name'
-      '. size count time';
+      '. count size time';
     gap: 0 0.5rem;
     align-items: center;
     margin-block-end: 0.25rem;
@@ -231,16 +231,16 @@
     width: auto;
   }
 
-  .files-row > .files-size {
-    grid-area: size;
+  .files-row > .files-count {
+    grid-area: count;
     width: auto;
     color: var(--mat-sys-on-surface-variant);
     font: var(--mat-sys-body-small);
     text-align: start;
   }
 
-  .files-row > .files-count {
-    grid-area: count;
+  .files-row > .files-size {
+    grid-area: size;
     width: auto;
     color: var(--mat-sys-on-surface-variant);
     font: var(--mat-sys-body-small);

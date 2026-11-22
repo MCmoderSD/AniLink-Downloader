@@ -13,8 +13,8 @@
         />
       </th>
       <th class="files-name" role="columnheader" scope="col">Name</th>
-      <th class="files-size" role="columnheader" scope="col">Size</th>
       <th class="files-count" role="columnheader" scope="col">Files</th>
+      <th class="files-size" role="columnheader" scope="col">Size</th>
       <th class="files-time" role="columnheader" scope="col">Modified</th>
     </tr>
   </thead>
@@ -57,12 +57,12 @@
           </div>
         </td>
 
-        <td class="files-size" role="cell" [attr.title]="(row.entry.size | number) + ' bytes'">{{ row.size }}</td>
         <td class="files-count" role="cell">
           @if (row.entry.files !== null) {
             {{ row.entry.files | number }}<span class="files-unit"> {{ row.entry.files === 1 ? 'file' : 'files' }}</span>
           }
         </td>
+        <td class="files-size" role="cell" [attr.title]="(row.entry.size | number) + ' bytes'">{{ row.size }}</td>
         <td class="files-time" role="cell">
           <time [attr.datetime]="row.entry.modifiedAt">{{ row.entry.modifiedAt | date: 'd MMM y, HH:mm' }}</time>
         </td>
