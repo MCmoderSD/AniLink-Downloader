@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, inject, input, InputSignal, linkedSignal, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,10 +9,12 @@ import { FileBreadcrumbComponent } from '../../components/file-breadcrumb-compon
 import { FileListComponent, FileToggle } from '../../components/file-list-component/file-list.component';
 import { FileNavComponent } from '../../components/file-nav-component/file-nav.component';
 import { FileToolbarComponent } from '../../components/file-toolbar-component/file-toolbar.component';
+import { FileTreeComponent } from '../../components/file-tree-component/file-tree.component';
 import { compareEntries, fileCount, FileBatch, FileEntry, FilesPhase, FolderListing, isLocked, lastName, parentPath, summarizeDeletion, Summary } from '../../data/files';
 import { formatBytes } from '../../data/format';
 import { FileSyncService } from '../../services/file-sync.service';
 import { FileTrail } from '../../services/file-trail';
+import { FileTreeService } from '../../services/file-tree.service';
 import { FilesService } from '../../services/files.service';
 import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
@@ -22,8 +25,8 @@ const LISTED_NAMES: number = 10;
   selector: 'app-files-page',
   templateUrl: './files-page.component.html',
   styleUrls: ['./files-page.component.scss'],
-  imports: [MatButtonModule, MatIconModule, RouterLink, FileBreadcrumbComponent, FileListComponent, FileNavComponent, FileToolbarComponent],
-  providers: [FileSyncService]
+  imports: [MatButtonModule, MatIconModule, RouterLink, FileBreadcrumbComponent, FileListComponent, FileNavComponent, FileToolbarComponent, FileTreeComponent],
+  providers: [FileSyncService, FileTreeService]
 })
 export class FilesPageComponent {
 
@@ -35,7 +38,10 @@ export class FilesPageComponent {
 
   private readonly working: WritableSignal<boolean> = signal(false);
 
+  private readonly shown: WritableSignal<boolean> = signal(inject(DOCUMENT).defaultView?.matchMedia('(min-width: 60rem)').matches ?? false);
+
   protected readonly trail: FileTrail = new FileTrail();
+  protected readonly treeShown: Signal<boolean> = this.shown.asReadonly();
 
   readonly path: InputSignal<string | undefined> = input<string>();
 
@@ -126,6 +132,14 @@ export class FilesPageComponent {
 
   protected refresh(): void {
     void this.sync.refresh();
+  }
+
+  protected open(folder: string): void {
+    this.go(folder);
+  }
+
+  protected toggleTree(): void {
+    this.shown.update((shown: boolean): boolean => !shown);
   }
 
   private go(folder: string | null): void {

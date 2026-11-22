@@ -8,6 +8,12 @@
   gap: 0.125rem;
 }
 
+// The tree is on while its button reads as pressed, the same way the navbar marks the page the user is on.
+//noinspection CssUnusedSymbol
+.nav-tree-on {
+  background: var(--app-tint-hover);
+}
+
 @media (pointer: coarse) {
   .nav {
     gap: 0.25rem;

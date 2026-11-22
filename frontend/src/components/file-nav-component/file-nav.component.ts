@@ -13,9 +13,11 @@ export class FileNavComponent {
   readonly canBack: InputSignal<boolean> = input.required<boolean>();
   readonly canForward: InputSignal<boolean> = input.required<boolean>();
   readonly canUp: InputSignal<boolean> = input.required<boolean>();
+  readonly treeOpen: InputSignal<boolean> = input.required<boolean>();
 
   readonly back: OutputEmitterRef<void> = output<void>();
   readonly forward: OutputEmitterRef<void> = output<void>();
   readonly up: OutputEmitterRef<void> = output<void>();
   readonly refresh: OutputEmitterRef<void> = output<void>();
+  readonly treeToggled: OutputEmitterRef<void> = output<void>();
 }

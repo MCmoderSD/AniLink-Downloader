@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 import { computed, DestroyRef, effect, inject, Service, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { Job, JobStatus } from '../data/download';
-import { affects, FileStreamMessage, FilesPhase, FolderListing } from '../data/files';
+import { affects, FileChange, FileStreamMessage, FilesPhase, FolderListing } from '../data/files';
 import { DownloadSyncService } from './download-sync.service';
 import { FilesService } from './files.service';
 import { errorMessage } from './http-error';
@@ -24,6 +24,9 @@ export class FileSyncService {
   private readonly state: WritableSignal<FilesPhase> = signal<FilesPhase>('loading');
   private readonly reason: WritableSignal<string> = signal('');
 
+  private readonly latest: WritableSignal<FileChange> = signal<FileChange>({ id: 0, paths: null });
+
+  private serial: number = 0;
   private listener: StreamListener | null = null;
   private folder: string = '';
   private started: boolean = false;
@@ -41,16 +44,26 @@ export class FileSyncService {
   readonly listing: Signal<FolderListing | null> = this.current.asReadonly();
   readonly phase: Signal<FilesPhase> = this.state.asReadonly();
   readonly problem: Signal<string> = this.reason.asReadonly();
+  readonly changes: Signal<FileChange> = this.latest.asReadonly();
 
   constructor() {
     const visibility: () => void = (): void => {
-      if (this.document.visibilityState !== 'visible') this.close();
-      else if (this.listener) void this.refresh();
+      if (this.document.visibilityState !== 'visible') {
+        this.close();
+        return;
+      }
+
+      this.announce(null);
+
+      if (this.listener) void this.refresh();
       else this.open();
     };
 
     const poll: () => void = (): void => {
-      if (this.document.visibilityState === 'visible') void this.refresh();
+      if (this.document.visibilityState !== 'visible') return;
+
+      this.announce(null);
+      void this.refresh();
     };
 
     this.document.addEventListener('visibilitychange', visibility);
@@ -110,7 +123,10 @@ export class FileSyncService {
     this.listener = this.sse.open<FileStreamMessage>(
       'files/stream',
       (message: FileStreamMessage): void => this.receive(message),
-      (): void => void this.refresh(),
+      (): void => {
+        this.announce(null);
+        void this.refresh();
+      },
       (): void => this.state.update((phase: FilesPhase): FilesPhase => phase === 'ready' ? 'unreachable' : phase)
     );
   }
@@ -147,6 +163,12 @@ export class FileSyncService {
   }
 
   private receive(message: FileStreamMessage): void {
+    this.announce(message.type === 'reset' ? null : message.paths);
+
     if (message.type === 'reset' || message.paths.some((path: string): boolean => affects(this.folder, path))) void this.refresh();
+  }
+
+  private announce(paths: readonly string[] | null): void {
+    this.latest.set({ id: ++this.serial, paths });
   }
 }

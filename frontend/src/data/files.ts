@@ -39,7 +39,31 @@ export interface FileBatch {
   results: FileResult[];
 }
 
+export interface TreeNode {
+  name: string;
+  path: string;
+  kind: EntryKind;
+  hasChildren: boolean;
+}
+
+export interface FolderTree {
+  path: string;
+  nodes: TreeNode[];
+}
+
+export interface TreeRow {
+  node: TreeNode;
+  depth: number;
+  open: boolean;
+  loading: boolean;
+}
+
 export type FileStreamMessage = { type: 'changed'; paths: string[] } | { type: 'reset' };
+
+export interface FileChange {
+  id: number;
+  paths: readonly string[] | null;
+}
 
 export type FilesPhase = 'loading' | 'ready' | 'missing' | 'invalid' | 'unreachable';
 
@@ -77,7 +101,7 @@ export function breadcrumbs(path: string): Crumb[] {
   return names.map((name: string, index: number): Crumb => ({ name, path: names.slice(0, index + 1).join('/') }));
 }
 
-export function compareEntries(a: FileEntry, b: FileEntry): number {
+export function compareEntries<T extends { name: string; kind: EntryKind }>(a: T, b: T): number {
   return Number(a.kind !== 'Folder') - Number(b.kind !== 'Folder') || COLLATOR.compare(a.name, b.name);
 }
 

@@ -11,73 +11,85 @@
       [canBack]="trail.canBack()"
       [canForward]="trail.canForward()"
       [canUp]="folder() !== ''"
+      [treeOpen]="treeShown()"
       (back)="back()"
       (forward)="forward()"
       (up)="up()"
       (refresh)="refresh()"
+      (treeToggled)="toggleTree()"
     />
 
     <app-file-breadcrumb class="files-crumbs" [path]="folder()" [rootName]="rootName()"/>
   </div>
 
-  @if (listing()) {
-    @if (phase() === 'unreachable') {
-      <p class="app-hint" role="status">Not updating while the server cannot be reached.</p>
+  <div class="files-layout" [class.files-layout-tree]="treeShown()">
+    @if (treeShown()) {
+      <aside class="files-tree app-panel" aria-label="Folder tree">
+        <app-file-tree [current]="folder()" [rootName]="rootName()" (opened)="open($event)"/>
+      </aside>
     }
 
-    @if (entries().length === 0) {
-      <section class="files-empty app-panel" aria-labelledby="files-empty-title">
-        <mat-icon class="files-empty-icon" aria-hidden="true">folder_open</mat-icon>
-        <h2 class="files-empty-title" id="files-empty-title">{{ folder() === '' ? 'The downloads folder is empty' : 'This folder is empty' }}</h2>
-
-        @if (folder() === '') {
-          <p class="app-hint">Finished downloads appear here.</p>
-          <a mat-flat-button routerLink="/add-download">Start a download</a>
-        } @else {
-          <a mat-stroked-button routerLink="/files" [queryParams]="{ path: parent() || null }">Up one level</a>
+    <div class="files-main">
+      @if (listing()) {
+        @if (phase() === 'unreachable') {
+          <p class="app-hint" role="status">Not updating while the server cannot be reached.</p>
         }
-      </section>
-    } @else {
-      <section class="files-panel app-panel" aria-label="Files">
-        <app-file-toolbar
-          [count]="chosen().length"
-          [bytes]="chosenBytes()"
-          [files]="chosenFiles()"
-          [busy]="busy()"
-          (cleared)="clear()"
-          (deleteRequested)="remove()"
-        />
 
-        <app-file-list
-          [entries]="entries()"
-          [selected]="selection()"
-          [caption]="caption()"
-          [busy]="busy()"
-          (toggled)="toggle($event)"
-          (toggledAll)="toggleAll($event)"
-        />
-      </section>
-    }
-  } @else {
-    @switch (phase()) {
-      @case ('invalid') {
-        <p class="files-callout" role="alert">
-          {{ problem() }}
-          <a routerLink="/files">Back to the downloads folder</a>
-        </p>
-      }
+        @if (entries().length === 0) {
+          <section class="files-empty app-panel" aria-labelledby="files-empty-title">
+            <mat-icon class="files-empty-icon" aria-hidden="true">folder_open</mat-icon>
+            <h2 class="files-empty-title" id="files-empty-title">{{ folder() === '' ? 'The downloads folder is empty' : 'This folder is empty' }}</h2>
 
-      @case ('missing') {
-        <p class="files-callout" role="alert">The downloads folder does not exist.</p>
-      }
+            @if (folder() === '') {
+              <p class="app-hint">Finished downloads appear here.</p>
+              <a mat-flat-button routerLink="/add-download">Start a download</a>
+            } @else {
+              <a mat-stroked-button routerLink="/files" [queryParams]="{ path: parent() || null }">Up one level</a>
+            }
+          </section>
+        } @else {
+          <section class="files-panel app-panel" aria-label="Files">
+            <app-file-toolbar
+              [count]="chosen().length"
+              [bytes]="chosenBytes()"
+              [files]="chosenFiles()"
+              [busy]="busy()"
+              (cleared)="clear()"
+              (deleteRequested)="remove()"
+            />
 
-      @case ('unreachable') {
-        <p class="app-hint" role="status">The server cannot be reached.</p>
-      }
+            <app-file-list
+              [entries]="entries()"
+              [selected]="selection()"
+              [caption]="caption()"
+              [busy]="busy()"
+              (toggled)="toggle($event)"
+              (toggledAll)="toggleAll($event)"
+            />
+          </section>
+        }
+      } @else {
+        @switch (phase()) {
+          @case ('invalid') {
+            <p class="files-callout" role="alert">
+              {{ problem() }}
+              <a routerLink="/files">Back to the downloads folder</a>
+            </p>
+          }
 
-      @default {
-        <p class="app-hint" role="status">Loading files…</p>
+          @case ('missing') {
+            <p class="files-callout" role="alert">The downloads folder does not exist.</p>
+          }
+
+          @case ('unreachable') {
+            <p class="app-hint" role="status">The server cannot be reached.</p>
+          }
+
+          @default {
+            <p class="app-hint" role="status">Loading files…</p>
+          }
+        }
       }
-    }
-  }
+    </div>
+  </div>
 </div>

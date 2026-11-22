@@ -18,6 +18,35 @@
   min-width: 0;
 }
 
+.files-layout {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.files-main {
+  min-width: 0;
+}
+
+.files-tree {
+  box-sizing: border-box;
+  max-height: 18rem;
+  padding: 0.5rem;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+@media (min-width: 60rem) {
+  //noinspection CssUnusedSymbol
+  .files-layout-tree {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+
+  .files-tree {
+    max-height: calc(100vh - 13rem);
+  }
+}
+
 .files-panel {
   display: grid;
   gap: 0.75rem;

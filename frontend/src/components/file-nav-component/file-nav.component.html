@@ -14,4 +14,17 @@
   <button mat-icon-button type="button" aria-label="Refresh" title="Refresh" (click)="refresh.emit()">
     <mat-icon aria-hidden="true">refresh</mat-icon>
   </button>
+
+  <button
+    mat-icon-button
+    type="button"
+    class="nav-tree"
+    aria-label="Folder tree"
+    title="Folder tree"
+    [attr.aria-pressed]="treeOpen()"
+    [class.nav-tree-on]="treeOpen()"
+    (click)="treeToggled.emit()"
+  >
+    <mat-icon aria-hidden="true">account_tree</mat-icon>
+  </button>
 </div>
