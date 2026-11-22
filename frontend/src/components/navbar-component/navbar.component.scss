@@ -86,7 +86,7 @@
 }
 
 // The mark and four buttons have to fit into 320 pixels. The icons only repeat what the words say, so they go first,
-// and the buttons take an even padding again now that nothing stands in front of the label. Two labels then lose their
+// and the buttons take a small even padding now that nothing stands in front of the label. Two labels then lose their
 // first or last word, which stays in the page for a screen reader. "Files" is the exception: its folder is what stays,
 // and the word goes, because the other three need theirs and a folder says as much as the word does.
 @media (max-width: 30rem) {
@@ -117,9 +117,12 @@
     }
 
     a {
-      --mat-button-text-horizontal-padding: 0.75rem;
-      --mat-button-text-with-icon-horizontal-padding: 0.75rem;
-      --mat-button-filled-horizontal-padding: 1rem;
+      --mat-button-text-horizontal-padding: 0.5rem;
+      --mat-button-text-with-icon-horizontal-padding: 0.5rem;
+      --mat-button-filled-horizontal-padding: 0.75rem;
+
+      // Material gives a button at least 64px, which is more than "DLC" or the folder need.
+      min-width: 0;
     }
   }
 }
