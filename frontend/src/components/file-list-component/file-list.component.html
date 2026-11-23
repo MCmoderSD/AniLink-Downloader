@@ -57,7 +57,7 @@
           </div>
         </td>
 
-        <td class="files-count" role="cell">
+        <td class="files-count" role="cell" [class.files-count-empty]="row.entry.files === null">
           @if (row.entry.files !== null) {
             {{ row.entry.files | number }}<span class="files-unit"> {{ row.entry.files === 1 ? 'file' : 'files' }}</span>
           }

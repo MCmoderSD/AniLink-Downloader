@@ -238,16 +238,16 @@
     }
   }
 
+  // Two lines on one card: the checkbox, the icon and the name, then, under the name, number of files, size and time.
   .files-row {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto 2rem auto auto minmax(0, 1fr);
     grid-template-areas:
-      'check name name name'
-      '. count size time';
-    gap: 0 0.5rem;
+      'check name name name name'
+      '. . count size time';
     align-items: center;
     margin-block-end: 0.25rem;
-    padding: 0.25rem 0.5rem 0.625rem;
+    padding: 0.25rem 0.5rem 0.5rem;
     border-radius: var(--app-radius-md);
     background: var(--mat-sys-surface-container);
   }
@@ -272,6 +272,7 @@
   .files-row > .files-check {
     grid-area: check;
     width: auto;
+    margin-inline-end: 0.25rem;
   }
 
   .files-row > .files-name {
@@ -280,26 +281,33 @@
     max-width: none;
   }
 
-  .files-row > .files-count {
-    grid-area: count;
+  .files-row > .files-count,
+  .files-row > .files-size,
+  .files-row > .files-time {
     width: auto;
     color: var(--mat-sys-on-surface-variant);
     font: var(--mat-sys-body-small);
     text-align: start;
   }
 
+  .files-row > .files-count {
+    grid-area: count;
+    padding-inline-end: 0.75rem;
+  }
+
+  //noinspection CssUnusedSymbol
+  .files-row > .files-count-empty {
+    display: none;
+  }
+
   .files-row > .files-size {
     grid-area: size;
-    width: auto;
-    color: var(--mat-sys-on-surface-variant);
-    font: var(--mat-sys-body-small);
+    padding-inline-end: 0.75rem;
   }
 
   .files-row > .files-time {
     grid-area: time;
-    width: auto;
-    color: var(--mat-sys-on-surface-variant);
-    font: var(--mat-sys-body-small);
+    white-space: normal;
   }
 
   .files-unit {

@@ -69,3 +69,23 @@ a.crumb {
   color: var(--mat-sys-outline);
   font-size: 1.25rem;
 }
+
+// On a phone the path stays on one line and scrolls sideways, so the folder shown is always the one in view.
+@media (max-width: 40rem) {
+  nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .crumbs {
+    flex-wrap: nowrap;
+  }
+
+  .crumbs-item {
+    flex: none;
+  }
+
+  .crumb {
+    white-space: nowrap;
+  }
+}

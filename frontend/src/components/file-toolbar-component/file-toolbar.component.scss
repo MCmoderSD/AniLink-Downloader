@@ -23,17 +23,28 @@
   gap: 0.5rem;
 }
 
+// On a phone the bar is one row: the number and the size, then the two buttons; the number of files is left out.
 @media (max-width: 40rem) {
+  .toolbar {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+
   .toolbar-summary {
-    flex: 1 1 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toolbar-files {
+    display: none;
   }
 
   .toolbar-actions {
-    flex: 1 1 100%;
-
-    //noinspection CssUnusedSymbol
-    > .mat-mdc-button-base {
-      flex: 1 1 auto;
-    }
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
   }
 }

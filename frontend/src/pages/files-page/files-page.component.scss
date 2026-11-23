@@ -10,7 +10,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.75rem;
-  margin-block-end: 1rem;
+  margin-block-end: 0.5rem;
 }
 
 .files-crumbs {
@@ -18,13 +18,9 @@
   min-width: 0;
 }
 
-// The cards of the page, the tree and the list, are never lower than this, so that they do not jump in height while
-// one moves between a folder with a few entries and one with many.
 .files-layout {
-  --files-min-height: 18rem;
-
   display: grid;
-  gap: 1.25rem;
+  gap: 0.75rem;
   align-items: stretch;
 }
 
@@ -39,12 +35,12 @@
   margin: 0;
 }
 
+// Above the list the tree is a short panel that scrolls inside, so the list stays the main thing on a narrow screen.
 .files-tree {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  min-height: var(--files-min-height);
-  max-height: var(--files-min-height);
+  max-height: 11rem;
 }
 
 .files-tree-scroll {
@@ -56,25 +52,37 @@
   scrollbar-width: thin;
 }
 
-@media (min-width: 60rem) {
-  //noinspection CssUnusedSymbol
-  .files-layout-tree {
-    grid-template-columns: 15rem minmax(0, 1fr);
-  }
-
+// Beside each other the tree and the list are never lower than this, so that they do not jump in height while one
+// moves between a folder with a few entries and one with many. The tree is as high as the list and scrolls inside.
+@media (min-width: 48rem) {
   .files-layout {
-    --files-min-height: clamp(18rem, calc(100vh - 13rem), 36rem);
+    --files-min-height: 18rem;
+
+    grid-template-columns: 14rem minmax(0, 1fr);
   }
 
-  // Beside the list the tree is as high as the list and scrolls inside, so it never makes the row higher.
   .files-tree {
     position: relative;
+    min-height: var(--files-min-height);
     max-height: none;
   }
 
   .files-tree-scroll {
     position: absolute;
     inset: 0;
+  }
+
+  .files-panel,
+  .files-empty {
+    min-height: var(--files-min-height);
+  }
+}
+
+@media (min-width: 60rem) {
+  .files-layout {
+    --files-min-height: clamp(18rem, calc(100vh - 13rem), 36rem);
+
+    grid-template-columns: 15rem minmax(0, 1fr);
   }
 }
 
@@ -84,7 +92,6 @@
   gap: 0.75rem;
   align-content: start;
   box-sizing: border-box;
-  min-height: var(--files-min-height);
   padding: 1rem;
 }
 
@@ -96,7 +103,6 @@
   justify-content: center;
   gap: 0.75rem;
   box-sizing: border-box;
-  min-height: var(--files-min-height);
   padding: 3rem 1.5rem;
   text-align: center;
 
@@ -133,8 +139,18 @@
   }
 }
 
+// On a phone the list has no panel of its own: its rows stand on the page as cards.
 @media (max-width: 40rem) {
+  .files-empty {
+    padding: 2rem 1rem;
+  }
+
   .files-panel {
-    padding: 0.75rem;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
   }
 }

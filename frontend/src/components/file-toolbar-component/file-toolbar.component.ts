@@ -19,8 +19,7 @@ export class FileToolbarComponent {
   readonly cleared: OutputEmitterRef<void> = output<void>();
   readonly deleteRequested: OutputEmitterRef<void> = output<void>();
 
-  protected readonly summary: Signal<string> = computed((): string =>
-    this.count() === 0
-      ? 'Nothing selected'
-      : `${this.count()} selected · ${formatBytes(this.bytes())} in ${this.files()} ${this.files() === 1 ? 'file' : 'files'}`);
+  protected readonly headline: Signal<string> = computed((): string => this.count() === 0 ? 'Nothing selected' : `${this.count()} selected`);
+  protected readonly size: Signal<string> = computed((): string => this.count() === 0 ? '' : ` · ${formatBytes(this.bytes())}`);
+  protected readonly fileCount: Signal<string> = computed((): string => this.count() === 0 ? '' : ` in ${this.files()} ${this.files() === 1 ? 'file' : 'files'}`);
 }

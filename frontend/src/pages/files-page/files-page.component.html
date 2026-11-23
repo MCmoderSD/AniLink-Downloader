@@ -12,26 +12,22 @@
       [canForward]="trail.canForward()"
       [canUp]="folder() !== ''"
       [canHome]="folder() !== ''"
-      [treeOpen]="treeShown()"
       (back)="back()"
       (forward)="forward()"
       (up)="up()"
       (home)="home()"
       (refresh)="refresh()"
-      (treeToggled)="toggleTree()"
     />
 
     <app-file-breadcrumb class="files-crumbs" [path]="folder()"/>
   </div>
 
-  <div class="files-layout" [class.files-layout-tree]="treeShown()">
-    @if (treeShown()) {
-      <aside class="files-tree app-panel" aria-label="Folder tree">
-        <div class="files-tree-scroll">
-          <app-file-tree [current]="folder()" (opened)="open($event)"/>
-        </div>
-      </aside>
-    }
+  <div class="files-layout">
+    <aside class="files-tree app-panel" aria-label="Folder tree">
+      <div class="files-tree-scroll" #treeScroll>
+        <app-file-tree [current]="folder()" (opened)="open($event)"/>
+      </div>
+    </aside>
 
     <div class="files-main">
       @if (listing()) {
