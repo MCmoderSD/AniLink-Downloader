@@ -56,7 +56,6 @@ export interface TreeRow {
   node: TreeNode;
   depth: number;
   open: boolean;
-  loading: boolean;
 }
 
 export type FileStreamMessage = { type: 'changed'; paths: string[] } | { type: 'reset' };

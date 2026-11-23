@@ -41,8 +41,7 @@ public sealed class FileBrowser(
 
     public FileBatchResponse Delete(IReadOnlyList<string> requested)
     {
-        var deleted = new List<string>();
-        var results = requested.Distinct(StringComparer.Ordinal).Select(relative => Delete(relative, deleted)).ToList();
+        var results = requested.Distinct(StringComparer.Ordinal).Select(Delete).ToList();
 
         logger.LogInformation(
             "Deleted {Done} of {Total} items of the downloads folder, {Locked} in use, {Failed} failed",
@@ -54,20 +53,18 @@ public sealed class FileBrowser(
         return new FileBatchResponse(results);
     }
 
-    private FileResultResponse Delete(string relative, List<string> deleted)
+    private FileResultResponse Delete(string relative)
     {
         return paths.Resolve(relative, true) switch
         {
             PathInvalid invalid => Result(relative, FileOutcome.Invalid, invalid.Reason),
             PathMissing => Result(relative, FileOutcome.Missing, "It is no longer there."),
-            PathResolved resolved => Remove(resolved, deleted)
+            PathResolved resolved => Remove(resolved)
         };
     }
 
-    private FileResultResponse Remove(PathResolved resolved, List<string> deleted)
+    private FileResultResponse Remove(PathResolved resolved)
     {
-        if (deleted.Any(parent => PathScope.IsInside(resolved.Full, parent))) return Result(resolved.Relative, FileOutcome.Done);
-
         using var claim = gate.TryClaim(resolved.Full, out var blockers);
 
         if (claim is null)
@@ -102,7 +99,6 @@ public sealed class FileBrowser(
             return Result(resolved.Relative, FileOutcome.Failed, exception is UnauthorizedAccessException ? "It cannot be deleted: access is denied." : "It cannot be deleted: another program is using it.");
         }
 
-        deleted.Add(resolved.Full);
         totals.Invalidate(resolved.Full);
         changes.Report(resolved.Full);
 
