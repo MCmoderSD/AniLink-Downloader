@@ -24,7 +24,6 @@ export interface FileEntry {
 
 export interface FolderListing {
   path: string;
-  root: string;
   entries: FileEntry[];
 }
 

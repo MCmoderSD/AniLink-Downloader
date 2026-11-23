@@ -179,7 +179,7 @@ public sealed class FileBrowser(
                 .Select(entry => Describe(entry, resolved.Relative, active))
                 .ToList();
 
-            return new ListingFound(new FolderListingResponse(resolved.Relative, paths.Root, entries));
+            return new ListingFound(new FolderListingResponse(resolved.Relative, entries));
         }
         catch (DirectoryNotFoundException)
         {

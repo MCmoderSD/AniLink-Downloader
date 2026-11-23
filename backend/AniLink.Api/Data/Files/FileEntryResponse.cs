@@ -34,6 +34,5 @@ public sealed record FileEntryResponse(
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record FolderListingResponse(
     string Path,
-    string Root,
     IReadOnlyList<FileEntryResponse> Entries
 );
