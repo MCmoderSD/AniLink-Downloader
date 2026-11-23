@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, input, InputSignal, output, OutputEmitterRef, signal, Signal, untracked, WritableSignal } from '@angular/core';
+import { afterNextRender, Component, computed, effect, ElementRef, inject, Injector, input, InputSignal, output, OutputEmitterRef, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { fileType } from '../../data/file-types';
 import { EntryKind, parentPath, ROOT_NAME, TreeRow } from '../../data/files';
@@ -26,6 +26,9 @@ export class FileTreeComponent {
 
   private readonly tree: FileTreeService = inject(FileTreeService);
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef<HTMLElement>);
+  private readonly injector: Injector = inject(Injector);
+
+  private revealed: string | null = null;
 
   readonly current: InputSignal<string> = input.required<string>();
 
@@ -69,6 +72,18 @@ export class FileTreeComponent {
       const current: string = this.current();
 
       untracked((): void => this.tree.reveal(current));
+    });
+
+    effect((): void => {
+      const current: string = this.current();
+      const present: boolean = this.items().some((item: TreeItem): boolean => item.path === current);
+
+      untracked((): void => {
+        if (!present || this.revealed === current) return;
+
+        this.revealed = current;
+        afterNextRender((): void => this.showCurrent(), { injector: this.injector });
+      });
     });
   }
 
@@ -137,6 +152,17 @@ export class FileTreeComponent {
     }
 
     return index;
+  }
+
+  private showCurrent(): void {
+    const scroller: HTMLElement = this.host.nativeElement;
+    const current: HTMLElement | null = scroller.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!current) return;
+
+    const frame: DOMRect = scroller.getBoundingClientRect();
+    const row: DOMRect = current.getBoundingClientRect();
+
+    if (row.top < frame.top || row.bottom > frame.bottom) scroller.scrollTop += (row.top + row.height / 2) - (frame.top + frame.height / 2);
   }
 
   private focusAt(index: number): void {

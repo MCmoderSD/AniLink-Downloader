@@ -1,15 +1,18 @@
-import { afterNextRender, Component, computed, effect, ElementRef, inject, Injector, input, InputSignal, linkedSignal, signal, Signal, untracked, viewChild, WritableSignal } from '@angular/core';
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { Component, computed, effect, inject, input, InputSignal, linkedSignal, signal, Signal, untracked, WritableSignal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 import { ConfirmActionDialogComponent } from '../../components/confirm-action-dialog-component/confirm-action-dialog.component';
 import { FileBreadcrumbComponent } from '../../components/file-breadcrumb-component/file-breadcrumb.component';
 import { FileListComponent, FileToggle } from '../../components/file-list-component/file-list.component';
 import { FileNavComponent } from '../../components/file-nav-component/file-nav.component';
 import { FileToolbarComponent } from '../../components/file-toolbar-component/file-toolbar.component';
 import { FileTreeComponent } from '../../components/file-tree-component/file-tree.component';
-import { compareEntries, fileCount, FileBatch, FileEntry, FilesPhase, FolderListing, isLocked, lastName, parentPath, summarizeDeletion, Summary, TreeRow } from '../../data/files';
+import { compareEntries, fileCount, FileBatch, FileEntry, FilesPhase, FolderListing, isLocked, lastName, parentPath, summarizeDeletion, Summary } from '../../data/files';
 import { formatBytes } from '../../data/format';
 import { FileSyncService } from '../../services/file-sync.service';
 import { FileTrail } from '../../services/file-trail';
@@ -19,6 +22,7 @@ import { errorMessage } from '../../services/http-error';
 import { NotificationService } from '../../services/notification.service';
 
 const LISTED_NAMES: number = 10;
+const TREE_QUERY: string = '(min-width: 48rem)';
 
 @Component({
   selector: 'app-files-page',
@@ -34,15 +38,14 @@ export class FilesPageComponent {
   private readonly notifications: NotificationService = inject(NotificationService);
   private readonly dialog: MatDialog = inject(MatDialog);
   private readonly router: Router = inject(Router);
-  private readonly tree: FileTreeService = inject(FileTreeService);
-  private readonly injector: Injector = inject(Injector);
 
   private readonly working: WritableSignal<boolean> = signal(false);
-  private readonly treeScroll: Signal<ElementRef<HTMLElement> | undefined> = viewChild<ElementRef<HTMLElement>>('treeScroll');
-
-  private revealed: string | null = null;
 
   protected readonly trail: FileTrail = new FileTrail();
+
+  protected readonly treeShown: Signal<boolean> = toSignal(
+    inject(BreakpointObserver).observe(TREE_QUERY).pipe(map((state: BreakpointState): boolean => state.matches)),
+    { requireSync: true });
 
   readonly path: InputSignal<string | undefined> = input<string>();
 
@@ -114,18 +117,6 @@ export class FilesPageComponent {
         void this.router.navigate(['/files'], { queryParams: { path: parent || null }, replaceUrl: true });
       });
     });
-
-    effect((): void => {
-      const folder: string = this.folder();
-      const present: boolean = folder === '' || this.tree.rows().some((row: TreeRow): boolean => row.node.path === folder);
-
-      untracked((): void => {
-        if (!present || this.revealed === folder) return;
-
-        this.revealed = folder;
-        afterNextRender((): void => this.showCurrentInTree(), { injector: this.injector });
-      });
-    });
   }
 
   protected back(): void {
@@ -150,17 +141,6 @@ export class FilesPageComponent {
 
   protected open(folder: string): void {
     this.go(folder);
-  }
-
-  private showCurrentInTree(): void {
-    const scroller: HTMLElement | undefined = this.treeScroll()?.nativeElement;
-    const current: HTMLElement | null | undefined = scroller?.querySelector<HTMLElement>('[aria-selected="true"]');
-    if (!scroller || !current) return;
-
-    const frame: DOMRect = scroller.getBoundingClientRect();
-    const row: DOMRect = current.getBoundingClientRect();
-
-    if (row.top < frame.top || row.bottom > frame.bottom) scroller.scrollTop += (row.top + row.height / 2) - (frame.top + frame.height / 2);
   }
 
   private go(folder: string | null): void {

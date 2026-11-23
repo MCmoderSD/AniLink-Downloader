@@ -23,11 +23,11 @@
   </div>
 
   <div class="files-layout">
-    <aside class="files-tree app-panel" aria-label="Folder tree">
-      <div class="files-tree-scroll" #treeScroll>
+    @if (treeShown()) {
+      <aside class="files-tree app-panel" aria-label="Folder tree">
         <app-file-tree [current]="folder()" (opened)="open($event)"/>
-      </div>
-    </aside>
+      </aside>
+    }
 
     <div class="files-main">
       @if (listing()) {
