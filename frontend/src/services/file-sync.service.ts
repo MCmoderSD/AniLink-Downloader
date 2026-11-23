@@ -29,6 +29,7 @@ export class FileSyncService {
   private serial: number = 0;
   private listener: StreamListener | null = null;
   private folder: string = '';
+  private listed: string | null = null;
   private started: boolean = false;
   private generation: number = 0;
   private running: boolean = false;
@@ -92,7 +93,6 @@ export class FileSyncService {
     this.folder = path;
     this.generation++;
 
-    this.current.set(null);
     this.state.set('loading');
     this.reason.set('');
 
@@ -138,16 +138,20 @@ export class FileSyncService {
 
   private async load(): Promise<void> {
     const generation: number = this.generation;
+    const folder: string = this.folder;
 
     try {
-      const listing: FolderListing = await this.files.list(this.folder);
+      const listing: FolderListing = await this.files.list(folder);
       if (generation !== this.generation) return;
 
       this.current.set(listing);
+      this.listed = folder;
       this.state.set('ready');
       this.reason.set('');
     } catch (error: unknown) {
       if (generation !== this.generation) return;
+
+      if (this.listed !== folder) this.current.set(null);
 
       const status: number = error instanceof HttpErrorResponse ? error.status : 0;
 

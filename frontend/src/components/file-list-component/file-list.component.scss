@@ -36,6 +36,20 @@
 
 .files-row {
   position: relative;
+  animation: files-row-in 180ms var(--app-ease) both;
+}
+
+@keyframes files-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .files-row {
+    animation: none;
+  }
 }
 
 .files-row > td {
