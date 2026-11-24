@@ -1,6 +1,6 @@
 {
   "name": "ani-link",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -40,7 +40,7 @@
   "allowScripts": {
     "@parcel/watcher@2.6.0": true,
     "msgpackr-extract@3.0.7": true,
-    "lmdb@3.5.6": true,
+    "lmdb@3.5.9": true,
     "esbuild@0.28.2": true
   }
 }
