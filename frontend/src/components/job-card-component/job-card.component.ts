@@ -47,11 +47,13 @@ export class JobCardComponent {
 
   protected readonly running: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
 
-  protected readonly canPause: Signal<boolean> = computed((): boolean =>
+  private readonly downloading: Signal<boolean> = computed((): boolean =>
     this.job().items.some((item: Item): boolean => item.stage === 'ResolvingLinks' || item.stage === 'Downloading'));
 
+  protected readonly canPause: Signal<boolean> = this.downloading;
+
   protected readonly canCancelUnpack: Signal<boolean> = computed((): boolean =>
-    this.job().items.some((item: Item): boolean => item.stage === 'Extracting'));
+    !this.downloading() && this.job().items.some((item: Item): boolean => item.stage === 'Extracting'));
 
   private readonly unpackingOnly: Signal<boolean> = computed((): boolean =>
     this.canCancelUnpack() && this.job().items
@@ -73,7 +75,7 @@ export class JobCardComponent {
   protected readonly ready: Signal<number> = computed((): number =>
     this.job().items.filter((item: Item): boolean => item.stage === 'Downloaded').length);
 
-  protected readonly canUnpack: Signal<boolean> = computed((): boolean => this.ready() > 0);
+  protected readonly canUnpack: Signal<boolean> = computed((): boolean => !this.downloading() && this.ready() > 0);
 
   private readonly changeable: Signal<Item[]> = computed((): Item[] =>
     this.job().items.filter((item: Item): boolean => item.canChangeUnpack));
