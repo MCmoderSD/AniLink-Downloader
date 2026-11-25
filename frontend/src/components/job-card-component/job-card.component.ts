@@ -47,11 +47,10 @@ export class JobCardComponent {
 
   protected readonly running: Signal<boolean> = computed((): boolean => this.job().status === 'Active');
 
-  protected readonly canPause: Signal<boolean> = computed((): boolean =>
-    this.job().items.some((item: Item): boolean => item.stage === 'ResolvingLinks' || item.stage === 'Downloading'));
-
   private readonly downloading: Signal<boolean> = computed((): boolean =>
     this.job().items.some((item: Item): boolean => item.stage === 'ResolvingLinks' || item.stage === 'Downloading'));
+
+  protected readonly canPause: Signal<boolean> = this.downloading;
 
   protected readonly canCancelUnpack: Signal<boolean> = computed((): boolean =>
     !this.downloading() && this.job().items.some((item: Item): boolean => item.stage === 'Extracting'));
