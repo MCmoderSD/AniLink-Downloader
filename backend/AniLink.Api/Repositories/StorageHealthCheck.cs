@@ -5,10 +5,12 @@ namespace AniLink.Api.Repositories;
 
 public sealed class StorageHealthCheck(DownloadOptions options) : IHealthCheck
 {
+    public const string ProbeName = ".anilink-health";
+
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var probe = Path.Combine(options.Root, ".anilink-health");
+        var probe = Path.Combine(options.Root, ProbeName);
 
         try
         {

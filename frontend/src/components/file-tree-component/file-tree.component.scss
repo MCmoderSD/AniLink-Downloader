@@ -1,0 +1,85 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.tree {
+  display: grid;
+  gap: 0.0625rem;
+  font: var(--mat-sys-body-medium);
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  min-height: 2rem;
+  padding-block: 0.125rem;
+  padding-inline-end: 0.5rem;
+  border-radius: var(--app-radius-sm);
+  color: var(--mat-sys-on-surface);
+  cursor: pointer;
+  transition: background-color var(--app-timing-fast);
+
+  &:hover {
+    background: var(--app-tint-hover);
+  }
+}
+
+//noinspection CssUnusedSymbol
+.tree-item-current {
+  background: color-mix(in srgb, var(--mat-sys-primary) 16%, transparent);
+  font-weight: 500;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-primary) 22%, transparent);
+  }
+}
+
+.tree-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--app-radius-sm);
+  color: var(--mat-sys-on-surface-variant);
+
+  &:hover {
+    background: var(--app-tint-pressed);
+  }
+}
+
+.tree-chevron-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
+.tree-icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--mat-sys-primary);
+  font-size: 1.25rem;
+}
+
+.tree-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  .tree-item {
+    min-height: 2.75rem;
+  }
+
+  .tree-chevron {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}

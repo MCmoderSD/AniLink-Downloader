@@ -85,9 +85,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
 
         if (!name.Equals(Workspace.ArchivesFolder, StringComparison.Ordinal) && !name.Equals(Workspace.OutputFolder, StringComparison.Ordinal)) return false;
 
-        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-
-        return !Path.TrimEndingDirectorySeparator(entry.Directory).Equals(Path.TrimEndingDirectorySeparator(entry.RootDirectory), comparison);
+        return !Path.TrimEndingDirectorySeparator(entry.Directory).Equals(Path.TrimEndingDirectorySeparator(entry.RootDirectory), PathScope.Comparison);
     }
 
     public async Task<JobManifest?> ReadAsync(string path)
@@ -170,7 +168,7 @@ public sealed class JobManifestStore(ILogger<JobManifestStore> logger)
         try
         {
             var path = job.Workspace.Manifest;
-            var temporary = path + ".tmp";
+            var temporary = Path.Combine(job.Workspace.Root, Workspace.ManifestTemporaryName);
 
             Directory.CreateDirectory(job.Workspace.Root);
             await File.WriteAllTextAsync(temporary, JsonSerializer.Serialize(JobManifest.From(job), Options));

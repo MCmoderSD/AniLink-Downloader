@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+@media (pointer: coarse) {
+  .nav {
+    gap: 0.25rem;
+  }
+}

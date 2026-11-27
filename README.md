@@ -6,8 +6,9 @@ film, and it creates the direct download links with [Debrid-Link](https://debrid
 archive parts, unpacks them with 7-Zip and puts the renamed video into a folder named after the show.
 
 Everything stays local: there is no account, no login and no database. 7-Zip is part of the image, so Docker is the
-only thing you have to install. The web page is laid out for a phone as well as for a desktop. Decoding a DLC file is
-the one exception to everything staying local: its key part is sent to the JDownloader key service.
+only thing you have to install. The web page is laid out for a phone as well as for a desktop, and its Files tab shows
+the downloads folder live and lets you delete from it. Decoding a DLC file is the one exception to everything staying
+local: its key part is sent to the JDownloader key service.
 
 **The documentation is in the [wiki](https://github.com/MCmoderSD/AniLink-Downloader/wiki):**
 [Installation](https://github.com/MCmoderSD/AniLink-Downloader/wiki/Installation) ·
@@ -71,8 +72,9 @@ The examples in this README and in the wiki are purely illustrative.
 For your own protection, always use a **VPN**, since not all websites or hosters are safe and trustworthy.
 Only download and process content that is **public domain, self-created, or explicitly free of copyright restrictions**.
 
-The web page has no authentication, because it is meant for your own machine or network. **Do not expose port 8080 to
-the internet**; put it behind a VPN or a reverse proxy with authentication if it has to be reachable from outside.
+The web page has no authentication, because it is meant for your own machine or network. Whoever can open it can also
+delete files from the downloads folder. **Do not expose port 8080 to the internet**; put it behind a VPN or a reverse
+proxy with authentication if it has to be reachable from outside.
 
 ## License
 BSD 3-Clause, see [LICENSE](LICENSE).

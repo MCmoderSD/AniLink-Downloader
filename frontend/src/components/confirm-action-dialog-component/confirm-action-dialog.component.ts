@@ -10,6 +10,8 @@ export interface ConfirmActionDialogData {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  items?: readonly string[];
+  tone?: 'danger';
 }
 
 @Component({

@@ -47,3 +47,5 @@ public class StreamHub
 }
 
 public sealed class ProgressHub : StreamHub;
+
+public sealed class FileHub : StreamHub;

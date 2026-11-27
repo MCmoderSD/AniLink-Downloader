@@ -10,10 +10,13 @@ public sealed class DownloadService(
     DownloadOptions options,
     ArchiveOptions archive,
     JobRepository jobs,
+    WorkspaceGate gate,
     DownloadPipeline pipeline,
     ProgressHub hub,
     ILogger<DownloadService> logger
 ) {
+    private const string FolderBeingDeleted = "The folder of this download is being deleted. Try again in a moment.";
+
     public ConfigResponse GetConfig()
     {
         return new ConfigResponse(options.MaxConcurrency, archive.Passwords.Count, options.Root, LimitsResponse.Current);
@@ -58,35 +61,42 @@ public sealed class DownloadService(
         int? season = request.Kind is ReleaseKind.Season ? request.Season ?? analysis.Season ?? 1 : null;
         var workspace = Workspace.For(options.Root, name, request.Kind, season);
 
-        if (jobs.FindActive(workspace.Root) is not null)
+        DownloadJob job;
+
+        lock (gate.Sync)
         {
-            return new DownloadConflict($"{name} is already being downloaded into {workspace.Root}.");
+            if (gate.IsBeingDeleted(workspace.Root)) return new DownloadConflict($"{name}: {FolderBeingDeleted}");
+
+            if (jobs.FindActive(workspace.Root) is not null)
+            {
+                return new DownloadConflict($"{name} is already being downloaded into {workspace.Root}.");
+            }
+
+            var passwords = new PasswordBook(archive.Passwords);
+            foreach (var password in (request.Passwords ?? []).Reverse()) passwords.Add(password);
+            if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
+
+            job = new DownloadJob(
+                Guid.NewGuid(),
+                name,
+                DateTimeOffset.UtcNow,
+                new Release(request.Kind, season, analysis.Format?.Prefix),
+                workspace,
+                passwords);
+
+            foreach (var group in analysis.Episodes) job.AddItem(group.Number, group.Parts, request.Unpack);
+
+            try
+            {
+                workspace.Prepare(job.Items);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                return new DownloadInvalid($"The folder {workspace.Root} could not be prepared: {exception.Message}");
+            }
+
+            jobs.Add(job);
         }
-
-        var passwords = new PasswordBook(archive.Passwords);
-        foreach (var password in (request.Passwords ?? []).Reverse()) passwords.Add(password);
-        if (!string.IsNullOrWhiteSpace(request.Password)) passwords.Add(request.Password);
-
-        var job = new DownloadJob(
-            Guid.NewGuid(),
-            name,
-            DateTimeOffset.UtcNow,
-            new Release(request.Kind, season, analysis.Format?.Prefix),
-            workspace,
-            passwords);
-
-        foreach (var group in analysis.Episodes) job.AddItem(group.Number, group.Parts, request.Unpack);
-
-        try
-        {
-            workspace.Prepare(job.Items);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            return new DownloadInvalid($"The folder {workspace.Root} could not be prepared: {exception.Message}");
-        }
-
-        jobs.Add(job);
 
         var parts = job.Parts.Count();
         job.Log(NoticeLevel.Info, $"{name}: {job.Items.Count} {(request.Kind is ReleaseKind.Movie ? "file" : job.Items.Count == 1 ? "episode" : "episodes")}, {parts} {(parts == 1 ? "part" : "parts")}, saving to {workspace.Root}{(request.Unpack ? "" : ", unpacking on request")}");
@@ -122,7 +132,12 @@ public sealed class DownloadService(
 
     public ActionOutcome Retry(Guid id)
     {
-        return Apply(id, pipeline.Retry, "Nothing failed or was canceled in this download.");
+        lock (gate.Sync)
+        {
+            if (jobs.Get(id) is { } job && gate.IsBeingDeleted(job.Workspace.Root)) return new ActionRejected(FolderBeingDeleted);
+
+            return Apply(id, pipeline.Retry, "Nothing failed or was canceled in this download.");
+        }
     }
 
     public ActionOutcome SetUnpack(Guid id, bool wanted)
@@ -177,7 +192,12 @@ public sealed class DownloadService(
 
     public ActionOutcome RetryItem(Guid id, int number)
     {
-        return ApplyToItem(id, number, pipeline.RetryItem, "This item neither failed nor was canceled.");
+        lock (gate.Sync)
+        {
+            if (jobs.Get(id) is { } job && gate.IsBeingDeleted(job.Workspace.Root)) return new ActionRejected(FolderBeingDeleted);
+
+            return ApplyToItem(id, number, pipeline.RetryItem, "This item neither failed nor was canceled.");
+        }
     }
 
     public bool RemoveItem(Guid id, int number)

@@ -1,0 +1,21 @@
+<div class="nav" role="group" aria-label="Navigation">
+  <button mat-icon-button type="button" aria-label="Back" title="Back" [disabled]="!canBack()" (click)="back.emit()">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+  </button>
+
+  <button mat-icon-button type="button" aria-label="Forward" title="Forward" [disabled]="!canForward()" (click)="forward.emit()">
+    <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+  </button>
+
+  <button mat-icon-button type="button" aria-label="Up one level" title="Up one level" [disabled]="!canUp()" (click)="up.emit()">
+    <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+  </button>
+
+  <button mat-icon-button type="button" aria-label="Home" title="Home" [disabled]="!canHome()" (click)="home.emit()">
+    <mat-icon aria-hidden="true">home</mat-icon>
+  </button>
+
+  <button mat-icon-button type="button" aria-label="Refresh" title="Refresh" (click)="refresh.emit()">
+    <mat-icon aria-hidden="true">refresh</mat-icon>
+  </button>
+</div>

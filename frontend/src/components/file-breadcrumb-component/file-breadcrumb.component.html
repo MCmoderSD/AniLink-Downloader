@@ -1,0 +1,31 @@
+<nav aria-label="Folder">
+  <ol class="crumbs">
+    <li class="crumbs-item">
+      @if (crumbs().length === 0) {
+        <span class="crumb crumb-current" aria-current="page">
+          <mat-icon class="crumb-icon" aria-hidden="true">folder_open</mat-icon>
+          <span class="crumb-hidden">Root folder</span>
+          <span aria-hidden="true">{{ root }}</span>
+        </span>
+      } @else {
+        <a class="crumb" routerLink="/files">
+          <mat-icon class="crumb-icon" aria-hidden="true">folder_open</mat-icon>
+          <span class="crumb-hidden">Root folder</span>
+          <span aria-hidden="true">{{ root }}</span>
+        </a>
+      }
+    </li>
+
+    @for (crumb of crumbs(); track crumb.path; let last = $last) {
+      <li class="crumbs-item">
+        <mat-icon class="crumb-separator" aria-hidden="true">chevron_right</mat-icon>
+
+        @if (last) {
+          <span class="crumb crumb-current" aria-current="page">{{ crumb.name }}</span>
+        } @else {
+          <a class="crumb" routerLink="/files" [queryParams]="{ path: crumb.path }">{{ crumb.name }}</a>
+        }
+      </li>
+    }
+  </ol>
+</nav>

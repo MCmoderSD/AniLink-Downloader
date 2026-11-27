@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--mat-sys-body-large);
+}
+
+.crumbs-item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--app-radius-sm);
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.crumb {
+  color: var(--mat-sys-primary);
+  transition: background-color var(--app-timing-fast);
+
+  &:hover {
+    background: var(--app-tint-hover);
+  }
+}
+
+//noinspection CssUnusedSymbol
+.crumb-current {
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+}
+
+.crumb-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.crumb-icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
+.crumb-separator {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--mat-sys-outline);
+  font-size: 1.25rem;
+}
+
+// On a phone the path stays on one line and scrolls sideways, so the folder shown is always the one in view.
+@media (max-width: 40rem) {
+  nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .crumbs {
+    flex-wrap: nowrap;
+  }
+
+  .crumbs-item {
+    flex: none;
+  }
+
+  .crumb {
+    white-space: nowrap;
+  }
+}

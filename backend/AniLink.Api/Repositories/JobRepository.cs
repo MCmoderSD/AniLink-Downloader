@@ -22,11 +22,19 @@ public sealed class JobRepository(JobManifestStore manifests)
         _jobs[job.Id] = job;
     }
 
+    public static bool IsActive(JobStatus status)
+    {
+        return status is JobStatus.Active or JobStatus.Paused or JobStatus.PasswordRequired or JobStatus.Downloaded;
+    }
+
+    public IReadOnlyList<DownloadJob> ListActive()
+    {
+        return [.. _jobs.Values.Where(job => IsActive(job.Status))];
+    }
+
     public DownloadJob? FindActive(string workdir)
     {
-        return _jobs.Values.FirstOrDefault(job =>
-            string.Equals(Path.GetFullPath(job.Workspace.Root), Path.GetFullPath(workdir), StringComparison.OrdinalIgnoreCase)
-            && job.Status is JobStatus.Active or JobStatus.Paused or JobStatus.PasswordRequired or JobStatus.Downloaded);
+        return ListActive().FirstOrDefault(job => string.Equals(Path.GetFullPath(job.Workspace.Root), Path.GetFullPath(workdir), StringComparison.OrdinalIgnoreCase));
     }
 
     public DownloadJob? Remove(Guid id)

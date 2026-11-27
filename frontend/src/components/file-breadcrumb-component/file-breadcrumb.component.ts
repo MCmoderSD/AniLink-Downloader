@@ -1,0 +1,30 @@
+import { afterRenderEffect, Component, computed, ElementRef, inject, input, InputSignal, Signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { Crumb, breadcrumbs, ROOT_NAME } from '../../data/files';
+
+@Component({
+  selector: 'app-file-breadcrumb',
+  templateUrl: './file-breadcrumb.component.html',
+  styleUrls: ['./file-breadcrumb.component.scss'],
+  imports: [MatIconModule, RouterLink]
+})
+export class FileBreadcrumbComponent {
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef<HTMLElement>);
+
+  readonly path: InputSignal<string> = input.required<string>();
+
+  protected readonly root: string = ROOT_NAME;
+
+  protected readonly crumbs: Signal<Crumb[]> = computed((): Crumb[] => breadcrumbs(this.path()));
+
+  constructor() {
+    afterRenderEffect((): void => {
+      this.path();
+
+      const nav: HTMLElement | null = this.host.nativeElement.querySelector('nav');
+      if (nav) nav.scrollLeft = nav.scrollWidth;
+    });
+  }
+}

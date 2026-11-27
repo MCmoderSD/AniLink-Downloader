@@ -14,6 +14,7 @@ public static class FeatureServiceCollectionExtensions
         services.AddSingleton<JobManifestStore>();
         services.AddHostedService<ManifestFlusher>();
         services.AddSingleton<JobRepository>();
+        services.AddSingleton<WorkspaceGate>();
         services.AddSingleton<ProgressHub>();
 
         services.AddSingleton<DownloadScheduler>();

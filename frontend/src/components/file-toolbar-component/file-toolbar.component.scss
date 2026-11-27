@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.toolbar-summary {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+// On a phone the bar is one row: the number and the size, then the two buttons; the number of files is left out.
+@media (max-width: 40rem) {
+  .toolbar {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+
+  .toolbar-summary {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toolbar-files {
+    display: none;
+  }
+
+  .toolbar-actions {
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+}

@@ -1,0 +1,325 @@
+:host {
+  display: block;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.files-hidden {
+  @include visually-hidden;
+}
+
+.files {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem;
+  font: var(--mat-sys-body-medium);
+}
+
+:where(.files) :where(th, td) {
+  padding: 0.25rem 0.75rem;
+  text-align: start;
+  vertical-align: middle;
+}
+
+.files-head th {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-medium);
+  font-weight: 500;
+}
+
+.files-row {
+  position: relative;
+  animation: files-row-in 180ms var(--app-ease) both;
+}
+
+@keyframes files-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .files-row {
+    animation: none;
+  }
+}
+
+.files-row > td {
+  background: var(--mat-sys-surface-container);
+  transition: background-color var(--app-timing-fast);
+
+  &:first-child {
+    border-start-start-radius: var(--app-radius-md);
+    border-end-start-radius: var(--app-radius-md);
+  }
+
+  &:last-child {
+    border-start-end-radius: var(--app-radius-md);
+    border-end-end-radius: var(--app-radius-md);
+  }
+}
+
+.files-row:hover > td {
+  background: color-mix(in srgb, var(--mat-sys-surface-container) 100%, white 4%);
+}
+
+//noinspection CssUnusedSymbol
+.files-row-selected > td,
+//noinspection CssUnusedSymbol
+.files-row-selected:hover > td {
+  background: color-mix(in srgb, var(--mat-sys-primary) 14%, var(--mat-sys-surface-container));
+}
+
+.files-row:has(.files-link) {
+  cursor: pointer;
+}
+
+// The columns beside the name are as wide as their content, so the gaps between them stay small.
+.files-check,
+.files-count,
+.files-size,
+.files-time {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.files-check {
+  padding-inline: 0.25rem 0.125rem;
+}
+
+.files-check mat-checkbox {
+  --mat-checkbox-state-layer-size: 2rem;
+
+  position: relative;
+  z-index: 1;
+}
+
+.files-name {
+  width: 100%;
+  max-width: 0;
+  padding-inline: 0.125rem 0.5rem;
+}
+
+.files-size,
+.files-count {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.files-count {
+  padding-inline: 0.25rem;
+}
+
+.files-size {
+  padding-inline: 0.25rem 0.375rem;
+}
+
+.files-unit {
+  display: none;
+}
+
+.files-time {
+  padding-inline: 0.375rem 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.files-name-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.files-icon {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--mat-sys-primary);
+  font-size: 1.5rem;
+}
+
+.files-name-text {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.files-link {
+  display: block;
+  overflow: hidden;
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--mat-sys-primary);
+    text-decoration: underline;
+  }
+
+  // The link covers its whole row, so the row opens the folder; the checkbox cell sits above it.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    border-radius: var(--app-radius-md);
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+}
+
+.files-label {
+  display: flex;
+  min-width: 0;
+}
+
+.files-head-part {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.files-tail-part {
+  flex: none;
+  white-space: pre;
+}
+
+.files-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.files-lock-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--app-warning);
+  font-size: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .files,
+  .files thead,
+  .files tbody {
+    display: block;
+  }
+
+  .files {
+    border-spacing: 0;
+  }
+
+  .files-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    padding-inline: 0.5rem;
+
+    .files-check,
+    .files-name {
+      width: auto;
+      max-width: none;
+    }
+
+    .files-size,
+    .files-count,
+    .files-time {
+      @include visually-hidden;
+    }
+  }
+
+  // Two lines on one card: the checkbox, the icon and the name, then, under the name, number of files, size and time.
+  .files-row {
+    display: grid;
+    grid-template-columns: auto 2rem auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'check name name name name'
+      '. . count size time';
+    align-items: center;
+    margin-block-end: 0.25rem;
+    padding: 0.25rem 0.5rem 0.5rem;
+    border-radius: var(--app-radius-md);
+    background: var(--mat-sys-surface-container);
+  }
+
+  //noinspection CssUnusedSymbol
+  .files-row-selected {
+    background: color-mix(in srgb, var(--mat-sys-primary) 14%, var(--mat-sys-surface-container));
+  }
+
+  .files-row > td {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .files-row:hover > td,
+  .files-row-selected > td,
+  .files-row-selected:hover > td {
+    background: none;
+  }
+
+  .files-row > .files-check {
+    grid-area: check;
+    width: auto;
+    margin-inline-end: 0.25rem;
+  }
+
+  .files-row > .files-name {
+    grid-area: name;
+    width: auto;
+    max-width: none;
+  }
+
+  .files-row > .files-count,
+  .files-row > .files-size,
+  .files-row > .files-time {
+    width: auto;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+    text-align: start;
+  }
+
+  .files-row > .files-count {
+    grid-area: count;
+    padding-inline-end: 0.75rem;
+  }
+
+  //noinspection CssUnusedSymbol
+  .files-row > .files-count-empty {
+    display: none;
+  }
+
+  .files-row > .files-size {
+    grid-area: size;
+    padding-inline-end: 0.75rem;
+  }
+
+  .files-row > .files-time {
+    grid-area: time;
+    white-space: normal;
+  }
+
+  .files-unit {
+    display: inline;
+  }
+}
